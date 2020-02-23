@@ -33,7 +33,7 @@
 
 - name: generate virtualenv.
   command:
-    "virtualenv env_tunneldigger"
+    "python -m virtualenv env_tunneldigger"
   args:
     chdir: /srv/tunneldigger/
     creates: "/srv/tunneldigger/env_tunneldigger/bin/python"

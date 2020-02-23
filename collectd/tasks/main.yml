@@ -3,7 +3,7 @@
 
 - name: install required packages
   apt:
-    pkg: ['collectd', 'python-pip']
+    pkg: ['collectd', 'python-pip', 'python3-pip', 'python3-venv', 'python-setuptools', 'python3-setuptools', 'liboping0']
     update_cache: yes
     state: present
 
