@@ -27,9 +27,9 @@ auto tun-ffgt-{{tun.name}}
 iface tun-ffgt-{{tun.name}} inet static
         address {{tun.v4_local | ipaddr('address')}}
         netmask {{tun.v4_local | ipaddr('netmask')}}
-        pre-up ip tunnel add $IFACE mode gre local {{tun.gre_source | ipaddr('address') }} remote {{tun.gre_target | ipaddr('address') }} ttl 255
+        pre-up ip -6 tunnel add $IFACE mode ip6gre local {{tun.gre_source | ipaddr('address') }} remote {{tun.gre_target | ipaddr('address') }} ttl 255
         post-up ip link set $IFACE mtu 1400
-        post-down ip tunnel del $IFACE
+        post-down ip -6 tunnel del $IFACE
         post-up ip rule add iif $IFACE lookup ffnet
         pre-down ip rule del iif $IFACE lookup ffnet ||:
 iface tun-ffnw-{{tun.name}} inet6 static
