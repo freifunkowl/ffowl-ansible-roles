@@ -1,9 +1,10 @@
 ---
 # Collectd-Daemon fuer Gateway Server
+# , 'python3-pip', 'python3-venv', 'python3-setuptools'
 
 - name: install required packages
   apt:
-    pkg: ['collectd', 'python-pip', 'python3-pip', 'python3-venv', 'python-setuptools', 'python3-setuptools', 'liboping0']
+    pkg: ['collectd', 'python-pip', 'python-setuptools', 'liboping0', 'python3-setuptools', 'python3-pip']
     update_cache: yes
     state: present
 
