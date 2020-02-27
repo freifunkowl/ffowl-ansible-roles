@@ -33,8 +33,8 @@ iface tun-ffgt-{{tun.name}} inet static
         post-up ip rule add iif $IFACE lookup ffnet
         pre-down ip rule del iif $IFACE lookup ffnet ||:
 iface tun-ffnw-{{tun.name}} inet6 static
-        address {{tun.v6_local }}
-        netmask {{tun.v6_remote | ipaddr('prefix')}}
+        address {{tun.v6_local | ipaddr('address')}}
+        netmask {{tun.v6_local | ipaddr('prefix')}}
         post-up ip -6 rule add iif $IFACE lookup ffnet
         pre-down ip -6 rule del iif $IFACE lookup ffnet ||:
 {% endfor %}
