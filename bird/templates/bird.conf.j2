@@ -5,9 +5,55 @@ router id {{ vm_id }};
 
 table ffnet;
 
+filter freifunk {
+{% if ffrl_tun is defined %}
+	# FFRL
+	if net ~ [185.66.192.0/22+] then accept;
+{% endif %}
+{% if ffnw_tun is defined %}
+	# FFNW
+	if net ~ [185.197.132.0/24+] then accept;
+{% endif %}
+{% if ffnw_tun is defined %}
+	# FFgt
+	if net ~ [192.251.226.0/24+, 193.26.120.0/24+] then accept;
+{% endif %}
+
+	if net ~ [10.0.0.0/8+] then accept;
+{% if not ffrl_tun is defined and not ffnw_tun is defined and not ffgt_tun is defined %}
+	if net ~ [0.0.0.0/0] then accept;
+{% endif %}
+
+	# interne Tunnel-IPs
+	if net ~ [192.168.0.0/16+] then accept;
+	reject;
+};
+
+filter hostroute {
+{% if ffrl_nat_ip is defined %}
+	if net ~ {{ffrl_nat_ip | ipaddr('address')}}/32 then accept;
+{% endif %}
+{% if ffnw_nat_ip is defined %}
+	if net ~ {{ffnw_nat_ip | ipaddr('address')}}/32 then accept;
+{% endif %}
+{% if ffgt_nat_ip is defined %}
+	if net ~ {{ffgt_nat_ip | ipaddr('address')}}/32 then accept;
+{% endif %}
+{% if ospf_nat_ip is defined %}
+	if net ~ {{ospf_nat_ip | ipaddr('address')}}/32 then accept;
+{% endif %}
+    reject;
+};
+
+{% if ffrl_tun is defined or ffnw_tun is defined or ffgt_tun is defined %}
+function is_default() {
+	return (net ~ [0.0.0.0/0]);
+};
+{% endif %}
+
 protocol kernel 'kernel_ffnet' {
-        scan time 20;
-        import all;
+	scan time 20;
+	import all;
 	export filter {
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
@@ -16,43 +62,46 @@ protocol kernel 'kernel_ffnet' {
 {% endif %}
 		accept;
 	};
-        table ffnet;
-        kernel table 42;
-        device routes;
+	table ffnet;
+	kernel table 42;
+	device routes;
 	persist;
 };
 
 protocol direct {
-        interface "lo";
-        interface "gre-*";
-        interface "bck-*";
+	table ffnet;
+	interface "lo";
+	interface "gre-*";
+	interface "bck-*";
 {% if ffrl_tun is defined %}
-        interface "tun-ffrl*";
+	interface "tun-ffrl*";
 {% endif %}
 {% if ffnw_tun is defined %}
-        interface "tun-ffnw*";
+	interface "tun-ffnw*";
 {% endif %}
-        interface "bat*";
-        table ffnet;
+{% if ffgt_tun is defined %}
+	interface "tun-ffgt*";
+{% endif %}
+	interface "bat*";
 }
 
 protocol bfd {
-        interface "gre*";
+	interface "gre*";
 	interface "bck-*";
-        multihop {
+	multihop {
 		passive;
-        };
+	};
 };
 
 protocol device {
-        scan time 10;
+	scan time 10;
 };
 
 {% if ipv4_direkt_ausleiten is defined and ipv4_direkt_ausleiten %}
 protocol static {
-        table ffnet;
-        preference 1000;
-        route 0.0.0.0/0 via {{ ansible_default_ipv4.gateway }};
+	table ffnet;
+	preference 1000;
+	route 0.0.0.0/0 via {{ ansible_default_ipv4.gateway }};
 };
 {% endif %}
 
@@ -70,34 +119,37 @@ protocol static dhcp_Bereich {
 }
 {% endif %}
 
-filter freifunk {
-{% if ffrl_tun is defined %}
-	# FFRL
-	if net ~ [185.66.192.0/22+] then accept;
-{% endif %}
-{% if ffnw_tun is defined %}
-	# FFNW
-	if net ~ [185.197.132.0/24+] then accept;
-{% endif %}
-
-	if net ~ [10.0.0.0/8+] then accept;
-{% if not ffrl_tun is defined and not ffnw_tun is defined %}
-	if net ~ [0.0.0.0/0] then accept;
+{% if ospf_nat_ip is defined %}
+protocol ospf upstream {
+	table ffnet;
+	import where is_default();
+	export filter hostroute;
+{% if ospf_nat_instanceid is defined %}
+	instance id {{ospf_nat_instanceid}};
 {% endif %}
 
-	# interne Tunnel-IPs
-	if net ~ [192.168.0.0/16+] then accept;
-	reject;
+	area {{ ospf_nat_area | default("0.0.0.0")}} {
+	    interface "{{ansible_default_ipv4.interface}}" {
+                cost 10;
+{% if ospf_nat_options is defined %}
+            	{{ospf_nat_options}}
+{% endif %}
+	    };
+	    interface "lo" { stub; };
+	};
 };
+{% endif %}
 
-
-protocol ospf {
+protocol ospf backbone {
 	table ffnet;
 	import filter freifunk;
 	export filter {
 		if net ~ [192.168.0.0/16+] then reject;
+#		if source = RTS_BGP then reject;
+#		if source = RTS_OSPF then reject;
 		accept;
 	};
+
 	area 0.0.0.0 {
 		interface "bat*" {
 			stub;
@@ -109,7 +161,9 @@ protocol ospf {
 		};
 {% endif %}
 {% endfor %}
-		interface "bck-*";
+		interface "bck-*" {
+			cost 1000;
+		};
 		interface "lo" {
 			stub;
 		};
@@ -117,35 +171,21 @@ protocol ospf {
 };
 
 protocol kernel 'kernel_master' {
-        scan time 20;
-        table master;
-        kernel table 254;
-        import all;
-        export all;
+	scan time 20;
+	table master;
+	kernel table 254;
+	import all;
+	export all;
 	persist;
 };
 
 protocol static {
-        table master;
-        import all;
-        export none;
+	table master;
+	import all;
+	export none;
 };
 
-filter hostroute {
-{% if ffrl_nat_ip is defined %}
-	if net ~ {{ffrl_nat_ip | ipaddr('address')}}/32 then accept;
-{% endif %}
-{% if ffnw_nat_ip is defined %}
-	if net ~ {{ffnw_nat_ip | ipaddr('address')}}/32 then accept;
-{% endif %}
-	reject;
-};
-
-{% if ffrl_tun is defined or ffnw_tun is defined %}
-function is_default() {
-	return (net ~ [0.0.0.0/0]);
-};
-
+{% if ffrl_tun is defined or ffnw_tun is defined or ffgt_tun is defined %}
 template bgp uplink {
 	table ffnet;
 	local as {{ff_network.as_number}};
@@ -176,16 +216,16 @@ template bgp internal {
 protocol bgp ffrl_{{tun.name}} from uplink {
 	source address {{ tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }};
 	neighbor {{tun.v4_remote | regex_replace("^(\d+\.\d+\.\d+\.\d+)/\d+$","\\1")}} as 201701;
-{% if "bgp_local_pref" in  tun %}
+{% if "bgp_local_pref" in tun %}
 	default bgp_local_pref {{tun.bgp_local_pref}};
 {% endif %}
 {% if ffrl_nat_ip is not defined %}
-        import filter {
-                reject;
-        };
-        export filter {
-                reject;
-        };
+	import filter {
+		reject;
+	};
+	export filter {
+		reject;
+	};
 {% endif %}
 };
 
@@ -205,6 +245,28 @@ protocol bgp ffnw_{{tun.name}} from uplink {
 {% endfor %}
 {% endif %}
 
+{% if ffgt_tun is defined %}
+{% for tun in ffgt_tun %}
+protocol bgp ffgt_{{tun.name}} from uplink {
+	source address {{ tun.v4_local | ipaddr('address') }};
+	neighbor {{ tun.v4_remote | ipaddr('address') }} as 206813;
+{% if "bgp_local_pref" in tun %}
+	default bgp_local_pref {{tun.bgp_local_pref}};
+{% endif %}
+{% if ffgt_nat_ip is not defined %}
+	import filter {
+		reject;
+	};
+	export filter {
+		reject;
+	};
+{% endif %}
+};
+
+{% endfor %}
+{% endif %}
+
+
 {% for host in groups['gateways']|default([]) %}
 {% if hostvars[host].vm_id != vm_id %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
@@ -219,7 +281,6 @@ protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 		accept;
 	};
 {% endif %}
-
 }
 
 {% endif %}

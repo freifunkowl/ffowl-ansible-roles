@@ -7,11 +7,29 @@ table ffnet;
 
 filter freifunk {
 	if net ~ {{ff_network.v6_network}} then accept;
-{% if not ffrl_tun is defined %}
+{% if not ffrl_tun is defined and not ffgt_tun is defined %}
 	if net ~ [::/0] then accept;
 {% endif %}
 	reject;
 }
+
+filter subnetv6 {
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+	if net = {{domaenen[domaene[0]].ffv6_network}} then accept;
+{% endfor %}
+{% endif %}
+	reject;
+};
+
+filter export_to_upstream_filter {
+	if source = RTS_STATIC then accept;
+	reject;
+};
+
+function is_default() {
+	return (net ~ [::/0]);
+};
 
 protocol kernel {
 	scan time 20;
@@ -40,7 +58,6 @@ protocol radv {
 };
 {% endif %}
 
-
 protocol bfd {
 	table ffnet;
 	interface "gre*";
@@ -54,10 +71,46 @@ protocol device {
 	scan time 10;
 };
 
-protocol ospf {
+{% if ipv6_direkt_ausleiten is defined and ipv6_direkt_ausleiten %}
+protocol static v6localexit {
+	table ffnet;
+	preference 1000;
+	route ::/0 via {{ ansible_default_ipv6.gateway }};
+};
+{% endif %}
+
+{% if ipv6_direkt_ausleiten is defined and ipv6_direkt_ausleiten %}
+protocol ospf upstream {
+	table ffnet;
+	import where is_default();
+	export filter subnetv6;
+{% if ospf_nat_instanceid is defined %}
+	instance id {{ospf_nat_instanceid}};
+{% endif %}
+
+{% if ospf_nat_area is defined %}
+	area {{ospf_nat_area}} {
+{% else %}
+	area 0.0.0.0 {
+{% endif %}
+		interface "{{ansible_default_ipv6.interface}}" {
+			cost 10;
+{% if ospf_nat_options is defined %}
+			{{ospf_nat_options}}
+{% endif %}
+		};
+	};
+};
+{% endif %}
+
+protocol ospf backbone {
 	table ffnet;
 	import filter freifunk;
-	export all;
+	export filter {
+#		if source = RTS_BGP then reject;
+#		if source = RTS_OSPF then reject;
+		accept;
+	};
 	area 0.0.0.0 {
 		interface "bat*" {
 			stub;
@@ -69,22 +122,15 @@ protocol ospf {
 		};
 {% endif %}
 {% endfor %}
-		interface "bck-*";
-{% if ffrl_tun is defined %}
+		interface "bck-*" {
+			cost 1000;
+		};
+{% if ffrl_tun is defined or ffgt_tun is defined %}
 		interface "lo" {
 			stub;
 		};
 {% endif %}
 	};
-};
-
-function is_default() {
-	return (net ~ [::/0]);
-};
-
-filter export_to_upstream_filter {
-	if source = RTS_STATIC then accept;
-	reject;
 };
 
 protocol static static_Gesamtnetzwerk {
@@ -127,6 +173,9 @@ protocol direct {
 {% if ffrl_tun is defined %}
 	interface "tun-ffrl*";
 {% endif %}
+{% if ffgt_tun is defined %}
+	interface "tun-ffgt*";
+{% endif %}
 	interface "gre-*";
 	interface "bck-*";
 	interface "bat*";
@@ -145,7 +194,7 @@ template bgp internal {
 	};
 	export filter {
 		if source = RTS_BGP then accept;
-{% if ffrl_tun is not defined %}
+{% if ffrl_tun is not defined and ffgt_tun is not defined %}
 		if source = RTS_STATIC then accept;
 {% endif %}
 		else reject;
@@ -159,9 +208,9 @@ template bgp internal {
 {% if hostvars[host].vm_id != vm_id %}
 protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 {% if hostvars[host].vm_id < vm_id %}
-	neighbor 2a03:2260:115:ffa1::{{hostvars[host].vm_id}}:{{vm_id}}:1 as {{ff_network.as_number}};
+	neighbor {{ipv6backbone64prefixstr|default("2a03:2260:115:ffa1::")}}{{hostvars[host].vm_id}}:{{vm_id}}:1 as {{ff_network.as_number}};
 {% else %}
-	neighbor 2a03:2260:115:ffa1::{{vm_id}}:{{hostvars[host].vm_id}}:0 as {{ff_network.as_number}};
+	neighbor {{ipv6backbone64prefixstr|default("2a03:2260:115:ffa1::")}}{{vm_id}}:{{hostvars[host].vm_id}}:0 as {{ff_network.as_number}};
 {% endif %}
 {% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
 	import filter {
@@ -181,8 +230,8 @@ template bgp uplink {
 	export filter export_to_upstream_filter;
 	gateway recursive;
 }
-{% if ffrl_tun is defined %}
 
+{% if ffrl_tun is defined %}
 {% for tun in ffrl_tun %}
 protocol bgp ffrl_{{tun.name}} from uplink {
 	description "Rheinland Backbone";
@@ -204,6 +253,17 @@ protocol bgp ffnw_{{tun.name}} from uplink {
 	export filter {
 		reject;
 	};
+};
+
+{% endfor %}
+{% endif %}
+
+{% if ffgt_tun is defined %}
+{% for tun in ffgt_tun %}
+protocol bgp ffgt_{{tun.name}} from uplink {
+	description "Verein 4830.org";
+	source address {{ tun.v6_local | ipaddr('address') }};
+	neighbor {{tun.v6_remote | ipaddr('address')}} as 206813;
 };
 
 {% endfor %}
