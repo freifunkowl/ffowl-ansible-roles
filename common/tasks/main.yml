@@ -25,6 +25,24 @@
     state: absent
     regexp: 'cdrom'
 
+- name: systemd-resolved stoppen
+  systemd:
+    name: systemd-resolved
+    state: stopped
+
+- name: systemd-resolved deaktivieren
+  systemd:
+    name: systemd-resolved
+    enabled: no
+
+- name: resolv.conf Symlink entfernen
+  file: path=/etc/resolv.conf state=absent
+
+- name: resolv.conf Template kopieren
+  template:
+    src: resolv.conf.j2
+    dest: /etc/resolv.conf
+
 - name: install common packages
   apt:
     name: ['vim', 'wget', 'vnstat', 'tmux', 'pastebinit', 'htop', 'jnettop', 'iotop', 'tcpdump', 'screen', 'strace', 'socat', 'dnsutils', 'host', 'ifupdown',
