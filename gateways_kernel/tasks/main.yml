@@ -1,0 +1,3 @@
+- name: Install dependencies for this role
+  apt:
+    pkg: ['linux-modules-extra-4.15.0-101-generic', 'python', 'ifupdown', 'libelf-dev', 'aptitude']
