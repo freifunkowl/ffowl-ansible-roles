@@ -184,6 +184,7 @@ protocol direct {
 
 template bgp internal {
 	table ffnet;
+	import keep filtered;
 	local as {{ff_network.as_number}};
 	import filter {
 		if is_default() then
@@ -226,6 +227,7 @@ protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 template bgp uplink {
 	table ffnet;
 	local as {{ff_network.as_number}};
+	import keep filtered;
 	import where is_default();
 	export filter export_to_upstream_filter;
 	gateway recursive;
@@ -245,14 +247,9 @@ protocol bgp ffrl_{{tun.name}} from uplink {
 {% if ffnw_tun is defined %}
 {% for tun in ffnw_tun %}
 protocol bgp ffnw_{{tun.name}} from uplink {
-        description "Nordwest Backbone";
-        neighbor {{tun.v6_remote | ipaddr('address')}}%'tun-ffnw-{{tun.name}}' as 206313;
-	import filter {
-		reject;
-	};
-	export filter {
-		reject;
-	};
+	description "Nordwest Backbone";
+	source address {{ tun.v6_remote | next_nth_usable(1) }};
+	neighbor {{tun.v6_remote | ipaddr('address')}}%'tun-ffnw-{{tun.name}}' as 206313;
 };
 
 {% endfor %}
