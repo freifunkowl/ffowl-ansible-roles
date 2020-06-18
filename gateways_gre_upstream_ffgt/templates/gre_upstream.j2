@@ -32,7 +32,7 @@ iface tun-ffgt-{{tun.name}} inet static
         post-down ip -6 tunnel del $IFACE
         post-up ip rule add iif $IFACE lookup ffnet
         pre-down ip rule del iif $IFACE lookup ffnet ||:
-iface tun-ffnw-{{tun.name}} inet6 static
+iface tun-ffgt-{{tun.name}} inet6 static
         address {{tun.v6_local | ipaddr('address')}}
         netmask {{tun.v6_local | ipaddr('prefix')}}
         post-up ip -6 rule add iif $IFACE lookup ffnet
