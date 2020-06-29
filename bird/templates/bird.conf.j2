@@ -15,7 +15,7 @@ filter freifunk {
 	if net ~ [185.197.132.0/24+] then accept;
 {% endif %}
 {% if ffnw_tun is defined %}
-	# FFgt
+	# FFGT
 	if net ~ [192.251.226.0/24+, 193.26.120.0/24+] then accept;
 {% endif %}
 
