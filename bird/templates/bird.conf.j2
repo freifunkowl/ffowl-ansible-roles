@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
-log syslog all;
-router id {{ vm_id }};
+log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
+{% if router_id is defined %}router id {{ router_id }};{% else %}router id {{ vm_id }};{% endif %}
 
 table ffnet;
 
@@ -285,3 +285,6 @@ protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 
 {% endif %}
 {% endfor %}
+
+### additional configuration  ###
+include "/etc/bird/bird.conf.d/*.conf";

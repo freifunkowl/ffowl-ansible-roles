@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
-router id {{ vm_id }};
+{% if router_id is defined %}router id {{ router_id }};{% else %}router id {{ vm_id }};{% endif %}
 
 table ffnet;
 
@@ -265,3 +265,6 @@ protocol bgp ffgt_{{tun.name}} from uplink {
 
 {% endfor %}
 {% endif %}
+
+### additional configuration  ###
+include "/etc/bird/bird6.conf.d/*.conf";
