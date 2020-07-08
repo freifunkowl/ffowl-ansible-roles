@@ -44,7 +44,7 @@ int set bogon_asns;
   }
 {% if peer.import4 is defined -%}
 {% if peer.import4 == "ANY" -%}
-  if (avoid_martians() && bgp_path.len <= {{ bgp_max_pfx_len}) then {
+  if (avoid_martians() && bgp_path.len <= {{ bgp_max_pfx_len}}) then {
 {% else -%}
 {% if peer.import4 == "DEFONLY" -%}
   if (is_default()) then {
