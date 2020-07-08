@@ -19,15 +19,9 @@ prefix set {{ peer.reimport_filter4|replace("-", "_")|replace(":", "__") }}_PFX;
 {% endif -%}
 int set bogon_asns;
 {
-{% if peer.ouras is defined -%}
-{% set ouras = peer.ouras -%}
-{% endif -%}
-{% if peer.bgpmaxpfxlen4 is defined -%}
-{% set bgp_max_pfx_len = peer.bgpmaxpfxlen4 -%}
-{% endif -%}
-{% if peer.community_in is defined -%}
-{% set community_in = int(peer.community_in) -%}
-{% endif -%}
+{% if peer.ouras is defined -%}{% set ouras = peer.ouras -%}{% endif -%}
+{% if peer.bgpmaxpfxlen4 is defined -%}{% set bgp_max_pfx_len = peer.bgpmaxpfxlen4 -%}{% endif -%}
+{% if peer.community_in is defined -%}{% set community_in = int(peer.community_in) -%}{% endif -%}
   # Scrub BLACKHOLE Community from peering partners
   bgp_community.delete((65535, 666));
 
@@ -45,13 +39,11 @@ int set bogon_asns;
 {% if peer.import4 is defined -%}
 {% if peer.import4 == "ANY" -%}
   if (avoid_martians() && bgp_path.len <= {{ bgp_max_pfx_len}}) then {
-{% else -%}
-{% if peer.import4 == "DEFONLY" -%}
+{% elif peer.import4 == "DEFONLY" -%}
   if (is_default()) then {
 {% else -%}
   include "/etc/bird/bird.conf.d/{{ peer.import4 }}_PFX4.inc";
   if (net ~ {{ peer.import4 }}_PFX) then {
-{% endif -%}
 {% endif -%}
 {% if peer.reimport_filter4 is defined -%}
 {% if peer.reimport_filter4 != "ANY" and peer.reimport_filter4 != "DEFONLY" -%}
@@ -103,13 +95,11 @@ int set bogon_asns;
 {% if peer.export4 is defined -%}
 {% if peer.export4 == "ANY" -%}
   if (avoid_martians()) then {
-{% else -%}
-{% if peer.export4 == "DEFONLY" -%}
+{% elif peer.export4 == "DEFONLY" -%}
   if (is_default()) then {
 {% else -%}
   include "/etc/bird/bird.conf.d/{{ peer.export4 }}_PFX4.inc";
   if (net ~ {{ peer.export4|replace("-", "_")|replace(":", "__") }}_PFX) then {
-{% endif -%}
 {% endif -%}
     # ignore bogon AS_PATHs
     bogon_asns = BOGON_ASNS;
@@ -180,15 +170,14 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% else -%}
 {% if peer.passwd is defined -%}  password "{{ peer.passwd }}";
 {% endif -%}
-{% endif -%}
 {% if peer.exportlimit4 is defined -%}  export limit {{ peer.exportlimit4 }} action block;
 {% endif -%}
 {% if peer.bgpopts is defined -%}  {{ peer.bgpopts }};
-{% else -%}
-  next hop self;
+{% else %}  next hop self;
 {% endif -%}
 };
 
-{% endfor %}
-{% endif %}
-{% endif %}
+{% endif -%}  # if peer.ipv4dst is defined
+{% endfor %}  # for peer in ebgp_peers
+{% endif %}   # if ebgp_peers is defined
+{% endif %}   # if bgp_router is defined
