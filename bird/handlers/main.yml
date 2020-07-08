@@ -13,3 +13,8 @@
   systemd:
     daemon_reload: yes
 
+- name: rebuilt v4 prefixes
+  shell: /etc/bird/bird.conf.d/bgpq3-update-prefixes.sh
+
+- name: rebuilt v6 prefixes
+  shell: /etc/bird/bird6.conf.d/bgpq3-update-prefixes.sh

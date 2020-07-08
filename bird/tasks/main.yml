@@ -36,6 +36,28 @@
   notify:
     - reload bird6
 
+- name: build bgpq3-update-prefix.sh v4
+  template:
+    src: bgpq3-v4.j2
+    dest: /etc/bird/bird.conf.d/bgpq3-update-prefixes.sh
+    owner: bird
+    group: bird
+    mode: 0755
+    changed_when: true
+  notify:
+    - rebuilt v4 prefixes
+
+- name: build bgpq3-update-prefix.sh v6
+  template:
+    src: bgpq3-v6.j2
+    dest: /etc/bird/bird6.conf.d/bgpq3-update-prefixes.sh
+    owner: bird
+    group: bird
+    mode: 0755
+    changed_when: true
+  notify:
+    - rebuilt v6 prefixes
+
 - name: configure bird.conf.d/01-internal.conf
   template:
     src: internal.conf.j2
