@@ -1,6 +1,5 @@
+{% if bgp_router is not defined %}
 # {{ ansible_managed }}
-
-table ffnet;
 
 filter freifunk {
 {% if ffrl_tun is defined %}
@@ -282,3 +281,4 @@ protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
 
 {% endif %}
 {% endfor %}
+{% endif %}
