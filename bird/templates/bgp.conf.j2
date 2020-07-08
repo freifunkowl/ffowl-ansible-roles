@@ -161,14 +161,14 @@ int set bogon_asns;
 
 
 {% if peer.label is defined -%}
-protocol bgp e_{{ peer.label|replace("-", "_")|replace(":", "__") }} from ebgp_filt_{%=@name.gsub('-', '_')%} {
+protocol bgp e_{{ peer.label|replace("-", "_")|replace(":", "__") }} {
 {% else -%}
-protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} from ebgp_filt_{%=@name.gsub('-', '_')%} {
+protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% endif -%}
   table ffnet;
   local as {{ ouras }};
   source address {{ peer.ipv4src | ipaddr('address') }};
-  neighbor {{ peer.ipv4dst }} as {{ peer.peeras }}};
+  neighbor {{ peer.ipv4dst }} as {{ peer.peeras }};
   import keep filtered;
   import filter peer_in_{{ peer.name|replace("-", "_")|replace(":", "__") }};
   export filter peer_out_{{ peer.name|replace("-", "_")|replace(":", "__") }};
@@ -190,4 +190,5 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} from ebgp_fi
 };
 
 {% endfor %}
+{% endif %}
 {% endif %}
