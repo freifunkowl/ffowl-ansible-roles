@@ -36,6 +36,42 @@
   notify:
     - reload bird6
 
+- name: configure bird.conf.d/01-internal.conf
+  template:
+    src: internal.conf.j2
+    dest: /etc/bird/bird.conf.d/01-internal.conf
+    owner: bird
+    group: bird
+  notify:
+    - reload bird
+
+- name: configure bird6.conf.d/01-internal.conf
+  template:
+    src: internal6.conf.j2
+    dest: /etc/bird/bird6.conf.d/01-internal.conf
+    owner: bird
+    group: bird
+  notify:
+    - reload bird6
+
+- name: configure bird.conf.d/02-bgp.conf
+  template:
+    src: bgp.conf.j2
+    dest: /etc/bird/bird.conf.d/02-bgp.conf
+    owner: bird
+    group: bird
+  notify:
+    - reload bird
+
+- name: configure bird6.conf.d/02-bgp.conf
+  template:
+    src: bgp.conf.j2
+    dest: /etc/bird/bird6.conf.d/02-bgp.conf
+    owner: bird
+    group: bird
+  notify:
+    - reload bird6
+
 - name: create folder for bird.service file
   file:
     path: /etc/systemd/system/bird.service.d
