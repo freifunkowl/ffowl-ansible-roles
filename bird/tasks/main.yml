@@ -2,7 +2,7 @@
 # Role for configure bird and bird6 for our gateway servers.
 - name: install bird and other required packets
   apt:
-    name: ['bird', 'ipcalc']
+    name: ['bird', 'ipcalc', 'sipcalc', 'bgpq3']
     cache_valid_time: 1800
 
 - name: calculate more specific routes for DHCP pools
