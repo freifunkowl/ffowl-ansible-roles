@@ -1,4 +1,4 @@
-{% if bgp_router is defined %}
+{% if bgp_router is defined -%}
 # {{ ansible_managed }}
 # BGP router
 
@@ -12,7 +12,7 @@ define BOGON_ASNS = [0, 23456, 64496..131071, 4200000000..4294967295];
 {% if peer.ipv4dst is defined -%}
 filter peer_in_{{ peer.name|replace("-", "_")|replace(":", "__") }}
 prefix set {{ peer.import4|replace("-", "_")|replace(":", "__") }}_PFX;
-{% if peer.reimport_filter4 is defined  -%}
+{% if peer.reimport_filter4 is defined -%}
 {% if peer.reimport_filter4 != 'ANY' and peer.reimport_filter4 != "DEFONLY" -%}
 prefix set {{ peer.reimport_filter4|replace("-", "_")|replace(":", "__") }}_PFX;
 {% endif -%}
@@ -183,10 +183,10 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% endif -%}
 {% if peer.exportlimit4 is defined -%}  export limit {{ peer.exportlimit4 }} action block;
 {% endif -%}
-{% if peer.bgpopts is defined -%}  {{ peep.bgpopts }};
+{% if peer.bgpopts is defined -%}  {{ peer.bgpopts }};
 {% else -%}
   next hop self;
-{%- endif -%}
+{% endif -%}
 };
 
 {% endfor %}
