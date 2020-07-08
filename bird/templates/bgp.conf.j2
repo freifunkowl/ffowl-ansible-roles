@@ -26,7 +26,7 @@ int set bogon_asns;
   # Scrub BLACKHOLE Community from peering partners
   bgp_community.delete((65535, 666));
 
-{% if peer.import_filter4 is defined -%}
+{% if peer.import_filter4 is defined %}
   # Initially, to do special-case rejects
   include "/etc/bird/bird.conf.d/{{ peer.import_filter4 }}";
 
@@ -37,16 +37,16 @@ int set bogon_asns;
     #print "Import rejected: bogon AS_PATH: ", net, " ", bgp_path;
     reject;
   }
-{%+ if peer.import4 == "ANY" -%}
+{% if peer.import4 == "ANY" -%}
   if (avoid_martians() && bgp_path.len <= {{ bgp_max_pfx_len}}) then {
-{%+ elif peer.import4 == "DEFONLY" -%}
+{% elif peer.import4 == "DEFONLY" -%}
   if (is_default()) then {
-{%+ else -%}
+{% else -%}
   include "/etc/bird/bird.conf.d/{{ peer.import4 }}_PFX4.inc";
   if (net ~ {{ peer.import4|replace("-", "_")|replace(":", "__") }}_PFX) then {
 {% endif -%}
 {% if peer.reimport_filter4 is defined -%}
-{%+ if peer.reimport_filter4 != "ANY" and peer.reimport_filter4 != "DEFONLY" -%}
+{% if peer.reimport_filter4 != "ANY" and peer.reimport_filter4 != "DEFONLY" -%}
     # Don't import our prefixes we'll export
     include "/etc/bird/bird.conf.d/{{ peer.reimport_filter4 }}_PFX4.inc";
     if (net ~ {{ peer.reimport_filter4|replace("-", "_")|replace(":", "__") }}_PFX) then {
@@ -54,33 +54,33 @@ int set bogon_asns;
       reject;
     }
 
-{%+ endif -%}
-{%+ endif -%}
+{% endif -%}
+{% endif -%}
     bgp_med = 0;
-{%+ if peer.bgppref is defined -%}
+{% if peer.bgppref is defined -%}
     bgp_local_pref = {{ peer.bgppref|int }};
-{%+ else -%}
+{% else -%}
     bgp_local_pref = 100;
-{%+ endif -%}
-{%+ if peer.import_filter4 is defined -%}
+{% endif -%}
+{% if peer.import_filter4 is defined -%}
 
   # Again; this time to modify route attributes.
   include "/etc/bird/bird.conf.d/{{ peer.import_filter4 }}";
-{%+ endif -%}
+{% endif -%}
 
     # Scrub BGP Communities (RFC 7454 Section 11)
-{%+ if ouras < 65536 -%}
+{% if ouras < 65536 -%}
     bgp_community.delete([({{ ouras }}, 3000)..({{ ouras }}, 3500)]);
     bgp_community.add(({{ ouras }}, {{ community_in }})); /* mark peering routes as peering routes */
-{%+ endif -%}
+{% endif -%}
     bgp_large_community.delete([({{ ouras }}, 0, *), ({{ ouras }}, 5, *), ({{ ouras }}, 6, *)]);
     bgp_large_community.add(({{ ouras }}, 0, {{ community_in }}));
     bgp_large_community.add(({{ ouras }}, 0, {{ peer.peeras }}));
     accept;
   }
-{%+ else -%}
+{% else -%}
   # No import4: line found
-{%+ endif -%}
+{% endif -%}
   reject;
 }
 
