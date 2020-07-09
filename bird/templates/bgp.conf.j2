@@ -1,28 +1,28 @@
-{% if bgp_router is defined -%}
+{% if bgp_router is defined %}
 # {{ ansible_managed }}
 # BGP router
 
 define BOGON_ASNS = [0, 23456, 64496..131071, 4200000000..4294967295];
 
-{% if ebgp_peers is defined -%}
-{% for peer in ebgp_peers -%}
-{% if peer.ipv4dst is defined -%}
-{% set ouras = ff_network.as_number|int -%}
-{% set bgp_max_pfx_len = 24 -%}
-{% set community_in = 0 -%}
+{% if ebgp_peers is defined %}
+{% for peer in ebgp_peers %}
+{% if peer.ipv4dst is defined %}
+{% set ouras = ff_network.as_number|int %}
+{% set bgp_max_pfx_len = 24 %}
+{% set community_in = 0 %}
 filter peer_in_{{ peer.name|replace("-", "_")|replace(":", "__") }}
 prefix set {{ peer.import4|replace("-", "_")|replace(":", "__") }}_PFX;
-{% if peer.reimport_filter4 is defined -%}
-{% if peer.reimport_filter4 != 'ANY' and peer.reimport_filter4 != "DEFONLY" -%}
+{% if peer.reimport_filter4 is defined %}
+{% if peer.reimport_filter4 != 'ANY' and peer.reimport_filter4 != "DEFONLY" %}
 prefix set {{ peer.reimport_filter4|replace("-", "_")|replace(":", "__") }}_PFX;
-{% endif -%}
-{% endif -%}
+{% endif %}
+{% endif %}
 int set bogon_asns;
 {
-{% if peer.ouras is defined -%}{% set ouras = peer.ouras -%}{% endif -%}
-{% if peer.bgpmaxpfxlen4 is defined -%}{% set bgp_max_pfx_len = peer.bgpmaxpfxlen4 -%}{% endif -%}
-{% if peer.community_in is defined -%}{% set community_in = peer.community_in|int -%}{% endif -%}
-{% if peer.import4 is defined -%}
+{% if peer.ouras is defined %}{% set ouras = peer.ouras %}{% endif %}
+{% if peer.bgpmaxpfxlen4 is defined %}{% set bgp_max_pfx_len = peer.bgpmaxpfxlen4 %}{% endif %}
+{% if peer.community_in is defined %}{% set community_in = peer.community_in|int %}{% endif %}
+{% if peer.import4 is defined %}
   # Scrub BLACKHOLE Community from peering partners
   bgp_community.delete((65535, 666));
 
@@ -30,23 +30,23 @@ int set bogon_asns;
   # Initially, to do special-case rejects
   include "/etc/bird/bird.conf.d/{{ peer.import_filter4 }}";
 
-{% endif -%}
+{% endif %}
   # ignore bogon AS_PATHs
   bogon_asns = BOGON_ASNS;
   if (bgp_path ~ bogon_asns) then {
     #print "Import rejected: bogon AS_PATH: ", net, " ", bgp_path;
     reject;
   }
-{% if peer.import4 == "ANY" -%}
+{% if peer.import4 == "ANY" %}
   if (avoid_martians() && bgp_path.len <= {{ bgp_max_pfx_len}}) then {
-{% elif peer.import4 == "DEFONLY" -%}
+{% elif peer.import4 == "DEFONLY" %}
   if (is_default()) then {
-{% else -%}
+{% else %}
   include "/etc/bird/bird.conf.d/{{ peer.import4 }}_PFX4.inc";
   if (net ~ {{ peer.import4|replace("-", "_")|replace(":", "__") }}_PFX) then {
-{% endif -%}
-{% if peer.reimport_filter4 is defined -%}
-{% if peer.reimport_filter4 != "ANY" and peer.reimport_filter4 != "DEFONLY" -%}
+{% endif %}
+{% if peer.reimport_filter4 is defined %}
+{% if peer.reimport_filter4 != "ANY" and peer.reimport_filter4 != "DEFONLY" %}
     # Don't import our prefixes we'll export
     include "/etc/bird/bird.conf.d/{{ peer.reimport_filter4 }}_PFX4.inc";
     if (net ~ {{ peer.reimport_filter4|replace("-", "_")|replace(":", "__") }}_PFX) then {
@@ -54,33 +54,33 @@ int set bogon_asns;
       reject;
     }
 
-{% endif -%}
-{% endif -%}
+{% endif %}
+{% endif %}
     bgp_med = 0;
-{% if peer.bgppref is defined -%}
+{% if peer.bgppref is defined %}
     bgp_local_pref = {{ peer.bgppref|int }};
-{% else -%}
+{% else %}
     bgp_local_pref = 100;
-{% endif -%}
-{% if peer.import_filter4 is defined -%}
+{% endif %}
+{% if peer.import_filter4 is defined %}
 
   # Again; this time to modify route attributes.
   include "/etc/bird/bird.conf.d/{{ peer.import_filter4 }}";
-{% endif -%}
+{% endif %}
 
     # Scrub BGP Communities (RFC 7454 Section 11)
-{% if ouras < 65536 -%}
+{% if ouras < 65536 %}
     bgp_community.delete([({{ ouras }}, 3000)..({{ ouras }}, 3500)]);
     bgp_community.add(({{ ouras }}, {{ community_in }})); /* mark peering routes as peering routes */
-{% endif -%}
+{% endif %}
     bgp_large_community.delete([({{ ouras }}, 0, *), ({{ ouras }}, 5, *), ({{ ouras }}, 6, *)]);
     bgp_large_community.add(({{ ouras }}, 0, {{ community_in }}));
     bgp_large_community.add(({{ ouras }}, 0, {{ peer.peeras }}));
     accept;
   }
-{% else -%}
+{% else %}
   # No import4: line found
-{% endif -%}
+{% endif %}
   reject;
 }
 
@@ -88,19 +88,19 @@ filter peer_out_{{ peer.name|replace("-", "_")|replace(":", "__") }}
 prefix set {{ peer.export4|replace("-", "_")|replace(":", "__") }}_PFX;
 int set bogon_asns;
 {
-{% if peer.export4 is defined -%}
-{% if peer.export_filter4 is defined -%}
+{% if peer.export4 is defined %}
+{% if peer.export_filter4 is defined %}
   include "/etc/bird/bird.conf.d/{{ peer.export_filter4 }}";
-{% endif -%}
+{% endif %}
 
-{% if peer.export4 == "ANY" -%}
+{% if peer.export4 == "ANY" %}
   if (avoid_martians()) then {
-{% elif peer.export4 == "DEFONLY" -%}
+{% elif peer.export4 == "DEFONLY" %}
   if (is_default()) then {
-{% else -%}
+{% else %}
   include "/etc/bird/bird.conf.d/{{ peer.export4 }}_PFX4.inc";
   if (net ~ {{ peer.export4|replace("-", "_")|replace(":", "__") }}_PFX) then {
-{% endif -%}
+{% endif %}
     # ignore bogon AS_PATHs
     bogon_asns = BOGON_ASNS;
     if (bgp_path ~ bogon_asns) then {
@@ -143,18 +143,18 @@ int set bogon_asns;
 
     accept;
   }
-{% else -%}
+{% else %}
   # No export4: line found
-{% endif -%}
+{% endif %}
   reject;
 }
 
 
-{% if peer.label is defined -%}
+{% if peer.label is defined %}
 protocol bgp e_{{ peer.label|replace("-", "_")|replace(":", "__") }} {
-{% else -%}
+{% else %}
 protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
-{% endif -%}
+{% endif %}
   table ffnet;
   local as {{ ouras }};
   source address {{ peer.ipv4src | ipaddr('address') }};
@@ -162,21 +162,21 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
   import keep filtered;
   import filter peer_in_{{ peer.name|replace("-", "_")|replace(":", "__") }};
   export filter peer_out_{{ peer.name|replace("-", "_")|replace(":", "__") }};
-{% if peer.multihop is defined -%}  multihop {{ peer.multihop }};
-{% endif -%}
-{% if peer.direct is defined -%}  direct;
-{% endif -%}
-{% if peer.passwd4 is defined -%}  password "{{ peer.passwd4 }}";
-{% elif peer.passwd is defined -%}  password "{{ peer.passwd }}";
-{% endif -%}
-{%+ if peer.exportlimit4 is defined -%}  export limit {{ peer.exportlimit4 }} action block;
-{% endif -%}
-{% if peer.bgpopts is defined -%}  {{ peer.bgpopts }};
+{% if peer.multihop is defined %}  multihop {{ peer.multihop }};
+{% endif %}
+{% if peer.direct is defined %}  direct;
+{% endif %}
+{% if peer.passwd4 is defined %}  password "{{ peer.passwd4 }}";
+{% elif peer.passwd is defined %}  password "{{ peer.passwd }}";
+{% endif %}
+{% if peer.exportlimit4 is defined %}  export limit {{ peer.exportlimit4 }} action block;
+{% endif %}
+{% if peer.bgpopts is defined %}  {{ peer.bgpopts }};
 {% else %}  next hop self;
-{% endif -%}
+{% endif %}
 };
 
-{% endif -%}
+{% endif %}
 {% endfor %}
 {% endif %}
 {% endif %}
