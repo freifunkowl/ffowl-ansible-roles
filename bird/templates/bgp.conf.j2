@@ -118,7 +118,7 @@ int set bogon_asns;
       reject;
     }
 
-    if (({ ouras }}, 9, {{ peer.peeras }}) ~ bgp_large_community || ({{ ouras }}, 9, 0) ~ bgp_large_community) then {
+    if (({{ ouras }}, 9, {{ peer.peeras }}) ~ bgp_large_community || ({{ ouras }}, 9, 0) ~ bgp_large_community) then {
       reject;
     }
 
