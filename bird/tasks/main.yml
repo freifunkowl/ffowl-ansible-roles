@@ -5,6 +5,18 @@
     name: ['bird', 'ipcalc', 'sipcalc', 'bgpq3']
     cache_valid_time: 1800
 
+- name: create folder bird.conf.d
+  file:
+    path: /etc/bird/bird.conf.d
+    state: directory
+    mode: 0755
+
+- name: create folder bird6.conf.d
+  file:
+    path: /etc/bird/bird6.conf.d
+    state: directory
+    mode: 0755
+
 - name: calculate more specific routes for DHCP pools
   shell: |
     set -o pipefail
@@ -118,14 +130,3 @@
   notify:
     - reread systemd configs
 
-- name: create folder bird.conf.d
-  file:
-    path: /etc/bird/bird.conf.d
-    state: directory
-    mode: 0755
-
-- name: create folder bird6.conf.d
-  file:
-    path: /etc/bird/bird6.conf.d
-    state: directory
-    mode: 0755
