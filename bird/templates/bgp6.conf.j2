@@ -1,7 +1,182 @@
-# {{ ansible_managed }}
-
 {% if bgp_router is defined %}
+# {{ ansible_managed }}
 # BGP router
+
+define BOGON_ASNS = [0, 23456, 64496..131071, 4200000000..4294967295];
+
+{% if ebgp_peers is defined %}
+{% for peer in ebgp_peers %}
+{% if peer.ipv6dst is defined %}
+{% set ouras = ff_network.as_number|int %}
+{% set bgp_max_pfx_len = 24 %}
+{% set community_in = 0 %}
+filter peer_in_{{ peer.name|replace("-", "_")|replace(":", "__") }}
+prefix set {{ peer.import6|replace("-", "_")|replace(":", "__") }}_PFX;
+{% if peer.reimport_filter6 is defined %}
+{% if peer.reimport_filter6 != 'ANY' and peer.reimport_filter4 != "DEFONLY" %}
+prefix set {{ peer.reimport_filter6|replace("-", "_")|replace(":", "__") }}_PFX;
+{% endif %}
+{% endif %}
+int set bogon_asns;
+{
+{% if peer.ouras is defined %}{% set ouras = peer.ouras %}{% endif %}
+{% if peer.bgpmaxpfxlen6 is defined %}{% set bgp_max_pfx_len = peer.bgpmaxpfxlen6 %}{% endif %}
+{% if peer.community_in is defined %}{% set community_in = peer.community_in|int %}{% endif %}
+{% if peer.import6 is defined %}
+  # Scrub BLACKHOLE Community from peering partners
+  bgp_community.delete((65535, 666));
+
+{% if peer.import_filter6 is defined %}
+  # Initially, to do special-case rejects
+  include "/etc/bird/bird6.conf.d/{{ peer.import_filter6 }}";
+
+{% endif %}
+  # ignore bogon AS_PATHs
+  bogon_asns = BOGON_ASNS;
+  if (bgp_path ~ bogon_asns) then {
+    #print "Import rejected: bogon AS_PATH: ", net, " ", bgp_path;
+    reject;
+  }
+{% if peer.import6 == "ANY" %}
+  if (avoid_martians() && bgp_path.len <= {{ bgp_max_pfx_len}}) then {
+{% elif peer.import6 == "DEFONLY" %}
+  if (is_default()) then {
 {% else %}
-# No BGP Router
+  include "/etc/bird/bird6.conf.d/{{ peer.import6 }}_PFX6.inc";
+  if (net ~ {{ peer.import6|replace("-", "_")|replace(":", "__") }}_PFX) then {
+{% endif %}
+{% if peer.reimport_filter6 is defined %}
+{% if peer.reimport_filter6 != "ANY" and peer.reimport_filter6 != "DEFONLY" %}
+    # Don't import our prefixes we'll export
+    include "/etc/bird/bird6.conf.d/{{ peer.reimport_filter6 }}_PFX6.inc";
+    if (net ~ {{ peer.reimport_filter6|replace("-", "_")|replace(":", "__") }}_PFX) then {
+      #print "REJECT: Import of own export prefix: ", net, " via ", bgp_path;
+      reject;
+    }
+
+{% endif %}
+{% endif %}
+    bgp_med = 0;
+{% if peer.bgppref is defined %}
+    bgp_local_pref = {{ peer.bgppref|int }};
+{% else %}
+    bgp_local_pref = 100;
+{% endif %}
+{% if peer.import_filter6 is defined %}
+
+  # Again; this time to modify route attributes.
+  include "/etc/bird/bird6.conf.d/{{ peer.import_filter6 }}";
+{% endif %}
+
+    # Scrub BGP Communities (RFC 7454 Section 11)
+{% if ouras < 65536 %}
+    bgp_community.delete([({{ ouras }}, 3000)..({{ ouras }}, 3500)]);
+    bgp_community.add(({{ ouras }}, {{ community_in }})); /* mark peering routes as peering routes */
+{% endif %}
+    bgp_large_community.delete([({{ ouras }}, 0, *), ({{ ouras }}, 5, *), ({{ ouras }}, 6, *)]);
+    bgp_large_community.add(({{ ouras }}, 0, {{ community_in }}));
+    bgp_large_community.add(({{ ouras }}, 0, {{ peer.peeras }}));
+    accept;
+  }
+{% else %}
+  # No import6: line found
+{% endif %}
+  reject;
+}
+
+filter peer_out_{{ peer.name|replace("-", "_")|replace(":", "__") }}
+prefix set {{ peer.export6|replace("-", "_")|replace(":", "__") }}_PFX;
+int set bogon_asns;
+{
+{% if peer.export6 is defined %}
+{% if peer.export_filter4 is defined %}
+  include "/etc/bird/bird6.conf.d/{{ peer.export_filter6 }}";
+{% endif %}
+
+{% if peer.export6 == "ANY" %}
+  if (avoid_martians()) then {
+{% elif peer.export6 == "DEFONLY" %}
+  if (is_default()) then {
+{% else %}
+  include "/etc/bird/bird6.conf.d/{{ peer.export6 }}_PFX6.inc";
+  if (net ~ {{ peer.export6|replace("-", "_")|replace(":", "__") }}_PFX) then {
+{% endif %}
+    # ignore bogon AS_PATHs
+    bogon_asns = BOGON_ASNS;
+    if (bgp_path ~ bogon_asns) then {
+      #print "Export rejected: bogon AS_PATH: ", net, " ", bgp_path;
+      reject;
+    }
+
+    if ((65535, 65281) ~ bgp_community) then {
+      #print "Export rejected: no-export community set: ", net, " ", bgp_path;
+      reject;
+    }
+
+    if ((65535, 65282) ~ bgp_community) then {
+      #print "Export rejected: no-advertise community set: ", net, " ", bgp_path;
+      reject;
+    }
+
+    if (({{ ouras }}, 9, {{ peer.peeras }}) ~ bgp_large_community || ({{ ouras }}, 9, 0) ~ bgp_large_community) then {
+      reject;
+    }
+
+    if (({{ ouras }}, 2, {{ peer.peeras }}) ~ bgp_large_community || ({{ ouras }}, 2, 0) ~ bgp_large_community) then {
+      bgp_path.prepend({{ ouras }});
+    }
+    if (({{ ouras }}, 3, {{ peer.peeras }}) ~ bgp_large_community || ({{ ouras }}, 3, 0) ~ bgp_large_community) then {
+      bgp_path.prepend({{ ouras }});
+      bgp_path.prepend({{ ouras }});
+    }
+    if (({{ ouras }}, 4, {{ peer.peeras }}) ~ bgp_large_community || ({{ ouras }}, 4, 0) ~ bgp_large_community) then {
+      bgp_path.prepend({{ ouras }});
+      bgp_path.prepend({{ ouras }});
+      bgp_path.prepend({{ ouras }});
+    }
+    if (({{ ouras }}, 5, {{ peer.peeras }}) ~ bgp_large_community || ({{ ouras }}, 5, 0) ~ bgp_large_community) then {
+      bgp_path.prepend({{ ouras }});
+      bgp_path.prepend({{ ouras }});
+      bgp_path.prepend({{ ouras }});
+      bgp_path.prepend({{ ouras }});
+    }
+
+    accept;
+  }
+{% else %}
+  # No export6: line found
+{% endif %}
+  reject;
+}
+
+
+{% if peer.label is defined %}
+protocol bgp e_{{ peer.label|replace("-", "_")|replace(":", "__") }} {
+{% else %}
+protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
+{% endif %}
+  table ffnet;
+  local as {{ ouras }};
+  source address {{ peer.ipv6src | ipaddr('address') }};
+  neighbor {{ peer.ipv6dst }} as {{ peer.peeras }};
+  import keep filtered;
+  import filter peer_in_{{ peer.name|replace("-", "_")|replace(":", "__") }};
+  export filter peer_out_{{ peer.name|replace("-", "_")|replace(":", "__") }};
+{% if peer.multihop is defined %}  multihop {{ peer.multihop }};
+{% endif %}
+{% if peer.direct is defined %}  direct;
+{% endif %}
+{% if peer.passwd6 is defined %}  password "{{ peer.passwd6 }}";
+{% elif peer.passwd is defined %}  password "{{ peer.passwd }}";
+{% endif %}
+{% if peer.exportlimit6 is defined %}  export limit {{ peer.exportlimit6 }} action block;
+{% endif %}
+{% if peer.bgpopts is defined %}  {{ peer.bgpopts }};
+{% else %}  next hop self;
+{% endif %}
+};
+
+{% endif %}
+{% endfor %}
+{% endif %}
 {% endif %}
