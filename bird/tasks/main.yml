@@ -97,8 +97,26 @@
 
 - name: configure bird6.conf.d/02-bgp.conf
   template:
-    src: bgp.conf.j2
+    src: bgp6.conf.j2
     dest: /etc/bird/bird6.conf.d/02-bgp.conf
+    owner: bird
+    group: bird
+  notify:
+    - reload bird6
+
+- name: configure bird.conf.d/05-ospf.conf
+  template:
+    src: ospf.conf.j2
+    dest: /etc/bird/bird.conf.d/05-ospf.conf
+    owner: bird
+    group: bird
+  notify:
+    - reload bird
+
+- name: configure bird6.conf.d/05-ospf.conf
+  template:
+    src: ospf6.conf.j2
+    dest: /etc/bird/bird6.conf.d/05-ospf.conf
     owner: bird
     group: bird
   notify:
