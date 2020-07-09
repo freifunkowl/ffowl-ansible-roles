@@ -1,0 +1,41 @@
+filter ospf_out {
+{% for p in ospf.prefixes.ipv4 | default([]) %}
+  if (net ~ [ {{ p }} ] && (source = RTS_STATIC || source = RTS_DEVICE || source = RTS_STATIC_DEVICE)) then accept;
+{% endfor %}
+
+  reject;
+}
+
+filter ospf_in {
+{% for p in ospf.prefixes.ipv4 | default([]) %}
+  if (net ~ [ {{ p }} ]) then accept;
+{% endfor %}
+
+  reject;
+}
+
+protocol ospf ospf {
+{% if ecmp | default(false) %}
+  ecmp on;
+{% endif %}
+  import filter ospf_in;
+  export filter ospf_out;
+
+  area 0 {
+{% for interface in ospf.interfaces | default([]) %}
+    interface "{{ interface.name }}" {
+      #hello 5;
+      #dead 20;
+{% if interface.ttl_security | default(false) %}
+      ttl security on;
+{% endif %}
+    };
+{% endfor %}
+
+{% for interface in ospf.stub_interfaces | default([]) %}
+    interface "{{ interface.name }}" {
+      stub;
+    };
+{% endfor %}
+  };
+}
