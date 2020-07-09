@@ -84,7 +84,7 @@ int set bogon_asns;
   reject;
 }
 
-filter peer_out_{{ peer.label|replace("-", "_")|replace(":", "__") }}
+filter peer_out_{{ peer.name|replace("-", "_")|replace(":", "__") }}
 prefix set {{ peer.export4|replace("-", "_")|replace(":", "__") }}_PFX;
 int set bogon_asns;
 {
@@ -169,7 +169,7 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% if peer.passwd4 is defined -%}  password "{{ peer.passwd4 }}";
 {% elif peer.passwd is defined -%}  password "{{ peer.passwd }}";
 {% endif -%}
-{% if peer.exportlimit4 is defined -%}  export limit {{ peer.exportlimit4 }} action block;
+{%+ if peer.exportlimit4 is defined -%}  export limit {{ peer.exportlimit4 }} action block;
 {% endif -%}
 {% if peer.bgpopts is defined -%}  {{ peer.bgpopts }};
 {% else %}  next hop self;
