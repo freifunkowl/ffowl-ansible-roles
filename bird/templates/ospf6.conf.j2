@@ -1,3 +1,4 @@
+{% if ospf is defined %}
 filter ospf_out {
 {% for p in ospf.prefixes.ipv6 | default([]) %}
   if (net ~ [ {{ p }} ] && (source = RTS_STATIC || source = RTS_DEVICE || source = RTS_STATIC_DEVICE)) then accept;
@@ -39,3 +40,62 @@ protocol ospf o_intern {
 {% endfor %}
   };
 }
+{% endif %}
+
+{% if ipv6_direkt_ausleiten is defined and ipv6_direkt_ausleiten %}
+protocol ospf upstream {
+  table ffnet;
+  import where is_default();
+  export filter subnetv6;
+{% if ospf_nat_instanceid is defined %}
+  instance id {{ospf_nat_instanceid}};
+{% endif %}
+
+{% if ospf_nat_area is defined %}
+  area {{ospf_nat_area}} {
+{% else %}
+  area 0.0.0.0 {
+{% endif %}
+    interface "{{ansible_default_ipv6.interface}}" {
+      cost 10;
+{% if ospf_nat_options is defined %}
+      {{ospf_nat_options}}
+{% endif %}
+    };
+  };
+};
+{% endif %}
+
+{% if domaenenliste is defined %}
+protocol ospf backbone {
+  table ffnet;
+  import filter freifunk;
+  export filter {
+    if source = RTS_BGP then reject;
+    #if source = RTS_OSPF then reject;
+    accept;
+  };
+
+  area 0.0.0.0 {
+    interface "bat*" {
+    stub;
+  };
+
+{% for host in groups['gateways']|default([]) %}
+{% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
+    interface "bck-{{host}}" {
+      cost 1000;
+    };
+{% endif %}
+{% endfor %}
+    interface "bck-*" {
+      cost 1000;
+    };
+{% if ffrl_tun is defined or ffgt_tun is defined %}
+    interface "lo" {
+      stub;
+    };
+{% endif %}
+  };
+};
+{% endif %}

@@ -1,5 +1,5 @@
-{% if bgp_router is defined %}
 # {{ ansible_managed }}
+{% if bgp_router is defined %}
 # BGP router
 
 define BOGON_ASNS = [0, 23456, 64496..131071, 4200000000..4294967295];
@@ -65,7 +65,7 @@ int set bogon_asns;
 {% if peer.import_filter6 is defined %}
 
   # Again; this time to modify route attributes.
-  include "/etc/bird/bird6.conf.d/{{ peer.import_filter6 }}";
+  #include "/etc/bird/bird6.conf.d/{{ peer.import_filter6 }}";
 {% endif %}
 
     # Scrub BGP Communities (RFC 7454 Section 11)
@@ -149,7 +149,6 @@ int set bogon_asns;
   reject;
 }
 
-
 {% if peer.label is defined %}
 protocol bgp e_{{ peer.label|replace("-", "_")|replace(":", "__") }} {
 {% else %}
@@ -179,7 +178,6 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% endif %}
 {% endfor %}
 {% endif %}
-{% endif %}
 
 {% if ibgp_peers is defined %}
 {% for peer in ibgp_peers %}
@@ -198,9 +196,9 @@ protocol bgp i_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
   import filter {
 {% if peer.pref is defined %}    bgp_local_pref = {{ peer.pref }};{% endif %}
 {% if peer.dfz is defined and peer.dfz != "no" %}
-    if (net ~ [::/0]) then accept;
+    if is_default() then accept;
 {% else %}
-    if (net ~ [::/0]) then reject;
+    if is_default() then reject;
 {% endif %}
     accept;
   };
@@ -219,4 +217,91 @@ protocol bgp i_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 
 {% endif %}
 {% endfor %}
+{% endif %}
+{% endif %} # bgp_router
+
+{% if domaenenliste is defined %}
+template bgp internal {
+  table ffnet;
+  import keep filtered;
+  local as {{ff_network.as_number}};
+  import filter {
+    if is_default() then
+      preference = 99;
+    else
+      preference = 160;
+    accept;
+  };
+  export filter {
+    if source = RTS_BGP then accept;
+{% if ffrl_tun is not defined and ffgt_tun is not defined %}
+    if source = RTS_STATIC then accept;
+{% endif %}
+    reject;
+  };
+  gateway direct;
+  direct;
+  next hop self;
+};
+
+{% for host in groups['gateways']|default([]) %}
+{% if hostvars[host].vm_id != vm_id %}
+protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
+{% if hostvars[host].vm_id < vm_id %}
+  neighbor {{ipv6backbone64prefixstr|default("2a03:2260:115:ffa1::")}}{{hostvars[host].vm_id}}:{{vm_id}}:1 as {{ff_network.as_number}};
+{% else %}
+  neighbor {{ipv6backbone64prefixstr|default("2a03:2260:115:ffa1::")}}{{vm_id}}:{{hostvars[host].vm_id}}:0 as {{ff_network.as_number}};
+{% endif %}
+{% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
+  import filter {
+    preference = 50;
+    accept;
+  };
+{% endif %}
+}
+
+{% endif %}
+{% endfor %}
+
+template bgp uplink {
+  table ffnet;
+  local as {{ff_network.as_number}};
+  import keep filtered;
+  import where is_default();
+  export filter export_to_upstream_filter;
+  gateway recursive;
+}
+
+{% if ffrl_tun is defined %}
+{% for tun in ffrl_tun %}
+protocol bgp ffrl_{{tun.name}} from uplink {
+  description "Rheinland Backbone";
+  source address {{ tun.v6_remote | next_nth_usable(1) }};
+  neighbor {{tun.v6_remote | ipaddr('address')}} as 201701;
+};
+
+{% endfor %}
+{% endif %}
+
+{% if ffnw_tun is defined %}
+{% for tun in ffnw_tun %}
+protocol bgp ffnw_{{tun.name}} from uplink {
+  description "Nordwest Backbone";
+  # source address {{ tun.v6_remote | next_nth_usable(1) }};
+  neighbor {{tun.v6_remote | ipaddr('address')}}%'tun-ffnw-{{tun.name}}' as 206313;
+};
+
+{% endfor %}
+{% endif %}
+
+{% if ffgt_tun is defined %}
+{% for tun in ffgt_tun %}
+protocol bgp ffgt_{{tun.name}} from uplink {
+  description "Verein 4830.org";
+  source address {{ tun.v6_local | ipaddr('address') }};
+  neighbor {{tun.v6_remote | ipaddr('address')}} as 206813;
+};
+
+{% endfor %}
+{% endif %}
 {% endif %}

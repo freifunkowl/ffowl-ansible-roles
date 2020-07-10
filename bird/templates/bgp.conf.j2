@@ -1,5 +1,5 @@
-{% if bgp_router is defined %}
 # {{ ansible_managed }}
+{% if bgp_router is defined %}
 # BGP router
 
 define BOGON_ASNS = [0, 23456, 64496..131071, 4200000000..4294967295];
@@ -65,7 +65,7 @@ int set bogon_asns;
 {% if peer.import_filter4 is defined %}
 
   # Again; this time to modify route attributes.
-  include "/etc/bird/bird.conf.d/{{ peer.import_filter4 }}";
+  #include "/etc/bird/bird.conf.d/{{ peer.import_filter4 }}";
 {% endif %}
 
     # Scrub BGP Communities (RFC 7454 Section 11)
@@ -149,7 +149,6 @@ int set bogon_asns;
   reject;
 }
 
-
 {% if peer.label is defined %}
 protocol bgp e_{{ peer.label|replace("-", "_")|replace(":", "__") }} {
 {% else %}
@@ -179,7 +178,6 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% endif %}
 {% endfor %}
 {% endif %}
-{% endif %}
 
 {% if ibgp_peers is defined %}
 {% for peer in ibgp_peers %}
@@ -198,9 +196,9 @@ protocol bgp i_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
   import filter {
 {% if peer.pref is defined %}    bgp_local_pref = {{ peer.pref }};{% endif %}
 {% if peer.dfz is defined and peer.dfz != "no" %}
-    if (net ~ [0.0.0.0/0, 0.0.0.0/1, 128.0.0.0/1]) then accept;
+    if is_default() then accept;
 {% else %}
-    if (net ~ [0.0.0.0/0, 0.0.0.0/1, 128.0.0.0/1]) then reject;
+    if is_default() then reject;
 {% endif %}
     accept;
   };
@@ -214,6 +212,109 @@ protocol bgp i_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% if peer.next_hop_self is defined %}  next hop self;
 {% endif %}
 {% if peer.bgpopts is defined %}  {{ peer.bgpopts }};
+{% endif %}
+}
+
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endif %} # bgp_router
+
+{% if domaenenliste is defined %}
+{% if ffrl_tun is defined or ffnw_tun is defined or ffgt_tun is defined %}
+template bgp uplink {
+	table ffnet;
+	local as {{ff_network.as_number}};
+	import where is_default();
+	export filter hostroute;
+	next hop self;
+	multihop 64;
+	default bgp_local_pref 200;
+	default bgp_med 1;
+};
+{% endif %}
+
+template bgp internal {
+	table ffnet;
+	local as {{ff_network.as_number}};
+	import filter {
+		preference = 99;
+		accept;
+	};
+	export where source = RTS_BGP;
+	gateway direct;
+	direct;
+	next hop self;
+};
+
+{% if ffrl_tun is defined %}
+{% for tun in ffrl_tun %}
+protocol bgp ffrl_{{tun.name}} from uplink {
+	source address {{ tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }};
+	neighbor {{tun.v4_remote | regex_replace("^(\d+\.\d+\.\d+\.\d+)/\d+$","\\1")}} as 201701;
+{% if "bgp_local_pref" in tun %}
+	default bgp_local_pref {{tun.bgp_local_pref}};
+{% endif %}
+{% if ffrl_nat_ip is not defined %}
+	import filter {
+		reject;
+	};
+	export filter {
+		reject;
+	};
+{% endif %}
+};
+
+{% endfor %}
+{% endif %}
+
+{% if ffnw_tun is defined %}
+{% for tun in ffnw_tun %}
+protocol bgp ffnw_{{tun.name}} from uplink {
+	source address {{ tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }};
+	neighbor {{tun.v4_remote | regex_replace("^(\d+\.\d+\.\d+\.\d+)/\d+$","\\1")}} as 206313;
+{% if "bgp_local_pref" in  tun %}
+	default bgp_local_pref {{tun.bgp_local_pref}};
+{% endif %}
+};
+
+{% endfor %}
+{% endif %}
+
+{% if ffgt_tun is defined %}
+{% for tun in ffgt_tun %}
+protocol bgp ffgt_{{tun.name}} from uplink {
+	source address {{ tun.v4_local | ipaddr('address') }};
+	neighbor {{ tun.v4_remote | ipaddr('address') }} as 206813;
+{% if "bgp_local_pref" in tun %}
+	default bgp_local_pref {{tun.bgp_local_pref}};
+{% endif %}
+{% if ffgt_nat_ip is not defined %}
+	import filter {
+		reject;
+	};
+	export filter {
+		reject;
+	};
+{% endif %}
+};
+
+{% endfor %}
+{% endif %}
+
+{% for host in groups['gateways']|default([]) %}
+{% if hostvars[host].vm_id != vm_id %}
+protocol bgp ibgp_{{host|regex_replace('-','_')}} from internal {
+{% if hostvars[host].vm_id < vm_id %}
+	neighbor 192.168.{{ hostvars[host].vm_id-1 }}.{{vm_id*2}} as {{ff_network.as_number}};
+{% else %}
+	neighbor 192.168.{{ vm_id-1 }}.{{hostvars[host].vm_id*2+1}} as {{ff_network.as_number}};
+{% endif %}
+{% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
+	import filter {
+		preference = 50;
+		accept;
+	};
 {% endif %}
 }
 

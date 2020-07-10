@@ -1,9 +1,139 @@
 # {{ ansible_managed }}
 
 log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
-{% if router_id is defined %}router id {{ router_id }};{% else %}router id {{ vm_id }};{% endif %}
+{% if router_id is defined %}router id {{ router_id }};{% else %}router id 192.168.255.{{ vm_id }};{% endif %}
 
 table ffnet;
+
+protocol kernel 'kernel_ffnet' {
+  table ffnet;
+  kernel table 42;
+  device routes;
+  persist;
+  scan time 20;
+
+  import all;
+  export  all;
+};
+
+protocol direct {
+  table ffnet;
+
+  interface "lo";
+  interface "gre-*";
+  interface "bck-*";
+{% if ffrl_tun is defined %}
+  interface "tun-ffrl*";
+{% endif %}
+{% if ffnw_tun is defined %}
+  interface "tun-ffnw*";
+{% endif %}
+{% if ffgt_tun is defined %}
+  interface "tun-ffgt*";
+{% endif %}
+  interface "bat*";
+}
+
+protocol bfd {
+  interface "gre*";
+  interface "bck-*";
+  multihop {
+    passive;
+  };
+};
+
+protocol device {
+  scan time 10;
+};
+
+protocol kernel 'kernel_master' {
+  scan time 20;
+  table master;
+  kernel table 254;
+  import all;
+  export all;
+  persist;
+};
+
+protocol static 'master'{
+  table master;
+  import all;
+  export none;
+};
+
+{% if ipv6_direkt_ausleiten is defined and ipv6_direkt_ausleiten %}
+protocol static v6localexit {
+	table ffnet;
+	preference 1000;
+	route ::/0 via {{ ansible_default_ipv6.gateway }};
+};
+{% endif %}
+
+filter freifunk {
+{% if ff_network.v6_network is defined %}
+  if net ~ {{ff_network.v6_network}} then accept;
+{% endif %}
+{% if not ffrl_tun is defined and not ffgt_tun is defined %}
+  if net ~ [::/0] then accept;
+{% endif %}
+
+  reject;
+}
+
+{% if domaenenliste is defined %}
+protocol radv {
+{% for domaene in domaenenliste|dictsort %}
+  interface "bat{{domaene[0]}}" {
+    max ra interval 20;
+    link mtu 1280;
+    prefix {{domaenen[domaene[0]].ffv6_network}} { };
+    rdnss {
+      ns {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
+    };
+    dnssl "{{freifunk.search_domain}}";
+  };
+{% endfor %}
+};
+{% endif %}
+
+protocol static static_Gesamtnetzwerk {
+  table ffnet;
+  route {{ff_network.v6_network}} reject;
+};
+
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+protocol static static_domaene{{domaene[0]}} {
+  table ffnet;
+  route {{domaenen[domaene[0]].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+};
+{% endfor %}
+{% endif %}
+
+{% if dhcp is defined %}
+protocol static 'static_{{inventory_hostname_short}}' {
+	table ffnet;
+	route {{ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+};
+{% endif %}
+
+filter export_to_upstream_filter {
+  if source = RTS_STATIC then accept;
+  reject;
+};
+
+filter subnetv6 {
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+  if net = {{domaenen[domaene[0]].ffv6_network}} then accept;
+{% endfor %}
+{% endif %}
+  reject;
+};
+
+function is_default() {
+	return (net ~ [::/0]);
+};
 
 ### additional configuration  ###
 include "/etc/bird/bird6.conf.d/*.conf";

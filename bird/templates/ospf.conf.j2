@@ -1,3 +1,4 @@
+{% if ospf is defined %}
 filter ospf_out {
 {% for p in ospf.prefixes.ipv4 | default([]) %}
   if (net ~ [ {{ p }} ] && (source = RTS_STATIC || source = RTS_DEVICE || source = RTS_STATIC_DEVICE)) then accept;
@@ -39,3 +40,57 @@ protocol ospf o_intern {
 {% endfor %}
   };
 }
+{% endif %}
+
+{% if ospf_nat_ip is defined %}
+protocol ospf upstream {
+  table ffnet;
+  import where is_default();
+  export filter hostroute;
+{% if ospf_nat_instanceid is defined %}
+  instance id {{ospf_nat_instanceid}};
+{% endif %}
+
+  area {{ ospf_nat_area | default("0.0.0.0")}} {
+    interface "{{ansible_default_ipv4.interface}}" {
+      cost 10;
+{% if ospf_nat_options is defined %}
+      {{ospf_nat_options}}
+{% endif %}
+    };
+    interface "lo" { stub; };
+  };
+};
+{% endif %}
+
+{% if domaenenliste is defined %}
+protocol ospf backbone {
+  table ffnet;
+  import filter freifunk;
+  export filter {
+    if net ~ [192.168.0.0/16+] then reject;
+    if source = RTS_BGP then reject;
+    #if source = RTS_OSPF then reject;
+    accept;
+  };
+
+  area 0.0.0.0 {
+    interface "bat*" {
+      stub;
+    };
+{% for host in groups['gateways']|default([]) %}
+{% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
+    interface "bck-{{host}}" {
+      cost 1000;
+    };
+{% endif %}
+{% endfor %}
+    interface "bck-*" {
+      cost 1000;
+    };
+    interface "lo" {
+      stub;
+    };
+  };
+};
+{% endif %}

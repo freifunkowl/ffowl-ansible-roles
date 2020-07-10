@@ -1,9 +1,139 @@
 # {{ ansible_managed }}
 
 log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
-{% if router_id is defined %}router id {{ router_id }};{% else %}router id {{ vm_id }};{% endif %}
+{% if router_id is defined %}router id {{ router_id }};{% else %}router id 192.168.255.{{ vm_id }};{% endif %}
 
 table ffnet;
+
+protocol kernel 'kernel_ffnet' {
+  table ffnet;
+  kernel table 42;
+  device routes;
+  persist;
+  scan time 20;
+
+  import all;
+  export filter {
+{% if domaenenliste is defined %}
+{% for domaene in domaenenliste|dictsort %}
+    if net ~ [{{ domaenen[domaene[0]].ffv4_network }}{ {{- domaenen[domaene[0]].ffv4_network | ipaddr('prefix') + 1 }},32}] then reject;
+{% endfor %}
+{% endif %}
+	accept;
+  };
+};
+
+protocol direct {
+  table ffnet;
+
+  interface "lo";
+  interface "gre-*";
+  interface "bck-*";
+{% if ffrl_tun is defined %}
+  interface "tun-ffrl*";
+{% endif %}
+{% if ffnw_tun is defined %}
+  interface "tun-ffnw*";
+{% endif %}
+{% if ffgt_tun is defined %}
+  interface "tun-ffgt*";
+{% endif %}
+  interface "bat*";
+}
+
+protocol bfd {
+  interface "gre*";
+  interface "bck-*";
+  multihop {
+    passive;
+  };
+};
+
+protocol device {
+  scan time 10;
+};
+
+protocol kernel 'kernel_master' {
+  scan time 20;
+  table master;
+  kernel table 254;
+  import all;
+  export all;
+  persist;
+};
+
+protocol static 'master'{
+  table master;
+  import all;
+  export none;
+};
+
+{% if ipv4_direkt_ausleiten is defined and ipv4_direkt_ausleiten %}
+protocol static v4localexit {
+	table ffnet;
+	preference 1000;
+	route 0.0.0.0/0 via {{ ansible_default_ipv4.gateway }};
+};
+{% endif %}
+
+{% if domaenenliste is defined %}
+protocol static dhcp_Bereich {
+  table ffnet;
+{% for domaene in domaenenliste|dictsort %}
+  route {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}/32 via "bat{{domaene[0]}}";
+{% endfor %}
+{% for result in more_specific_routes.results|sort(attribute='item') %}
+{% for line in result['stdout_lines'] %}
+  {{line}}
+{% endfor %}
+{% endfor %}
+}
+{% endif %}
+
+filter freifunk {
+{% if ffrl_tun is defined %}
+  # FFRL
+  if net ~ [185.66.192.0/22+] then accept;
+{% endif %}
+{% if ffnw_tun is defined %}
+  # FFNW
+  if net ~ [185.197.132.0/24+] then accept;
+{% endif %}
+{% if ffgt_tun is defined %}
+  # FFGT
+  if net ~ [192.251.226.0/24+, 193.26.120.0/24+] then accept;
+{% endif %}
+  # ICVPN / Freifunk meshes
+  if net ~ [10.0.0.0/8+] then accept;
+{% if not ffrl_tun is defined and not ffnw_tun is defined and not ffgt_tun is defined %}
+  # Allow default route for satellite routers
+  if net ~ [0.0.0.0/0] then accept;
+{% endif %}
+  # Internal tunnels
+  if net ~ [192.168.0.0/16+] then accept;
+
+  reject;
+};
+
+filter hostroute {
+{% if ffrl_nat_ip is defined %}
+	if net ~ {{ffrl_nat_ip | ipaddr('address')}}/32 then accept;
+{% endif %}
+{% if ffnw_nat_ip is defined %}
+	if net ~ {{ffnw_nat_ip | ipaddr('address')}}/32 then accept;
+{% endif %}
+{% if ffgt_nat_ip is defined %}
+	if net ~ {{ffgt_nat_ip | ipaddr('address')}}/32 then accept;
+{% endif %}
+{% if ospf_nat_ip is defined %}
+	if net ~ {{ospf_nat_ip | ipaddr('address')}}/32 then accept;
+{% endif %}
+    reject;
+};
+
+function is_default() {
+	return (net ~ [0.0.0.0/0]);
+};
 
 ### additional configuration  ###
 include "/etc/bird/bird.conf.d/*.conf";
