@@ -5,6 +5,65 @@ log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
 
 table ffnet;
 
+filter freifunk {
+{% if ffrl_tun is defined %}
+  # FFRL
+  if net ~ [185.66.192.0/22+] then accept;
+{% endif %}
+{% if ffnw_tun is defined %}
+  # FFNW
+  if net ~ [185.197.132.0/24+] then accept;
+{% endif %}
+{% if ffgt_tun is defined %}
+  # FFGT
+  if net ~ [192.251.226.0/24+, 193.26.120.0/24+] then accept;
+{% endif %}
+  # ICVPN / Freifunk meshes
+  if net ~ [10.0.0.0/8+] then accept;
+{% if not ffrl_tun is defined and not ffnw_tun is defined and not ffgt_tun is defined %}
+  # Allow default route for satellite routers
+  if net ~ [0.0.0.0/0] then accept;
+{% endif %}
+  # Internal tunnels
+  if net ~ [192.168.0.0/16+] then accept;
+
+  reject;
+};
+
+filter hostroute {
+{% if ffrl_nat_ip is defined %}
+	if net ~ {{ffrl_nat_ip | ipaddr('address')}}/32 then accept;
+{% endif %}
+{% if ffnw_nat_ip is defined %}
+	if net ~ {{ffnw_nat_ip | ipaddr('address')}}/32 then accept;
+{% endif %}
+{% if ffgt_nat_ip is defined %}
+	if net ~ {{ffgt_nat_ip | ipaddr('address')}}/32 then accept;
+{% endif %}
+{% if ospf_nat_ip is defined %}
+	if net ~ {{ospf_nat_ip | ipaddr('address')}}/32 then accept;
+{% endif %}
+    reject;
+};
+
+function avoid_martians()
+prefix set martians;
+{
+  martians = [ 169.254.0.0/16+, 172.16.0.0/12+, 100.64.0.0/10+,
+        192.168.0.0/16+, 10.0.0.0/8+, 127.0.0.0/8+,
+        224.0.0.0/4+, 240.0.0.0/4+, 192.0.0.0/24+,
+        192.88.99.0/24+, 198.18.0.0/15+, 198.51.100.0/24+,
+        203.0.113.0/24+, 0.0.0.0/32-, 0.0.0.0/0{31,32}, 0.0.0.0/0{0,7} ];
+
+  if net ~ martians then return false;
+
+  return true;
+}
+
+function is_default() {
+	return (net ~ [0.0.0.0/0]);
+};
+
 protocol kernel 'k_ffnet' {
   table ffnet;
   kernel table 42;
@@ -22,7 +81,7 @@ protocol kernel 'k_ffnet' {
 {% if loopback_ipv4 is defined %}
     if (source = RTS_BGP && avoid_martians()) then { krt_prefsrc = {{ loopback_ipv4 }}; }
 {% endif %}
-	accept;
+    accept;
   };
 };
 
@@ -92,65 +151,6 @@ protocol static s_dhcp {
 {% endfor %}
 }
 {% endif %}
-
-filter freifunk {
-{% if ffrl_tun is defined %}
-  # FFRL
-  if net ~ [185.66.192.0/22+] then accept;
-{% endif %}
-{% if ffnw_tun is defined %}
-  # FFNW
-  if net ~ [185.197.132.0/24+] then accept;
-{% endif %}
-{% if ffgt_tun is defined %}
-  # FFGT
-  if net ~ [192.251.226.0/24+, 193.26.120.0/24+] then accept;
-{% endif %}
-  # ICVPN / Freifunk meshes
-  if net ~ [10.0.0.0/8+] then accept;
-{% if not ffrl_tun is defined and not ffnw_tun is defined and not ffgt_tun is defined %}
-  # Allow default route for satellite routers
-  if net ~ [0.0.0.0/0] then accept;
-{% endif %}
-  # Internal tunnels
-  if net ~ [192.168.0.0/16+] then accept;
-
-  reject;
-};
-
-filter hostroute {
-{% if ffrl_nat_ip is defined %}
-	if net ~ {{ffrl_nat_ip | ipaddr('address')}}/32 then accept;
-{% endif %}
-{% if ffnw_nat_ip is defined %}
-	if net ~ {{ffnw_nat_ip | ipaddr('address')}}/32 then accept;
-{% endif %}
-{% if ffgt_nat_ip is defined %}
-	if net ~ {{ffgt_nat_ip | ipaddr('address')}}/32 then accept;
-{% endif %}
-{% if ospf_nat_ip is defined %}
-	if net ~ {{ospf_nat_ip | ipaddr('address')}}/32 then accept;
-{% endif %}
-    reject;
-};
-
-function avoid_martians()
-prefix set martians;
-{
-  martians = [ 169.254.0.0/16+, 172.16.0.0/12+, 100.64.0.0/10+,
-        192.168.0.0/16+, 10.0.0.0/8+, 127.0.0.0/8+,
-        224.0.0.0/4+, 240.0.0.0/4+, 192.0.0.0/24+,
-        192.88.99.0/24+, 198.18.0.0/15+, 198.51.100.0/24+,
-        203.0.113.0/24+, 0.0.0.0/32-, 0.0.0.0/0{31,32}, 0.0.0.0/0{0,7} ];
-
-  if net ~ martians then return false;
-
-  return true;
-}
-
-function is_default() {
-	return (net ~ [0.0.0.0/0]);
-};
 
 ### additional configuration  ###
 include "/etc/bird/bird.conf.d/*.conf";
