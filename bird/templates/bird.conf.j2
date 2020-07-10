@@ -5,7 +5,7 @@ log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
 
 table ffnet;
 
-protocol kernel 'kernel_ffnet' {
+protocol kernel 'k_ffnet' {
   table ffnet;
   kernel table 42;
   device routes;
@@ -53,7 +53,7 @@ protocol device {
   scan time 10;
 };
 
-protocol kernel 'kernel_master' {
+protocol kernel 'k_master' {
   scan time 20;
   table master;
   kernel table 254;
@@ -62,22 +62,22 @@ protocol kernel 'kernel_master' {
   persist;
 };
 
-protocol static 'master'{
+protocol static 's_master' {
   table master;
   import all;
   export none;
 };
 
 {% if ipv4_direkt_ausleiten is defined and ipv4_direkt_ausleiten %}
-protocol static v4localexit {
-	table ffnet;
-	preference 1000;
-	route 0.0.0.0/0 via {{ ansible_default_ipv4.gateway }};
+protocol static v4lexit {
+  table ffnet;
+  preference 1000;
+  route 0.0.0.0/0 via {{ ansible_default_ipv4.gateway }};
 };
 {% endif %}
 
 {% if domaenenliste is defined %}
-protocol static dhcp_Bereich {
+protocol static s_dhcp {
   table ffnet;
 {% for domaene in domaenenliste|dictsort %}
   route {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}/32 via "bat{{domaene[0]}}";

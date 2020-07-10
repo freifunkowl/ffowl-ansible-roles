@@ -5,7 +5,7 @@ log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
 
 table ffnet;
 
-protocol kernel 'kernel_ffnet' {
+protocol kernel 'k_ffnet' {
   table ffnet;
   kernel table 42;
   device routes;
@@ -46,7 +46,7 @@ protocol device {
   scan time 10;
 };
 
-protocol kernel 'kernel_master' {
+protocol kernel 'k_master' {
   scan time 20;
   table master;
   kernel table 254;
@@ -55,14 +55,14 @@ protocol kernel 'kernel_master' {
   persist;
 };
 
-protocol static 'master'{
+protocol static 's_master'{
   table master;
   import all;
   export none;
 };
 
 {% if ipv6_direkt_ausleiten is defined and ipv6_direkt_ausleiten %}
-protocol static v6localexit {
+protocol static v6lexit {
 	table ffnet;
 	preference 1000;
 	route ::/0 via {{ ansible_default_ipv6.gateway }};
@@ -96,14 +96,14 @@ protocol radv {
 };
 {% endif %}
 
-protocol static static_Gesamtnetzwerk {
+protocol static s_gesamt {
   table ffnet;
   route {{ff_network.v6_network}} reject;
 };
 
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
-protocol static static_domaene{{domaene[0]}} {
+protocol static s_dom{{domaene[0]}} {
   table ffnet;
   route {{domaenen[domaene[0]].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
 };
@@ -111,7 +111,7 @@ protocol static static_domaene{{domaene[0]}} {
 {% endif %}
 
 {% if dhcp is defined %}
-protocol static 'static_{{inventory_hostname_short}}' {
+protocol static 's_{{inventory_hostname_short}}' {
 	table ffnet;
 	route {{ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
 };
