@@ -51,7 +51,7 @@ protocol kernel 'k_ffnet' {
     if (source = RTS_BGP && avoid_martians()) then { krt_prefsrc = {{ loopback_ipv6 }}; }
 {% endif %}
     accept;
-  }
+  };
 };
 
 protocol direct {
