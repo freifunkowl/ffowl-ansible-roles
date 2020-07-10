@@ -186,7 +186,11 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% if peer.ipv4dst is defined %}
 {% set ouras = ff_network.as_number|int %}
 {% if peer.ouras is defined %}{% set ouras = peer.ouras %}{% endif %}
+{% if peer.label is defined %}
+protocol bgp i_{{ peer.label|replace("-", "_")|replace(":", "__") }} {
+{% else %}
 protocol bgp i_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
+{% endif %}
   table ffnet;
   local as {{ ouras }};
   source address {{ peer.ipv4src }};
