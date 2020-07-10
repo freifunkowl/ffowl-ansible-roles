@@ -207,7 +207,7 @@ protocol bgp i_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 
     accept;
   };
-{$ if peer.next_hop_self is defined %}  next hop self;
+{% if peer.next_hop_self is defined %}  next hop self;
 {% endif %}
 {% if peer.bgpopts is defined %}  {{ peer.bgpopts }};
 {% endif %}
