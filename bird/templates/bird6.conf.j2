@@ -135,5 +135,21 @@ function is_default() {
 	return (net ~ [::/0]);
 };
 
+function avoid_martians()
+prefix set martians;
+{
+  # 2001::/23 contains for example 2001:4:112::/48, belonging to AS112
+  # so we mustn't filter more specific
+  # 3FFE::/16 et 5F00::/8 = formerly 6bone (IPv6 tests)
+  martians = [ ::1/128, ::/128, ::ffff:0:0/96+, 100::/64+,
+       2001:db8::/32+, 2001::/23, 2001:2::/48+, 64:ff9b::/96{96,128},
+       2001:10::/28+, 2002::/17+, fc00::/7, fe80::/10, ff00::/8+,
+       3FFE::/16+, 5F00::/8+, ::/0{0,15}, ::/0{49,128} ];
+
+  if net ~ martians then return false;
+
+  return true;
+}
+
 ### additional configuration  ###
 include "/etc/bird/bird6.conf.d/*.conf";
