@@ -180,3 +180,39 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% endfor %}
 {% endif %}
 {% endif %}
+
+{% if ibgp_peers is defined %}
+{% for peer in ibgp_peers %}
+{% if peer.ipv6dst is defined %}
+{% set ouras = ff_network.as_number|int %}
+{% if peer.ouras is defined %}{% set ouras = peer.ouras %}{% endif %}
+protocol bgp i_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
+  table ffnet;
+  local as {{ ouras }};
+  source address {{ peer.ipv6src }};
+  neighbor {{ peer.ipv6dst }} as {{ ouras }};
+  import filter {
+{% if peer.pref is defined %}    bgp_local_pref = {{ peer.pref }};{% endif %}
+{% if peer.dfz is defined and peer.dfz != "no" %}
+    if (net ~ [::/0]) then accept;
+{% else %}
+    if (net ~ [::/0]) then reject;
+{% endif %}
+    accept;
+  };
+  export filter {
+    if ((65535, 65282) ~ bgp_community) then {
+      reject;
+    }
+
+    accept;
+  };
+{$ if peer.next_hop_self is defined %}  next hop self;
+{% endif %}
+{% if peer.bgpopts is defined %}  {{ peer.bgpopts }};
+{% endif %}
+}
+
+{% endif %}
+{% endfor %}
+{% endif %}
