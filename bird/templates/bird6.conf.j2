@@ -13,7 +13,12 @@ protocol kernel 'k_ffnet' {
   scan time 20;
 
   import all;
-  export  all;
+  export filter {
+{% if loopback_ipv4 is defined %}
+    if (source = RTS_BGP && avoid_martians()) then { krt_prefsrc = {{ loopback_ipv4 }}; }
+{% endif %}
+    accept;
+  }
 };
 
 protocol direct {

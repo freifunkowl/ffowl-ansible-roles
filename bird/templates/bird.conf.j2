@@ -19,6 +19,9 @@ protocol kernel 'k_ffnet' {
     if net ~ [{{ domaenen[domaene[0]].ffv4_network }}{ {{- domaenen[domaene[0]].ffv4_network | ipaddr('prefix') + 1 }},32}] then reject;
 {% endfor %}
 {% endif %}
+{% if loopback_ipv4 is defined %}
+    if (source = RTS_BGP && avoid_martians()) then { krt_prefsrc = {{ loopback_ipv4 }}; }
+{% endif %}
 	accept;
   };
 };
