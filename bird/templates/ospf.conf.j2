@@ -16,6 +16,7 @@ filter ospf_in {
 }
 
 protocol ospf o_intern {
+  table ffnet;
 {% if ecmp | default(false) %}
   ecmp on;
 {% endif %}
