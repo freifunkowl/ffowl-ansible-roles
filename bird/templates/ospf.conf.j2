@@ -26,7 +26,7 @@ protocol ospf o_intern {
   area 0 {
 {% for interface in ospf.interfaces | default([]) %}
     interface "{{ interface.name }}" {
-      {{ interface.cost | default(10) }}
+      cost {{ interface.cost | default(10) }};
 {% if interface.options is defined %}
       {{ interface.options }}
 {% endif %}
