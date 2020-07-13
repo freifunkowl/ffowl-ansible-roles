@@ -45,7 +45,7 @@ protocol ospf o_intern {
 }
 {% endif %}
 
-{% if ospf_nat_ip is defined or (if ipv4_direkt_ausleiten is defined and ipv4_direkt_ausleiten) %}
+{% if ospf_nat_ip is defined or ipv4_direkt_ausleiten|default(false) %}
 protocol ospf upstream {
   table ffnet;
   import where is_default();
