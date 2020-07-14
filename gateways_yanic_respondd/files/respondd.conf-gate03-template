@@ -1,0 +1,38 @@
+# how ofter the cache respond of a respondd request is calculated
+data_interval = "3m"
+
+batman = ["bat02"]
+#babel  = "[::1]:33123"
+
+[[listen]]
+interface = "bat02"
+
+[[listen]]
+interface = "br02"
+address   = "ff02::2:1001"
+[[listen]]
+interface = "t02-map"
+address   = "ff02::2:1001"
+[[listen]]
+interface = "t02-gate04"
+address   = "ff02::2:1001"
+
+[defaults]
+node_id  = ""
+hostname = ""
+site_code = "fflip"
+domain_code = "gwff"
+vpn = true
+interface_mac = "ens3"
+interfaces_traffic = [ "ens3" ]
+interfaces_address = [ "br02", "bat02", "ens3" ]
+
+[defaults.location]
+#latitude  = 53.112446246
+#longitude = 8.734087944
+
+# if divergent configuration of defaults are wanted by respond on interface/zones example with bat0
+#[zones.bat03]
+#node_id  = ""
+#hostname = ""
+#...
