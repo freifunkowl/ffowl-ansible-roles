@@ -6,10 +6,10 @@
 - name: Changing perm of yanic binary
   file: dest=/usr/local/bin/yanic mode=u=rwX,g=rX,o=rX
 
-- name: Deploy repondd service
+- name: Deploy respondd service
   copy: src=respondd.service dest=/lib/systemd/system/respondd.service
 
-- name: Deploy repondd.conf
+- name: Deploy respondd.conf
   copy: src=respondd.conf-{{ inventory_hostname }}-template dest=/etc/respondd.conf
 
 - name: Enable service respondd

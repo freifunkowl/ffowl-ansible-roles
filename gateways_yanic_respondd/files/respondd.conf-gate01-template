@@ -1,20 +1,20 @@
 # how ofter the cache respond of a respondd request is calculated
 data_interval = "3m"
 
-batman = ["bat06"]
+batman = ["bat01"]
 #babel  = "[::1]:33123"
 
 [[listen]]
-interface = "bat06"
+interface = "bat01"
 
 [[listen]]
-interface = "br06"
+interface = "br01"
 address   = "ff02::2:1001"
 [[listen]]
-interface = "t06-knoten"
+interface = "t01-map"
 address   = "ff02::2:1001"
 [[listen]]
-interface = "t06-gwd0601"
+interface = "t01-gate02"
 address   = "ff02::2:1001"
 
 [defaults]
@@ -23,9 +23,9 @@ hostname = ""
 site_code = "fflip"
 domain_code = "gwff"
 vpn = true
-interface_mac = "eth0"
-interfaces_traffic = [ "eth0" ]
-interfaces_address = [ "br06", "bat06", "eth0" ]
+interface_mac = "ens3"
+interfaces_traffic = [ "ens3" ]
+interfaces_address = [ "br01", "bat01", "ens3" ]
 
 [defaults.location]
 #latitude  = 53.112446246

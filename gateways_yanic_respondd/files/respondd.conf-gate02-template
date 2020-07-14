@@ -11,10 +11,10 @@ interface = "bat01"
 interface = "br01"
 address   = "ff02::2:1001"
 [[listen]]
-interface = "t01-knoten"
+interface = "t01-map"
 address   = "ff02::2:1001"
 [[listen]]
-interface = "t01-gwd0102"
+interface = "t01-gate01"
 address   = "ff02::2:1001"
 
 [defaults]
@@ -23,9 +23,9 @@ hostname = ""
 site_code = "fflip"
 domain_code = "gwff"
 vpn = true
-interface_mac = "eth0"
-interfaces_traffic = [ "eth0" ]
-interfaces_address = [ "br01", "bat01", "eth0" ]
+interface_mac = "ens3"
+interfaces_traffic = [ "ens3" ]
+interfaces_address = [ "br01", "bat01", "ens3" ]
 
 [defaults.location]
 #latitude  = 53.112446246
