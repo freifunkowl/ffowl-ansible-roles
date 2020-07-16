@@ -25,6 +25,12 @@ cat << 'EOF'
 {% if ffrl_nat_ip is defined %}
  FFRL-NAT-IP : {{ffrl_nat_ip}}
 {% endif %}
+{% if ffgt_nat_ip is defined %}
+ FFGT-NAT-IP : {{ffgt_nat_ip}}
+{% endif %}
+{% if ospf_nat_ip is defined %}
+ OSPF-NAT-IP : {{ospf_nat_ip}}
+{% endif %}
 
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
