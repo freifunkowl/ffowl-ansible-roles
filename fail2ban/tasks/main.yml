@@ -1,0 +1,7 @@
+- name: install fail2ban
+  apt: pkg=fail2ban state=present
+
+- name: Deploy jail.local
+  copy: src=jail.local dest=/etc/fail2ban/jail.local
+
+
