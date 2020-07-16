@@ -12,11 +12,13 @@ subnet {{domaenen[domaene[0]].ffv4_network | ipaddr('network')}} netmask {{domae
     interface bat{{domaene[0]}};
     range {{domaene[1].dhcp_start}} {{domaene[1].dhcp_ende}};
 
-    option routers {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
-{% if public_dns_ip is defined %}
-    option domain-name-servers {{public_dns_ip }};
+    option routers {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address')}};
+{% if jusprogdns_ip is defined %}
+    option domain-name-servers {{jusprogdns_ip}};
+{% elif public_dns_ip is defined %}
+    option domain-name-servers {{public_dns_ip}};
 {% else %}
-    option domain-name-servers {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
+    option domain-name-servers {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address')}};
 {% endif %}
 
     option interface-mtu {{dhcp_global.mtu}};
