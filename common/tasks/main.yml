@@ -51,7 +51,7 @@
 
 - name: uninstall unneeded packages
   apt:
-    pkg: ['rpcbind']
+    pkg: ['rpcbind', 'puppet']
     update_cache: yes
     state: absent
 
