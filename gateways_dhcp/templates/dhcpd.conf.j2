@@ -13,8 +13,8 @@ subnet {{domaenen[domaene[0]].ffv4_network | ipaddr('network')}} netmask {{domae
     range {{domaene[1].dhcp_start}} {{domaene[1].dhcp_ende}};
 
     option routers {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address')}};
-{% if jusprogdns_ip is defined %}
-    option domain-name-servers {{jusprogdns_ip}};
+{% if domaene[1].jusprogdns_ip is defined %}
+    option domain-name-servers {{domaene[1].jusprogdns_ip}};
 {% elif public_dns_ip is defined %}
     option domain-name-servers {{public_dns_ip}};
 {% else %}
