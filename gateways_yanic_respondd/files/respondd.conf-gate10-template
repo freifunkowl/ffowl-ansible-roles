@@ -17,7 +17,7 @@ interface = "t05-map"
 address   = "ff02::2:1001"
 [[listen]]
 interface = "t05-gate09"
-address   = "ff02::2:1001"[[listen]]
+address   = "ff02::2:1001"
 [[listen]]
 interface = "br06"
 address   = "ff02::2:1001"
@@ -30,7 +30,7 @@ address   = "ff02::2:1001"
 
 [defaults]
 node_id  = ""
-hostname = ""
+hostname = "Gateway 10 - [Berlin]"
 site_code = "fflip"
 domain_code = "gwff"
 vpn = true

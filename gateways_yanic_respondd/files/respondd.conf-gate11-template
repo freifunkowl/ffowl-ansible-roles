@@ -19,7 +19,7 @@ address   = "ff02::2:1001"
 
 [defaults]
 node_id  = ""
-hostname = ""
+hostname = "Gateway 11 - [Frankfurt]"
 site_code = "fflip"
 domain_code = "gwff"
 vpn = true
