@@ -1,0 +1,27 @@
+# Base: https://raw.githubusercontent.com/freifunk-ansible/ansible-role-yanic/master/templates/respondd.conf
+data_interval = "1m"
+
+batman = [ {% for domaene in domaenen|dictsort %}"bat{{domaene[0]}}"{% if not loop.last %}, {% endif %}{% endfor %}]
+
+{% if yanic_respondd_babel %}
+#babel = "{{yanic_respondd_babel_socket}}"
+{% endif %}
+
+{% for domaene in domaenen|dictsort %}
+[[listen]]
+interface = "bat{{domaene[0]}}"
+
+[[listen]]
+interface = "br{{domaene[0]}}"
+address   = "ff02::2:1001"
+{% endfor %}
+
+[defaults]
+site_code = "{{ freifunk_site_code }}"
+domain_code = "servers"
+{% if yanic_respondd_vpn %}
+vpn = true
+{% endif %}
+interface_mac = "{{ ansible_default_ipv4.interface }}"
+interfaces_traffic = [ "{{ ansible_default_ipv4.interface }}" ]
+interfaces_address = [ "{{ ansible_default_ipv4.interface }}" ]
