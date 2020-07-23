@@ -13,7 +13,7 @@
 #  copy: src=respondd.conf-{{ inventory_hostname }}-template dest=/etc/respondd.conf
 
 - name: Deploy respondd.conf
-  copy: src=respondd.conf.js dest=/etc/respondd.conf
+  copy: src=respondd.conf.j2 dest=/etc/respondd.conf
 
 - name: Enable service respondd
   service:
