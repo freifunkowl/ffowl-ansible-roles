@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 log syslog { debug, trace, info, remote, warning, error, auth, fatal, bug };
-{% if router_id is defined %}router id {{ router_id }};{% else %}router id 192.168.255.{{ vm_id }};{% endif %}
+{% if router_id is defined %}router id {{ router_id }};{% else %}router id {{ipv4backbone16prefixstr}}255.{{ vm_id }};{% endif %}
 
 table ffnet;
 filter export_to_upstream_filter {

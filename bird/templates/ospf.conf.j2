@@ -71,7 +71,7 @@ protocol ospf backbone {
   table ffnet;
   import filter freifunk;
   export filter {
-    if net ~ [192.168.0.0/16+] then reject;
+    if net ~ [{{ipv4backbone16prefixstr}}0.0/16+] then reject;
     if source = RTS_BGP then reject;
     #if source = RTS_OSPF then reject;
     accept;
