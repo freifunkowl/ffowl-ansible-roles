@@ -2,7 +2,7 @@
 
 Diese Rolle installiert bird.
 
-Im Normalfall (iBGP unter den Gateways, ggf. eBGP für Default-Route zum Upstream) gilt:
+Im Normalfall (iBGP zwischen den Gateways, ggf. eBGP für Default-Route zum Upstream) gilt:
 
 Bird setzt die Routen, um den Traffic durch die GRE-Tunnel zu leiten.
 Das betrifft sowohl die GRE-Tunnel zwischen den Servern (siehe Rolle "backbone_gre_intern") als auch die GRE-Tunnel zu Freifunk Rheinland (siehe Rolle "gateways_gre_upstream").
@@ -11,18 +11,36 @@ Außerdem sendet Bird für IPv6 Router Advertisements in das Batman-Netz, wodurc
 
 Ein Server kann aber auch als ›echter‹ BGP-Router für das eigene AS konfiguriert werden, hierzu ist in den host_vars »bgp_router: true« zu setzen, dann werden weitere Variablen ausgewertet:
 
-- router_id: 85.220.142.33
+- `router_id: 85.220.142.33`
 
-  Setzt die Router-ID, Default: {{ipv4backbone16prefixstr}}255.{{vm_id}} (e. g. 192.168.255.4)
+  Setzt die Router-ID, Default: {{ipv4backbone16prefixstr}}255.{{vm_id}} (e. g. 192.168.255.4) — gilt unabhängig von »bgp_router: true« (denn 0.0.0.{{vm_id}} saugt).
 
-- loopback_ipv4: 85.220.142.33
+- `loopback_ipv4: 85.220.142.33`
 
-  Sourceadresse für die gelernten Routen
+  Sourceadresse IPv4 für die gelernten Routen
 
-- loopback_ipv6: 2001:bf7:1352::1
+- `loopback_ipv6: 2001:bf7:1352::1`
 
-  Sourceadresse für die gelernten Routen
+  Sourceadresse IPv6 für die gelernten Routen
 
+- Ein eBGP-Peer kann wie folgt konfiguriert werden:
+
+        - name: cix-ber1
+          ipv4src: "185.1.74.52"
+          ipv6src: "2001:7f8:a5::21:3106:2"
+          ipv4dst: "185.1.74.1"
+          ipv6dst: "2001:7f8:a5::5:7555:1"
+          import4: "ANY"
+          import6: "ANY"
+          export4: "AS-FFLIP"
+          export6: "AS213106"
+          reimport_filter6: "AS213106"
+          reimport_filter4: "AS213106"
+          ouras:  213106
+          peeras: 57555
+          passwd: "PoohTheBear"
+          exportlimit6: 50
+          exportlimit4: 10
 
 
 # TODO:
