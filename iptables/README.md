@@ -7,4 +7,4 @@ wegen Tunneln mit MTU < 1500 Byte.
 ## Konfiguration
 
 - `blocked_tcp_ports`: Liste von TCP-Ziel-Ports, die blockiert werden sollen (z. B. 25)
-- `blocked_udp_ports`: Liste von UCP-Ziel-Ports, die blockiert werden sollen (z. B. 111)
+- `blocked_udp_ports`: Liste von UDP-Ziel-Ports, die blockiert werden sollen (z. B. 111)
