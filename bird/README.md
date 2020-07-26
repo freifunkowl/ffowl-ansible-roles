@@ -25,6 +25,7 @@ Ein Server kann aber auch als ›echter‹ BGP-Router für das eigene AS konfigu
 
 - Ein eBGP-Peer kann wie folgt konfiguriert werden:
 
+        ebgp_peers:
         - name: cix-ber1
           ipv4src: "185.1.74.52"
           ipv6src: "2001:7f8:a5::21:3106:2"
@@ -42,6 +43,36 @@ Ein Server kann aber auch als ›echter‹ BGP-Router für das eigene AS konfigu
           exportlimit6: 50
           exportlimit4: 10
 
+- Ähnlich sieht's bei iBGP aus:
+
+        ibgp_peers:
+        - name: fflip-fra01
+          label:  "fra01"
+          ipv4src: "185.1.74.52"
+          ipv6src: "2001:7f8:a5::21:3106:2"
+          ipv4dst: "185.1.74.51"
+          ipv6dst: "2001:7f8:a5::21:3106:1"
+
+- Und zu guter Letzt OSPF:
+
+        ospf:
+          interfaces:
+          - name: Tfra01
+            cost: 100
+            options: "type broadcast;"
+
+          - name: br-vms
+            cost: 10
+            options: "type broadcast;"
+
+          stub_interfaces:
+          - name: lo
+
+          prefixes:
+            ipv6:
+              - 2001:bf7:1350::/44{44,64}
+            ipv4:
+              - 85.220.142.0/24{24,32}
 
 # TODO:
 Konfiguration erläutern:
