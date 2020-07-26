@@ -4,7 +4,7 @@ Diese Rolle installiert bird.
 
 Sie erwartet (in group_vars/all) diese Variablen, es gibt keinen Rückfallwert:
 
-- `ipv6backbone64prefixstr: "2001:bf7:1350:ffff::"`
+- `ipv6backbone64prefixstr: "2001:db8:1350:ffff::"`
 
   Setzt das /64, aus dem die internen IPv6-Tunnel-IPs zusammengesetzt werden (Typ: String!)
 
@@ -23,7 +23,7 @@ Ein Server kann aber auch als ›echter‹ BGP-Router für das eigene AS konfigu
 
 - `router_id: 85.220.142.33`
 
-  Setzt die Router-ID, Default: {{ipv4backbone16prefixstr}}255.{{vm_id}} (e. g. 192.168.255.4) — gilt unabhängig von »bgp_router: true« (denn 0.0.0.{{vm_id}} saugt).
+  Setzt die Router-ID, Default: {{ipv4backbone16prefixstr}}255.{{vm_id}} (e. g. 198.19.255.4) — gilt unabhängig von »bgp_router: true« (denn 0.0.0.{{vm_id}} saugt).
 
 - `loopback_ipv4: 85.220.142.33`
 
