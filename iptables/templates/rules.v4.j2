@@ -1,4 +1,5 @@
-# This file is managed by ansible, don't make changes here - they will be overwritten.
+# {{ ansible_managed }}
+
 *filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
@@ -23,18 +24,22 @@ COMMIT
 {% if domaenenliste is defined %}
 -A POSTROUTING -o {{ ansible_default_ipv4.interface }} -j SNAT --to-source {{ ansible_default_ipv4.address }}
 {% endif %}
+{% elif ospf_nat_ip is defined %}
+{% for domaene in domaenenliste|dictsort %}
+-A POSTROUTING -o {{ansible_default_ipv4.interface}} -j SNAT -s {{domaenen[domaene[0]].ffv4_network}} --to-source {{ospf_nat_ip | ipaddr('address')}}
+{% endfor %}
 {% elif ffrl_tun is defined and ffrl_nat_ip is defined %}
+{% if domaenenliste is defined %}
 -A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{ffrl_nat_ip | ipaddr('address')}}
 {% endif %}
-{% if ffnw_tun is defined %}
+{% elif ffnw_tun is defined and ffnw_nat_ip is defined %}
+{% if domaenenliste is defined %}
 -A POSTROUTING -o tun-ffnw+ -j SNAT --to-source {{ffnw_nat_ip| ipaddr('address')}}
 {% endif %}
-{% if ffgt_nat_ip is defined %}
+{% elif ffgt_nat_ip is defined %}
+{% if domaenenliste is defined %}
 -A POSTROUTING -o tun-ffgt+ -j SNAT --to-source {{ffgt_nat_ip| ipaddr('address')}}
 {% endif %}
-{% if ffnw_tun is not defined and ffrl_tun is not defined and ffgt_nat_ip is not defined %}
--A POSTROUTING -o gre+ -p tcp -m tcp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}
--A POSTROUTING -o gre+ -p udp -m udp --dport 53 -j SNAT --to-source 10.0.0.{{vm_id}}
 {% endif %}
 COMMIT
 *mangle
@@ -45,5 +50,10 @@ COMMIT
 :POSTROUTING ACCEPT [0:0]
 {% if ffrl_tun is defined or ffnw_tun is defined or ffgt_tun is defined %}
 -A POSTROUTING -o tun-+ -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss ! --mss 0:1240 -j TCPMSS --set-mss 1240
+{% elif ospf_nat_ip is defined %}
+{% for domaene in domaenenliste|dictsort %}
+-A POSTROUTING -o {{ansible_default_ipv4.interface}} -s {{domaenen[domaene[0]].ffv4_network}} -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss ! --mss 0:1240 -j TCPMSS --set-mss 1240
+{% endfor %}
+-A POSTROUTING -o {{ansible_default_ipv4.interface}} -s {{ospf_nat_ip | ipaddr('address')}} -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss ! --mss 0:1240 -j TCPMSS --set-mss 1240
 {% endif %}
 COMMIT
