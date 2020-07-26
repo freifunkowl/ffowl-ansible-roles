@@ -2,6 +2,16 @@
 
 Diese Rolle installiert bird.
 
+Sie erwartet (in group_vars/all) diese Variablen, es gibt keinen Rückfallwert:
+
+- `ipv6backbone64prefixstr: "2001:bf7:1350:ffff::"`
+
+  Setzt das /64, aus dem die internen IPv6-Tunnel-IPs zusammengesetzt werden (Typ: String!)
+
+- `ipv4backbone16prefixstr: "198.19."`
+
+  Setzt das /16, aus dem die internen IPv4-Tunnel-IPs zusammengesetzt werden (Typ: String!)
+
 Im Normalfall (iBGP zwischen den Gateways, ggf. eBGP für Default-Route zum Upstream) gilt:
 
 Bird setzt die Routen, um den Traffic durch die GRE-Tunnel zu leiten.
