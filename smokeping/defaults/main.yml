@@ -1,0 +1,30 @@
+---
+# Virtual host configuration for smokeping
+smokeping_listen_address: 0.0.0.0
+smokeping_listen_port: 80
+smokeping_servername: {{inventory_hostname}}.{{freifunk.domain}}
+
+
+# General configuration for smokeping
+general_owner: {{freifunk.name}}
+general_contact: {{freifunk.email}}
+general_mailhost: mail.{{freifunk.domain}}
+general_cgiurl: "http://{{inventory_hostname}}.{{freifunk.domain}}/smokeping.cgi"
+master_cgiulr: "http://smokeping.{{freifunk.domain}}/smokeping.cgi"
+
+# Targets
+target_title: {{freifunk.name}} Network Latency Grapher
+target_remark: >
+  Welcome to the SmokePing website of {{freifunk.name}}. \
+  Here you will learn all about the latency of our network.
+targets:
+  - name: smokeping target group 1
+    target_group: Local
+    target_menu: Local
+    target_title: Local Network
+    target_hosts:
+      - name: smokeping target host 1
+        target_host_name: LocalMachine
+        target_host_menu: This host
+        target_host_title: Network Graph for localhost
+        target_host_host: localhost
