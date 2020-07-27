@@ -84,6 +84,13 @@ Ein Server kann aber auch als ›echter‹ BGP-Router für das eigene AS konfigu
             ipv4:
               - 85.220.142.0/24{24,32}
 
+
+Konfiguration:
+
+- `ff_network.as_number`
+
+  Default-ASN. Kann in eBGP mit `ouras` pro Peer überschrieben werden.
+
 # TODO:
 Konfiguration erläutern:
 - domaenenliste 
