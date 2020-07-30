@@ -25,9 +25,9 @@ COMMIT
 -A POSTROUTING -o {{ ansible_default_ipv4.interface }} -j SNAT --to-source {{ ansible_default_ipv4.address }}
 {% endif %}
 {% elif ospf_nat_ip is defined %}
-{% for domaene in domaenenliste|dictsort %}
--A POSTROUTING -o {{ansible_default_ipv4.interface}} -j SNAT -s {{domaenen[domaene[0]].ffv4_network}} --to-source {{ospf_nat_ip | ipaddr('address')}}
-{% endfor %}
+{% if domaenenliste is defined %}
+-A POSTROUTING -o {{ansible_default_ipv4.interface}} -j SNAT --to-source {{ospf_nat_ip | ipaddr('address')}}
+{% endif %}
 {% elif ffrl_tun is defined and ffrl_nat_ip is defined %}
 {% if domaenenliste is defined %}
 -A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{ffrl_nat_ip | ipaddr('address')}}
