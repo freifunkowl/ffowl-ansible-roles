@@ -148,3 +148,18 @@
   notify:
     - reread systemd configs
 
+- name: copy bird4 local configs
+  copy:
+    src: ../../files/{{inventory_hostname}}/bird4/
+    dest: /etc/bird/bird.conf.d/
+  when: bgp_router is defined and bgp_sync_files is defined
+  notify:
+    - reload bird
+
+- name: copy bird6 local configs
+  copy:
+    src: ../../files/{{inventory_hostname}}/bird6/
+    dest: /etc/bird/bird6.conf.d/
+  when: bgp_router is defined and bgp_sync_files is defined
+  notify:
+    - reload bird
