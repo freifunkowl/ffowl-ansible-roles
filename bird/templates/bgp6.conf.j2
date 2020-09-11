@@ -92,7 +92,7 @@ prefix set {{ peer.export6|replace("-", "_")|replace(":", "__") }}_PFX;
 int set bogon_asns;
 {
 {% if peer.export6 is defined %}
-{% if peer.export_filter4 is defined %}
+{% if peer.export_filter6 is defined %}
   include "/etc/bird/bird6.conf.d/{{ peer.export_filter6 }}";
 {% endif %}
 
