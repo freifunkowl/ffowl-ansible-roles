@@ -9,7 +9,7 @@ define BOGON_ASNS = [0, 23456, 64496..131071, 4200000000..4294967295];
 {% if peer.ipv6dst is defined %}
 {% set ouras = ff_network.as_number|int %}
 {% set bgp_max_pfx_len = 24 %}
-{% set community_in = 0 %}
+{% set community_in = 23456 %}
 filter peer_in_{{ peer.name|replace("-", "_")|replace(":", "__") }}
 prefix set {{ peer.import6|replace("-", "_")|replace(":", "__") }}_PFX;
 {% if peer.reimport_filter6 is defined %}
@@ -74,8 +74,11 @@ int set bogon_asns;
     bgp_community.add(({{ ouras }}, {{ community_in }})); /* mark peering routes as peering routes */
 {% endif %}
     bgp_large_community.delete([({{ ouras }}, 0, *), ({{ ouras }}, 5, *), ({{ ouras }}, 6, *)]);
-    bgp_large_community.add(({{ ouras }}, 0, {{ community_in }}));
-    bgp_large_community.add(({{ ouras }}, 0, {{ peer.peeras }}));
+    bgp_large_community.add(({{ ouras }}, {{ community_in }}, {{ peer.peeras }}));
+    bgp_large_community.add(({{ ouras }}, {{ community_in }}, 0));
+    if (({{ ouras }}, 500, 0) ~ bgp_large_community) then {
+      bgp_large_community.add(({{ ouras }}, 8, 0));
+    }
     accept;
   }
 {% else %}
@@ -118,8 +121,10 @@ int set bogon_asns;
       reject;
     }
 
-    if (({{ ouras }}, 9, {{ peer.peeras }}) ~ bgp_large_community || ({{ ouras }}, 9, 0) ~ bgp_large_community) then {
-      reject;
+    if (({{ ouras }}, 8, {{ peer.peeras }}) ~ bgp_large_community || ({{ ouras }}, 8, 0) ~ bgp_large_community) then {
+     if (({{ ouras }}, 9, {{ peer.peeras }}) !~ bgp_large_community) then {
+       reject;
+     }
     }
 
     if (({{ ouras }}, 2, {{ peer.peeras }}) ~ bgp_large_community || ({{ ouras }}, 2, 0) ~ bgp_large_community) then {
