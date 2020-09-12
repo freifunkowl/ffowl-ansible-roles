@@ -162,7 +162,7 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
   table ffnet;
   local as {{ ouras }};
   source address {{ peer.ipv6src | ipaddr('address') }};
-  neighbor {{ peer.ipv6dst }} {% if peer.ipv6dst|match('^fe80') %} % '{{ peer.name }}' {% endif %}as {{ peer.peeras }};
+  neighbor {{ peer.ipv6dst }} {% if peer.ipv6dst is match('^fe80') %} % '{{ peer.name }}' {% endif %}as {{ peer.peeras }};
   import keep filtered;
   import filter peer_in_{{ peer.name|replace("-", "_")|replace(":", "__") }};
   export filter peer_out_{{ peer.name|replace("-", "_")|replace(":", "__") }};
@@ -197,7 +197,7 @@ protocol bgp i_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
   table ffnet;
   local as {{ ouras }};
   source address {{ peer.ipv6src }};
-  neighbor {{ peer.ipv6dst }} {% if peer.ipv6dst|match('^fe80') %} % '{{ peer.name }}' {% endif %}as {{ ouras }};
+  neighbor {{ peer.ipv6dst }} {% if peer.ipv6dst is match('^fe80') %} % '{{ peer.name }}' {% endif %}as {{ ouras }};
   import filter {
 {% if peer.pref is defined %}    bgp_local_pref = {{ peer.pref }};{% endif %}
 {% if peer.dfz is defined and peer.dfz != "no" %}
