@@ -44,8 +44,8 @@ protocol ospf o_intern {
   };
 }
 {% endif %}
+{% if ospf_nat_ip|default(false) or ipv4_direkt_ausleiten|default(false))) %}
 
-{% if (ospf_nat_ip|default(false)) or (ipv4_direkt_ausleiten|default(false)) %}
 protocol ospf upstream {
   table ffnet;
   import where is_default();
@@ -65,8 +65,8 @@ protocol ospf upstream {
   };
 };
 {% endif %}
-
 {% if domaenenliste is defined %}
+
 protocol ospf backbone {
   table ffnet;
   import filter freifunk;
