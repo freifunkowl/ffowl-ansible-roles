@@ -45,7 +45,7 @@ protocol ospf o_intern {
 }
 {% endif %}
 
-{% if ipv6_direkt_ausleiten is defined and ipv6_direkt_ausleiten %}
+{% if ipv6_direkt_ausleiten|default(false) %}
 protocol ospf upstream {
   table ffnet;
   import where is_default();
