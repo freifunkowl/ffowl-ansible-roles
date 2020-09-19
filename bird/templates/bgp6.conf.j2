@@ -218,6 +218,8 @@ protocol bgp i_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% endif %}
 {% if peer.bgpopts is defined %}  {{ peer.bgpopts }};
 {% endif %}
+{% if peer.direct is defined %}  direct;
+{% endif %}
 }
 
 {% endif %}
