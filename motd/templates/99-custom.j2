@@ -4,7 +4,7 @@
 cat << 'EOF'
  This system is managed by Ansible.
 
-{% if figlethost.stdout is defined %} {{ figlethost.stdout }} {% endif %}
+{% if figlethost.stdout is defined %}{{ figlethost.stdout }}{% endif %}
 
  {{ freifunk.name }}
 EOF
