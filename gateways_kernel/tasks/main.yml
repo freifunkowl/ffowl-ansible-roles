@@ -1,3 +1,3 @@
 - name: Install dependencies for this role
   apt:
-    pkg: ['linux-modules-extra-{{ansible_kernel}}-generic', 'python', 'ifupdown', 'libelf-dev', 'aptitude']
+    pkg: ['linux-modules-extra-{{ansible_kernel}}', 'python', 'ifupdown', 'libelf-dev', 'aptitude']
