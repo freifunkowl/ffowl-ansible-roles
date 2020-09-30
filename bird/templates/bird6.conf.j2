@@ -143,18 +143,18 @@ protocol static s_gesamt {
 
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
-protocol static s_dom{{domaene[0]}} {
-  table ffnet;
-  route {{domaenen[domaene[0]].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
-};
+#protocol static s_dom{{domaene[0]}} {
+#  table ffnet;
+#  route {{domaenen[domaene[0]].ffv6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+#};
 {% endfor %}
 {% endif %}
 
 {% if dhcp is defined %}
-protocol static 's_{{inventory_hostname_short}}' {
-	table ffnet;
-	route {{ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
-};
+#protocol static 's_{{inventory_hostname_short}}' {
+#	table ffnet;
+#	route {{ff_network.v6_network | regex_replace('..::/\d+$','00::/56')}} reject;
+#};
 {% endif %}
 
 ### additional configuration  ###
