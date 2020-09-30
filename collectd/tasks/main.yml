@@ -19,7 +19,7 @@
   when: (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04')
 
 - name: install python2-pip on Ubuntu 20.04 LTS
-  shell: "curl -O https://raw.githubusercontent.com/pypa/get-pip/master/get-pip.py && python get-pip.py"
+  shell: "test -e /usr/local/bin/pip2 || curl -O https://raw.githubusercontent.com/pypa/get-pip/master/get-pip.py && python get-pip.py"
   when: (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04')
 
 - name: install pip packages
