@@ -19,10 +19,14 @@
 {% for host in hosts %}
 {% if hostvars[host] is defined %}
 {% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
+{% set tunhost = host %}
+{% if tunhost|length > 8 %}
+{% set tunhost=host[:2]+"-"+host[-5:] %}
+{% endif %}
 
 # GRETAP Tunnel for domaene-{{domaene[0]}} to {{host}} ({{hostvars[host].ansible_ssh_host}})
-auto t{{domaene[0]}}-{{host}}
-iface t{{domaene[0]}}-{{host}} inet manual
+auto t{{domaene[0]}}-{{tunhost}}
+iface t{{domaene[0]}}-{{tunhost}} inet manual
 {% if build_tunnels_over_ipv6_if_available is defined and build_tunnels_over_ipv6_if_available and ipv6 is defined and hostvars[host].ipv6 is defined %}
         pre-up ip link add $IFACE type ip6gretap local {{ipv6}} remote {{hostvars[host].ipv6}} dev {{ansible_default_ipv6.interface}} key {{domaene[0]|int}}
 {% else %}
