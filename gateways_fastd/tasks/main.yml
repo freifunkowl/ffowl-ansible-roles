@@ -66,8 +66,6 @@
   vars:
     secretkey: "{{ item.value.fastd_key.secret }}"
   with_dict: "{{ domaenenliste }}"
-  notify:
-    - restart fastd per domain
 
 - name: write public key to seperate keyfiles, if fastd key is defined as host variable
   template:
@@ -77,8 +75,6 @@
   vars:
     publickey: "{{ item.value.fastd_key.public }}"
   with_dict: "{{ domaenenliste }}"
-  notify:
-    - restart fastd per domain
 
 # generate new fastd keypair if no fastd_key file exists
 # new key will only be generated, if no secret key file exists (public key doesn't matter)
@@ -87,7 +83,7 @@
   register: fastd_key_generated
   args:
     creates: /etc/fastd/{{ item.key }}/keys/secret.key
-  when: (item.value.fastd is defined and item.value.fastd) and item.value.fastd_key.secret is undefined
+  when: (item.value.fastd is defined and item.value.fastd) and item.value.fastd_key is undefined
   with_dict: "{{ domaenenliste }}"
   check_mode: no
   notify:
