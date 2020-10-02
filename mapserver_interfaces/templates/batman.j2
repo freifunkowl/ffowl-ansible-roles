@@ -24,7 +24,7 @@ iface bat{{domaene[0]}} inet6 static
         post-up batctl -m bat{{domaene[0]}} if add t{{domaene[0]}}-{{ tunhost }} ||:
 {% endif %}
 {% endfor %}
-        post-up batctl -m bat{{domaene[0]}} mm 0
+        post-up batctl -m bat{{domaene[0]}} mm 0 ||: # mm does not exist in legacy batman/batctl
         post-up ip -6 addr add {{domaene[1].ffv6_network | ipaddr(server_id) | ipaddr('address')}}/64 dev bat{{domaene[0]}}
 
 iface bat{{domaene[0]}} inet static
