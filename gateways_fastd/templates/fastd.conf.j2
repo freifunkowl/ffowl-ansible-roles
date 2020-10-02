@@ -29,10 +29,10 @@ method "null";
 include "/etc/fastd/{{ item.key }}/keys/secret.key";
 
 # Log everything to syslog
-log to syslog level warn;
+log to syslog level debug; #warn;
 
 # Hide IP addresses in log output
-hide ip addresses yes;
+hide ip addresses no; #yes;
 
 # Include peers from our git-repos
 include peers from "/etc/fastd/{{ item.key }}/peers/";
