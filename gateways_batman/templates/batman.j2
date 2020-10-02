@@ -29,7 +29,11 @@ iface bat{{item[0]}} inet static
 {% if hostvars[host].domaenenliste is defined %}
 {% for item2 in hostvars[host].domaenenliste|dictsort %}
 {% if item[0] == item2[0] %}
-        post-up batctl -m bat{{item[0]}} if add t{{item[0]}}-{{host}} ||:
+{% set tunhost = host %}
+{% if tunhost|length > 8 %}
+{% set tunhost=host[:2]+"-"+host[-5:] %}
+{% endif %}
+        post-up batctl -m bat{{item[0]}} if add t{{item[0]}}-{{tunhost}} ||:
 {% endif %}
 {% endfor %}
 {% endif %}
