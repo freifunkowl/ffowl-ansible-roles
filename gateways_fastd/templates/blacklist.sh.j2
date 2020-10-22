@@ -29,8 +29,10 @@ if [ $EXITVAL -ne 0 ]; then
   exit $EXITVAL
 fi
 
-if /bin/grep -Fq $PEER_KEY /var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist; then
-      /usr/bin/logger "$0: WARNING: {{ item.key }} refusing fastd connection to ${PEER_KEY} due to blacklist"
-      exit 1
+if [ -e /etc/fastd/{{ item.key }}/blacklist ]; then
+  if /bin/grep -Fq "$PEER_KEY" /etc/fastd/{{ item.key }}/blacklist; then
+    /usr/bin/logger "$0: WARNING: {{ item.key }} refusing fastd connection to ${PEER_KEY} due to blacklist"
+    exit 1
+  fi
 fi
 exit 0

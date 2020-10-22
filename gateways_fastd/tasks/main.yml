@@ -144,8 +144,9 @@
 - name: create verify script (blacklisting)
   template:
     src: blacklist.sh.j2
-    dest: /var/freifunk/gateway-{{ freifunk.kurzname }}/fastd/blacklist.sh
-  when: fastd_on_this_gw is defined and fastd_on_this_gw
+    dest: /etc/fastd/{{ item.key }}/blacklist.sh
+  when: (item.value.fastd is defined and item.value.fastd) or (item.value.fastd is undefined and item.value.fastd_key is defined)
+  with_dict: "{{ domaenenliste }}"
 
 - name: check if global blacklist exists
   stat:
