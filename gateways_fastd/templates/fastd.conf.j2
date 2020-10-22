@@ -43,7 +43,7 @@ status socket "/run/fastd-{{ item.key }}/fastd.sock";
 # Configure a shell command that is run on connection attempts by unknown peers (true means, all attempts are accepted)
 # on verify "true";
 on verify "
-  /bin/bash /etc/fastd/{{ item.key }}/blacklist.sh "$PEER_KEY"
+  /bin/bash /etc/fastd/{{ item.key }}/blacklist.sh $PEER_KEY
 ";
 
 # Configure a shell command that is run when fastd comes up
