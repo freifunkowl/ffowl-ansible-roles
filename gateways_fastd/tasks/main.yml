@@ -9,7 +9,7 @@
 
 - name: install fastd (vpn daemon) and haveged (entropy daemon)
   apt:
-    pkg: ['fastd', 'haveged']
+    pkg: ['fastd', 'haveged', 'jq', 'socat']
     update_cache: yes
     state: present
   when: fastd_on_this_gw is defined and fastd_on_this_gw
@@ -162,6 +162,15 @@
   copy:
     src: status.pl
     dest: /root/status.pl
+    owner: root
+    group: root
+    mode: 0755
+  when: fastd_on_this_gw is defined and fastd_on_this_gw
+
+- name: fastd-query nach /usr/local/bin
+  copy:
+    src: fastd-query
+    dest: /usr/local/bin/fastd-query
     owner: root
     group: root
     mode: 0755
