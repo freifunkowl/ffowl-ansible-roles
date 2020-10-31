@@ -33,6 +33,7 @@ protocol ospf o_intern {
 {% if interface.ttl_security | default(false) %}
       ttl security on;
 {% endif %}
+    bfd yes;
     };
 {% endfor %}
 
@@ -60,6 +61,7 @@ protocol ospf upstream {
 {% if ospf_nat_options is defined %}
       {{ospf_nat_options}}
 {% endif %}
+    bfd yes;
     };
     interface "lo" { stub; };
   };
@@ -85,11 +87,13 @@ protocol ospf backbone {
 {% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
     interface "bck-{{host}}" {
       cost 1000;
+      bfd yes;
     };
 {% endif %}
 {% endfor %}
     interface "bck-*" {
       cost 1000;
+      bfd yes;
     };
     interface "lo" {
       stub;
