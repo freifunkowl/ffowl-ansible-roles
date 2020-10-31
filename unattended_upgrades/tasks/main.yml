@@ -25,3 +25,4 @@
     hour: "3"
     minute: "{{(vm_id*2)%30+30}}"
     job: "if [ -f /var/run/reboot-required ]; then /sbin/shutdown -r +5; fi"
+    when: weekly_reboot is undefined or (weekly_reboot is defined and weekly_reboot)
