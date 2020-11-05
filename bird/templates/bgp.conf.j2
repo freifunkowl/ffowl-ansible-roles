@@ -164,6 +164,7 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
   source address {{ peer.ipv4src | ipaddr('address') }};
   neighbor {{ peer.ipv4dst }} as {{ peer.peeras }};
   import keep filtered;
+  bfd graceful;
   import filter peer_in_{{ peer.name|replace("-", "_")|replace(":", "__") }};
   export filter peer_out_{{ peer.name|replace("-", "_")|replace(":", "__") }};
 {% if peer.multihop is defined %}  multihop {{ peer.multihop }};
@@ -198,6 +199,7 @@ protocol bgp i_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
   local as {{ ouras }};
   source address {{ peer.ipv4src }};
   neighbor {{ peer.ipv4dst }} as {{ ouras }};
+  bfd graceful;
   import filter {
 {% if peer.pref is defined %}    bgp_local_pref = {{ peer.pref }};{% endif %}
 {% if peer.dfz is defined and peer.dfz != "no" %}
@@ -238,6 +240,7 @@ template bgp uplink {
 	multihop 64;
 	default bgp_local_pref 200;
 	default bgp_med 1;
+    bfd graceful;
 };
 {% endif %}
 
@@ -252,6 +255,7 @@ template bgp internal {
 	gateway direct;
 	direct;
 	next hop self;
+    bfd graceful;
 };
 
 {% if ffrl_tun is defined %}

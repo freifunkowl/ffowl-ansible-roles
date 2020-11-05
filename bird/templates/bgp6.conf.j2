@@ -164,6 +164,7 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
   source address {{ peer.ipv6src | ipaddr('address') }};
   neighbor {{ peer.ipv6dst }} {% if peer.ipv6dst is match('^fe80') %} % '{{ peer.name }}' {% endif %}as {{ peer.peeras }};
   import keep filtered;
+  bfd graceful;
   import filter peer_in_{{ peer.name|replace("-", "_")|replace(":", "__") }};
   export filter peer_out_{{ peer.name|replace("-", "_")|replace(":", "__") }};
 {% if peer.multihop is defined %}  multihop {{ peer.multihop }};
@@ -198,6 +199,7 @@ protocol bgp i_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
   local as {{ ouras }};
   source address {{ peer.ipv6src }};
   neighbor {{ peer.ipv6dst }} {% if peer.ipv6dst is match('^fe80') %} % '{{ peer.name }}' {% endif %}as {{ ouras }};
+  bfd graceful;
   import filter {
 {% if peer.pref is defined %}    bgp_local_pref = {{ peer.pref }};{% endif %}
 {% if peer.dfz is defined and peer.dfz != "no" %}
@@ -249,6 +251,7 @@ template bgp internal {
   gateway direct;
   direct;
   next hop self;
+  bfd graceful;
 };
 
 {% for host in groups['gateways']|default([]) %}
@@ -277,6 +280,7 @@ template bgp uplink {
   import where is_default();
   export filter export_to_upstream_filter;
   gateway recursive;
+  bfd graceful;
 }
 
 {% if ffrl_tun is defined %}

@@ -1,3 +1,0 @@
-[submodule "peering-manager"]
-	path = peering-manager
-	url = https://github.com/peering-manager/ansible-role-peering-manager.git
