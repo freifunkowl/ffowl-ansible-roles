@@ -162,4 +162,4 @@
     dest: /etc/bird/bird6.conf.d/
   when: bgp_router is defined and bgp_sync_files is defined
   notify:
-    - reload bird
+    - reload bird6
