@@ -176,6 +176,7 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% endif %}
 {% if peer.exportlimit4 is defined %}  export limit {{ peer.exportlimit4 }} action block;
 {% endif %}
+{% if peer.pref is defined %}  bgp_local_pref = {{ peer.pref }};{% endif %}
 {% if peer.bgpopts is defined %}  {{ peer.bgpopts }};
 {% else %}  next hop self;
 {% endif %}
