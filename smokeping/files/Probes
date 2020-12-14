@@ -5,3 +5,11 @@
 binary = /usr/bin/fping
 blazemode = true
 pings = 20
+step = 60
+
++ FPing6
+
+binary = /usr/bin/fping6
+blazemode = true
+pings = 20
+step = 60
