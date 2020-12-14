@@ -13,7 +13,7 @@ general_cgiurl: "http://{{inventory_hostname}}.{{freifunk.domain}}:{{smokeping_l
 master_cgiulr: "http://smokeping.{{freifunk.domain}}/smokeping.cgi"
 
 # Targets
-target_title: ""{{freifunk.name}} Network Latency Grapher"
+target_title: "{{freifunk.name}} Network Latency Grapher"
 target_remark: >
   Welcome to the SmokePing website of {{freifunk.name}}. \
   Here you will learn all about the latency of our network.
