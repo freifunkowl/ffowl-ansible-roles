@@ -2,7 +2,7 @@
 # Virtual host configuration for smokeping
 smokeping_listen_address: 0.0.0.0
 smokeping_listen_port: 8080
-smokeping_servername: {{inventory_hostname}}.{{freifunk.domain}}
+smokeping_servername: {{inventory_hostname}}.4830.org #{{freifunk.domain}}
 
 
 # General configuration for smokeping
