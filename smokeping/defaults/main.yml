@@ -8,7 +8,7 @@ smokeping_servername: "{{inventory_hostname}}.{{freifunk.domain}}"
 # General configuration for smokeping
 general_owner: "{{freifunk.name}}"
 general_contact: "{{freifunk.email}}"
-general_mailhost: "mail.{{freifunk.domain}}
+general_mailhost: "mail.{{freifunk.domain}}"
 general_cgiurl: "http://{{inventory_hostname}}.{{freifunk.domain}}:{{smokeping_listen_port}}/smokeping.cgi"
 master_cgiulr: "http://smokeping.{{freifunk.domain}}/smokeping.cgi"
 
