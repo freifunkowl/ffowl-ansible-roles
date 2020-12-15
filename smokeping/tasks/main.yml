@@ -11,8 +11,8 @@
     - libnet-telnet-perl
     - libsocket6-perl
     - libio-socket-inet6-perl
-    - xmail
     - apache2
+#    - xmail
 
 - name: Configure smokeping General
   template: src=General.j2 dest=/etc/smokeping/config.d/General mode=0644
