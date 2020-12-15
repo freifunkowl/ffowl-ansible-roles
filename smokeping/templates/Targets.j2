@@ -8,30 +8,29 @@ title = {{ target_title }}
 remark = {{ target_remark }}
 
 {% for target in targets %}
-+ {{ target.target_group }}
++ {{ target.target_group|regex_replace(' ','_') }}
 
 menu = {{ target.target_menu }}
 title = {{ target.target_title }}
 
 {% for host in target.target_hosts %}
-++ {{ host.target_host_name }}
-
+++ {{ host.target_host_name|regex_replace(' ','_')|regex_replace('\.','_') }}
 menu = {{ host.target_host_menu }}
 title = {{ host.target_host_title }}
 host = {{ host.target_host_host }}
+
 {% endfor %}
 {% endfor %}
 {% endif %}
 
 {% if domaenenliste is defined %}
-+ Internal Tunnel v4
++ Internal_Tunnel_v4
 probe = FPing
-menu = Internal Tunnel
+menu = Internal Tunnel IPv4
 title = Cross-Gateway GRE Tunnel
 
 {% for host in groups['gateways']|default([]) %}
-++ {{host|regex_replace('-','_')}}
-
+++ {{host|regex_replace('-','_')|regex_replace('\.','_')}}
 {% if hostvars[host].vm_id < vm_id %}
 menu = {{ipv4backbone16prefixstr}}{{ hostvars[host].vm_id-1 }}.{{vm_id*2}}
 host = {{ipv4backbone16prefixstr}}{{ hostvars[host].vm_id-1 }}.{{vm_id*2}}
@@ -44,14 +43,13 @@ host = {{ipv4backbone16prefixstr}}{{ vm_id-1 }}.{{hostvars[host].vm_id*2+1}}
 {% endif %}
 
 {% if domaenenliste is defined %}
-+ Internal Tunnel v6
++ Internal_Tunnel_v6
 probe = FPing6
-menu = Internal Tunnel
+menu = Internal Tunnel IPv6
 title = Cross-Gateway GRE Tunnel
 
 {% for host in groups['gateways']|default([]) %}
-++ {{host|regex_replace('-','_')}}
-
+++ {{host|regex_replace('-','_')|regex_replace('\.','_')}}
 {% if hostvars[host].vm_id < vm_id %}
 menu = {{ipv6backbone64prefixstr}}{{hostvars[host].vm_id}}:{{vm_id}}:1
 host = {{ipv6backbone64prefixstr}}{{hostvars[host].vm_id}}:{{vm_id}}:1
