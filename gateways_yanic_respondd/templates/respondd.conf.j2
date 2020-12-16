@@ -3,7 +3,7 @@ data_interval = "1m"
 
 batman = [ {% for domaene in domaenen|dictsort %}"bat{{domaene[0]}}"{% if not loop.last %}, {% endif %}{% endfor %}]
 
-{% if yanic_respondd_babel %}
+{% if yanic_respondd_babel is defined %}
 #babel = "{{yanic_respondd_babel_socket}}"
 {% endif %}
 
