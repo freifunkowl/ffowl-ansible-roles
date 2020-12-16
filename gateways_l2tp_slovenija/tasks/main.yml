@@ -22,7 +22,14 @@
   when: domaenenliste is defined and item not in domaenenliste
 
 - name: Purge python2-based Tunneldigger
-  command: /usr/bin/test -e /srv/tunneldigger/env_tunneldigger/bin/python2.7 && /bin/rm -rf /srv/tunneldigger
+  shell: |
+    set -o pipefail
+    /usr/bin/test -e /srv/tunneldigger/env_tunneldigger/bin/python2.7 && /bin/rm -rf /srv/tunneldigger
+  args:
+    executable: bash
+  changed_when: False
+  failed_when: False
+  check_mode: no
 
 - name: Clone tunneldigger
   git:
