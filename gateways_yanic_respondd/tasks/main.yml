@@ -11,7 +11,7 @@
 
 - name: Deploy respondd.conf
   template:
-    src: respondd.service.j2
+    src: respondd.conf.j2
     dest: /etc/respondd.conf
   notify: restart respondd
 
