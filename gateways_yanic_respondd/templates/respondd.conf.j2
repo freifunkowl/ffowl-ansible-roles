@@ -19,7 +19,7 @@ address   = "ff02::2:1001"
 [defaults]
 site_code = "legacy"
 domain_code = "servers"
-{% if yanic_respondd_vpn %}
+{% if yanic_respondd_vpn is defined and yanic_respondd_vpn %}
 vpn = true
 {% endif %}
 interface_mac = "{{ ansible_default_ipv4.interface }}"
