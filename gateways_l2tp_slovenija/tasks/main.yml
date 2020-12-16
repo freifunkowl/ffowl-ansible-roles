@@ -75,7 +75,7 @@
     - domaenenliste is defined
 
 - name: Deploy tunneldigger@.service template file
-  template: src="tunneldigger@.service.j2 dest=/etc/systemd/system/tunneldigger@{{ item.key }}.service"
+  template: src="tunneldigger@.service.j2" dest="/etc/systemd/system/tunneldigger@{{ item.key }}.service"
   register: _domain_td_systemd
   notify:
     - restart tunneldigger per domain
