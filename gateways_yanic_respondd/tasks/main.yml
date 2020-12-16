@@ -9,11 +9,11 @@
 - name: Deploy respondd service
   copy: src=respondd.service dest=/lib/systemd/system/respondd.service
 
-#- name: Deploy respondd.conf
-#  copy: src=respondd.conf-{{ inventory_hostname }}-template dest=/etc/respondd.conf
-
 - name: Deploy respondd.conf
-  copy: src=respondd.conf.j2 dest=/etc/respondd.conf
+  template:
+    src: respondd.service.j2
+    dest: /etc/respondd.conf
+  notify: restart respondd
 
 - name: Enable service respondd
   service:
