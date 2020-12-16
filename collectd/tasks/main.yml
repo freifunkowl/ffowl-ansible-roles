@@ -1,26 +1,11 @@
 ---
 # Collectd-Daemon fuer Gateway Server
-# , 'python3-pip', 'python3-venv', 'python3-setuptools'
 
-- name: install required packages (python2)
+- name: install required packages
   apt:
-    pkg: ['collectd', 'python-pip', 'python-setuptools', 'liboping0', 'python3-setuptools', 'python3-pip']
+    pkg: ['collectd', 'python-pip']
     update_cache: yes
     state: present
-  when: (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04') or
-        (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04') or
-        (ansible_distribution == 'Debian' and ansible_distribution_version == '9')
-
-- name: install required packages (python3)
-  apt:
-    pkg: ['collectd', 'python-setuptools', 'liboping0', 'python3-setuptools', 'python3-pip']
-    update_cache: yes
-    state: present
-  when: (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04')
-
-- name: install python2-pip on Ubuntu 20.04 LTS
-  shell: "test -e /usr/local/bin/pip2 || curl -O https://raw.githubusercontent.com/pypa/get-pip/master/get-pip.py && python get-pip.py"
-  when: (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04')
 
 - name: install pip packages
   pip: 
