@@ -21,12 +21,14 @@
   with_items: "{{ _td_domain_instances.stdout_lines }}"
   when: domaenenliste is defined and item not in domaenenliste
 
+- name: Purge python2-based Tunneldigger
+  command: /usr/bin/test -e /srv/tunneldigger/env_tunneldigger/bin/python2.7 && /bin/rm -rf /srv/tunneldigger
+
 - name: Clone tunneldigger
   git:
     repo: https://github.com/wlanslovenija/tunneldigger
     dest: /srv/tunneldigger
     update: yes
-#    version: 18f365f329795400f4d7a101a6d45bc859100144
   when: domaenenliste is defined
   tags:
     - skip_ansible_lint
