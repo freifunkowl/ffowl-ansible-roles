@@ -1,11 +1,11 @@
 [Unit]
-Description=tunneldigger tunnelling network daemon using l2tpv3 for domain %i
+Description=tunneldigger tunnelling network daemon using l2tpv3 for domain {{item}}
 After=network.target auditd.service
 
 [Service]
 Type=simple
 WorkingDirectory=/srv/tunneldigger
-ExecStart=/srv/tunneldigger/env_tunneldigger/bin/python -m tunneldigger_broker.main /srv/tunneldigger/broker/l2tp_broker_domain%i.cfg
+ExecStart=/srv/tunneldigger/env_tunneldigger/bin/python -m tunneldigger_broker.main /srv/tunneldigger/broker/l2tp_broker_domain{{item}}.cfg
 KillMode=process
 Restart=on-failure
 
