@@ -17,6 +17,7 @@
   apt:
     name: ['bird', 'ipcalc', 'sipcalc', 'bgpq3']
     cache_valid_time: 1800
+    state: latest
 
 - name: create folder bird.conf.d
   file:
