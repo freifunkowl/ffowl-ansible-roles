@@ -1,0 +1,7 @@
+---
+
+- name: Download and install go
+  unarchive: src=https://dl.google.com/go/go{{ go_version }}.linux-amd64.tar.gz dest=/usr/local remote_src=yes creates=/usr/local/go/bin/go
+
+- name: Configure go
+  copy: src=go.sh dest=/etc/profile.d/go.sh
