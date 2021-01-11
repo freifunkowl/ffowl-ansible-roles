@@ -109,7 +109,10 @@ server {
 {% for instance in nginx_tiles_cache.instances %}
     # tiles cache for {{instance.name}}
     location {{instance.location}} {
-        proxy_set_header        Host a.tile.openstreetmap.org; # $host;
+        # FIXME, -wusel 2020-01-11: Won't work with 'upstreams' in nginx_tiles_cache,
+        # if the upstream.servers need a correct Host: header, you're out of luck here.
+        # Same applies for a non-root dest_url (e. g. https://dom.ain/foo/).
+        proxy_set_header        Host {{instance.dest_url | replace('http://', '') | replace('https://', '') | replace('/', '')}};
         proxy_set_header        X-Real-IP $remote_addr;
         proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header        X-Forwarded-Proto $scheme;
