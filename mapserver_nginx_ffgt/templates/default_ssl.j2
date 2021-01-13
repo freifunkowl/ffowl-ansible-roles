@@ -121,8 +121,9 @@ server {
         proxy_redirect          off;
 
         proxy_cache             {{instance.cache_location_name}};
-        proxy_cache_valid       {{instance.valid_time}};
-    }
+        proxy_cache_valid       200 302 {{instance.valid_time}};
+        proxy_cache_valid       404 1m;
+          }
 {% endfor %}
 {% endif %}
 }
