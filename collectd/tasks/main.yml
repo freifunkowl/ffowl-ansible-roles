@@ -1,11 +1,11 @@
 ---
 # Collectd-Daemon fuer Gateway Server
 
-- name: install required packages
-  apt:
-    pkg: ['collectd', 'python-pip']
-    update_cache: yes
-    state: present
+#- name: install required packages
+#  apt:
+#    pkg: ['collectd', 'python-pip']
+#    update_cache: yes
+#    state: present
 
 - name: install pip packages
   pip: 
