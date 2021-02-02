@@ -6,12 +6,12 @@
     state: present
   when: ansible_distribution == 'Ubuntu'
 
-- apt_repository:
-    repo: deb http://bird.network.cz/debian/ {{ansible_distribution_release}} main
-    state: present
-    filename: cz.nic-labs_bird
-  when: ansible_distribution == 'Debian'
-# FIXME: Debian still needs to add the key
+#- apt_repository:
+#    repo: deb http://bird.network.cz/debian/ {{ansible_distribution_release}} main
+#    state: present
+#    filename: cz.nic-labs_bird
+#  when: ansible_distribution == 'Debian'
+## FIXME: Debian still needs to add the key
 
 - name: install bird and other required packets
   apt:
