@@ -19,7 +19,6 @@
     state: present
     filename: cz.nic-labs_bird
   when: ansible_distribution == 'Debian'
-# FIXME: Debian still needs to add the key
 
 - name: install bird and other required packets
   apt:
