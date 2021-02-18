@@ -6,6 +6,12 @@
 #    state: present
 #  when: ansible_distribution == 'Ubuntu'
 
+- apt_key:
+  shell: |
+    set -o pipefail
+    wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+  when: ansible_distribution == 'Debian'
+
 - apt_repository:
     repo: deb http://bird.network.cz/debian/ {{ansible_distribution_release}} main
     state: present
