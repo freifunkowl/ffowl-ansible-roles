@@ -1,9 +1,9 @@
 - name: Install dependencies for this role
   apt:
-    pkg: ['linux-modules-extra-{{ansible_kernel}}', 'python', 'ifupdown', 'libelf-dev', 'aptitude', 'pip']
+    pkg: ['linux-modules-extra-{{ansible_kernel}}', 'python', 'ifupdown', 'libelf-dev', 'aptitude']
   when: ansible_distribution == 'Ubuntu'
 
 - name: Install dependencies for this role
   apt:
-    pkg: ['python', 'ifupdown', 'libelf-dev', 'aptitude', 'pip']
+    pkg: ['python', 'ifupdown', 'libelf-dev', 'aptitude', 'python-pip']
   when: ansible_distribution == 'Debian'
