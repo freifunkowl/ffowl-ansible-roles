@@ -10,15 +10,6 @@
 
 ### Large Communities ###
 
-    (206813:2:REMOTE_ASN)      Prepend 206813 to REMOTE_ASN
-    (206813:2:0)               Prepend 206813 generally
-    (206813:3:REMOTE_ASN)      Prepend 206813 2x to REMOTE_ASN
-    (206813:3:0)               Prepend 206813 2x generally
-    (206813:4:REMOTE_ASN)      Reject export to REMOTE_ASN
-    (206813:4:0)               Reject export at all
-    (206813:5:REMOTE_ASN)      Allow export to REMOTE_ASN (precedence over (206813:4:*))
-
-
 Read-only:
 
     (206813:0:REMOTE_ASN)      Route learned from REMOTE_ASN (legacy)
@@ -29,23 +20,43 @@ Read-only:
     (206813:400:0)             Route learned from transit (i. e. do not re-propagate)
     (206813:400:REMOTE_ASN)    Route learned from transit ASN
 
+Traffic-Engineering:
 
+    (206813:2:REMOTE_ASN)      Prepend 206813 to REMOTE_ASN
+    (206813:2:0)               Prepend 206813 generally
+    (206813:3:REMOTE_ASN)      Prepend 206813 2x to REMOTE_ASN
+    (206813:3:0)               Prepend 206813 2x generally
+    (206813:4:REMOTE_ASN)      Reject export to REMOTE_ASN
+    (206813:4:0)               Reject export at all
+    (206813:5:REMOTE_ASN)      Allow export to REMOTE_ASN (precedence over (206813:4:*))
 
+    (206813:800:xxx)           Route originates at location xxx;
+                               locations != xxx will prepend ASN twice
+    (206813:801:xxx)           Route originates at location xxx;
+                               locations != xxx will prepend ASN three times
+    (206813:802:xxx)           Route originates at location xxx;
+                               locations != xxx will prepend ASN four times
 
+Locations (just use any consistent numbering, we use e. g.):
 
+     1   DUS01 (PlusServer; formerly GUT01)
+     2   BER01 (IN-BERLIN)
+     3   FRA01 (vserver.site)
+     4   HAM01 (irz42)
+     5   HAM02 (IPHH)
+     6   HAM03 (work)
 
+IXPs (just use any consistent numbering >0, we use e. g.):
 
-IXPs:
-
-    01   Community-IX BER
-    02   Community-IX FRA
-    03   ECIX HAM
-    04   DECIX HAM
-    05   DECIX FRA (remote)
-    06   DECIX DUS (local)
-    07   DECIX DUS (remote)
-    08   DECIX MUC (remote)
-    09   BCIX
+     1   Community-IX BER
+     2   Community-IX FRA
+     3   ECIX HAM
+     4   DECIX HAM
+     5   DECIX FRA (remote)
+     6   DECIX DUS (local)
+     7   DECIX DUS (remote)
+     8   DECIX MUC (remote)
+     9   BCIX
     10   DECIX FRA (local)
     11   LocIX
     12   KleyRex
@@ -78,5 +89,6 @@ IXPs:
       exportlimit6: 50
       exportlimit4: 10
       community_in: 200
+      location: 1
 
     …

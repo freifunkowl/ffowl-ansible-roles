@@ -91,6 +91,8 @@ Konfiguration:
 
   Default-ASN. Kann in eBGP mit `ouras` pro Peer überschrieben werden.
 
+- BGP Communities: siehe README-communities.md
+
 # TODO:
 Konfiguration erläutern:
 - domaenenliste 

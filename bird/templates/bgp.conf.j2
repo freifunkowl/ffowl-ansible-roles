@@ -127,6 +127,27 @@ int set bogon_asns;
      }
     }
 
+{% if peer.location is defined %}
+    if (({{ ouras }}, 800, *) ~ bgp_large_community) then {
+      if (({{ ouras }}, 800, {{ peer.location }}) !~ bgp_large_community) then {
+        bgp_path.prepend({{ ouras }});
+      }
+    }
+    if (({{ ouras }}, 801, *) ~ bgp_large_community) then {
+      if (({{ ouras }}, 801, {{ peer.location }}) !~ bgp_large_community) then {
+        bgp_path.prepend({{ ouras }});
+        bgp_path.prepend({{ ouras }});
+      }
+    }
+    if (({{ ouras }}, 802, *) ~ bgp_large_community) then {
+      if (({{ ouras }}, 802, {{ peer.location }}) !~ bgp_large_community) then {
+        bgp_path.prepend({{ ouras }});
+        bgp_path.prepend({{ ouras }});
+        bgp_path.prepend({{ ouras }});
+      }
+    }
+{% endif %}
+
     if (({{ ouras }}, 2, {{ peer.peeras }}) ~ bgp_large_community || ({{ ouras }}, 2, 0) ~ bgp_large_community) then {
       bgp_path.prepend({{ ouras }});
     }
