@@ -17,7 +17,7 @@ Read-only:
     (206813:200:0)             Route learned from peer
     (206813:200:REMOTE_ASN)    Route learned from peer REMOTE_ASN
     (206813:300:REMOTE_ASN)    Route learned from "customer" ASN
-    (206813:400:0)             Route learned from transit (i. e. do not re-propagate)
+    (206813:400:0)             Route learned from transit
     (206813:400:REMOTE_ASN)    Route learned from transit ASN
 
 Traffic-Engineering:
@@ -30,12 +30,12 @@ Traffic-Engineering:
     (206813:4:0)               Reject export at all
     (206813:5:REMOTE_ASN)      Allow export to REMOTE_ASN (precedence over (206813:4:*))
 
-    (206813:800:xxx)           Route originates at location xxx;
-                               locations != xxx will prepend ASN twice
-    (206813:801:xxx)           Route originates at location xxx;
-                               locations != xxx will prepend ASN three times
-    (206813:802:xxx)           Route originates at location xxx;
-                               locations != xxx will prepend ASN four times
+    (206813:800:0) PLUS        Route originates at location xxx;
+       (206813:800:xxy)        locations != xxx will prepend ASN once
+    (206813:801:0) PLUS        Route originates at location xxx;
+       (206813:801:xxx)        locations != xxx will prepend ASN twice times
+     (206813:802:0) PLUS        Route originates at location xxx;
+       (206813:802:xxx)        locations != xxx will prepend ASN three times
 
 Locations (just use any consistent numbering, we use e. g.):
 
@@ -46,17 +46,17 @@ Locations (just use any consistent numbering, we use e. g.):
      5   HAM02 (IPHH)
      6   HAM03 (work)
 
-IXPs (just use any consistent numbering >0, we use e. g.):
+IXPs, 1xx, for xx use (just use any consistent numbering >0):
 
-     1   Community-IX BER
-     2   Community-IX FRA
-     3   ECIX HAM
-     4   DECIX HAM
-     5   DECIX FRA (remote)
-     6   DECIX DUS (local)
-     7   DECIX DUS (remote)
-     8   DECIX MUC (remote)
-     9   BCIX
+    01   Community-IX BER
+    02   Community-IX FRA
+    03   ECIX HAM
+    04   DECIX HAM
+    05   DECIX FRA (remote)
+    06   DECIX DUS (local)
+    07   DECIX DUS (remote)
+    08   DECIX MUC (remote)
+    09   BCIX
     10   DECIX FRA (local)
     11   LocIX
     12   KleyRex
