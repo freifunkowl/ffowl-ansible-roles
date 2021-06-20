@@ -42,9 +42,10 @@ Locations (just use any consistent numbering, we use e. g.):
      1   DUS01 (PlusServer; formerly GUT01)
      2   BER01 (IN-BERLIN)
      3   FRA01 (vserver.site)
-     4   HAM01 (irz42)
+     4   HAM01 (irz42; AS49745 location)
      5   HAM02 (IPHH)
-     6   HAM03 (work)
+     6   HAM03 (n@work)
+     7   AMS01 (coloclue; AS49745 location)
 
 IXPs, 1xx, for xx use (just use any consistent numbering >0):
 
@@ -68,6 +69,9 @@ IXPs, 1xx, for xx use (just use any consistent numbering >0):
 
 …/ffgt-ansible/host_vars/blackstar
 
+[…]
+    location: 1
+
     ebgp_peers:
     …
     - name: "AS213106_1"
@@ -89,6 +93,5 @@ IXPs, 1xx, for xx use (just use any consistent numbering >0):
       exportlimit6: 50
       exportlimit4: 10
       community_in: 200
-      location: 1
 
-    …
+[…]
