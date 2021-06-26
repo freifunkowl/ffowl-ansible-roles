@@ -6,10 +6,10 @@
 
 - name: Git for HopGlass
   git:
-    repo: https://github.com/FreiFunkMuenster/hopglass.git
+    repo: https://github.com/hopglass/hopglass.git
     dest: /opt/hopglass/client
     force: yes
-    version: ffms
+    version: master
   register: hopglass_git_clone
 
 - name: Create hwpics directory if not exists

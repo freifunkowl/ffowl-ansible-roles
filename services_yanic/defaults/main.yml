@@ -2,18 +2,18 @@
 
 # go
 #go_version: 1.8.6
-go_version: 1.11.2
+#go_version: 1.11.2
 
 # yanic 
-yanic_source: github.com/Freifunk-Rhein-Sieg/yanic
-
+yanic_source: github.com/FreifunkBremen/yanic
+#github.com/Freifunk-Rhein-Sieg/yanic
 
 yanic_publisher: false
 yanic_respondd: true
 yanic_respondd_collect_interval: 1m
 yanic_respondd_synchronize_interval: 1m
 
-yanic_respondd_interface: "eth0"
+yanic_respondd_interface: "ens3"
 yanic_respondd_fe80ip: "fe80_ipv6"
 
 yanic_webserver: false
@@ -26,7 +26,7 @@ yanic_nodes_save_interval: 5s
 yanic_nodes_offline_after: 10m
 yanic_nodes_prune_after: 7d
 
-yanic_sites: "su-su,su-sa,su-lo,su-mck,su-rhb,su-snw,su-ak,su-mck,su-nk"
+yanic_sites: "gut,gto,gt8,fsl,neb,rhw,wrz,zzz"
 
 yanic_meshviewer_ffsu_enable: true
 yanic_meshviewer_ffsu_path: "/var/www/html/meshviewer/data/meshviewer.json"
