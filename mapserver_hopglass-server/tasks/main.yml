@@ -78,6 +78,7 @@
     repo: https://github.com/freifunk-saar/hopglass-server.git
     dest: /opt/hopglass/server
     version: 4a092690a775511f610c40bc69c55b5865c74c56
+    force: yes
   notify:
     - "restart hopglass"
   register: hopglass_server_git_clone
@@ -91,7 +92,7 @@
   when: hopglass_server_git_clone.changed
 
 - name: install dependencies
-  shell: npm install
+  shell: yarn install
   args:
     chdir: /opt/hopglass/server
   when: hopglass_server_git_clone.changed
