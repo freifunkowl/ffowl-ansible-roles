@@ -75,9 +75,9 @@
 
 - name: Clone HopGlass Server Repo
   git:
-    repo: https://github.com/hopglass/hopglass-server.git
+    repo: https://github.com/freifunk-saar/hopglass-server.git
     dest: /opt/hopglass/server
-    version: 5bab4dac7eb9fc7502d1473b77d180d8c4a90241
+    version: 4a092690a775511f610c40bc69c55b5865c74c56
   notify:
     - "restart hopglass"
   register: hopglass_server_git_clone
