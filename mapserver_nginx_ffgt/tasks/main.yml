@@ -27,7 +27,7 @@
     creates: /root/.acme.sh/acme.sh
 
 - name: Create certificate
-  shell: /root/.acme.sh/acme.sh --issue -d {{inventory_hostname_short}}.{{freifunk.domain}} -w /var/www/letsencrypt
+  shell: /root/.acme.sh/acme.sh --server letsencrypt --issue -d {{inventory_hostname_short}}.{{freifunk.domain}} -w /var/www/letsencrypt
   args:
     creates: /root/.acme.sh/{{inventory_hostname_short}}.{{freifunk.domain}}/ca.cer
 
