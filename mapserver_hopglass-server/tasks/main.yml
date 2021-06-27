@@ -52,8 +52,8 @@
     state: present
     update_cache: yes
   with_items:
-    - "deb https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
-    - "deb-src https://deb.nodesource.com/node_6.x {{ ansible_distribution_release }} main"
+    - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+    - "deb-src https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
     - "deb https://dl.yarnpkg.com/debian/ stable main"
 
 - name: Install nodejs, npm and yarn
