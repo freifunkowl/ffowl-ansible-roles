@@ -34,7 +34,7 @@
     creates: /root/.acme.sh/acme.sh
 
 - name: Create certificate
-  shell: /root/.acme.sh/acme.sh --issue{%if graphite is defined %} -d {{graphite.nginx.host_name}}{% endif %}{%if grafana is defined %} -d {{grafana.nginx.host_name}}{% endif %} -w /var/www/letsencrypt
+  shell: /root/.acme.sh/acme.sh --server letsencrypt --issue{%if graphite is defined %} -d {{graphite.nginx.host_name}}{% endif %}{%if grafana is defined %} -d {{grafana.nginx.host_name}}{% endif %} -w /var/www/letsencrypt
   args:
     creates: /root/.acme.sh/{{graphite.nginx.host_name}}/ca.cer
 
