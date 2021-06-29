@@ -7,7 +7,7 @@ batman = [ {% for domaene in domaenen|dictsort %}"bat{{domaene[0]}}"{% if not lo
 #babel = "{{yanic_respondd_babel_socket}}"
 {% endif %}
 
-{% for domaene in domaenen|dictsort %}
+{% for domaene in domaenenliste|dictsort %}
 [[listen]]
 interface = "bat{{domaene[0]}}"
 
