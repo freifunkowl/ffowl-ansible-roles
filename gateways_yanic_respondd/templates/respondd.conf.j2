@@ -1,7 +1,7 @@
 # Base: https://raw.githubusercontent.com/freifunk-ansible/ansible-role-yanic/master/templates/respondd.conf
 data_interval = "1m"
 
-batman = [ {% for domaene in domaenen|dictsort %}"bat{{domaene[0]}}"{% if not loop.last %}, {% endif %}{% endfor %}]
+batman = [ {% for domaene in domaenenliste|dictsort %}"bat{{domaene[0]}}"{% if not loop.last %}, {% endif %}{% endfor %}]
 
 {% if yanic_respondd_babel is defined %}
 #babel = "{{yanic_respondd_babel_socket}}"
