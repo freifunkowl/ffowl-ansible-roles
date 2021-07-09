@@ -20,33 +20,6 @@ Read-only:
     (206813:400:0)             Route learned from transit
     (206813:400:REMOTE_ASN)    Route learned from transit ASN
 
-Traffic-Engineering:
-
-    (206813:2:REMOTE_ASN)      Prepend 206813 to REMOTE_ASN
-    (206813:2:0)               Prepend 206813 generally
-    (206813:3:REMOTE_ASN)      Prepend 206813 2x to REMOTE_ASN
-    (206813:3:0)               Prepend 206813 2x generally
-    (206813:4:REMOTE_ASN)      Reject export to REMOTE_ASN
-    (206813:4:0)               Reject export at all
-    (206813:5:REMOTE_ASN)      Allow export to REMOTE_ASN (precedence over (206813:4:*))
-
-    (206813:800:0) PLUS        Route originates at location xxx;
-       (206813:800:xxy)        locations != xxx will prepend ASN once
-    (206813:801:0) PLUS        Route originates at location xxx;
-       (206813:801:xxx)        locations != xxx will prepend ASN twice times
-     (206813:802:0) PLUS        Route originates at location xxx;
-       (206813:802:xxx)        locations != xxx will prepend ASN three times
-
-Locations (just use any consistent numbering, we use e. g.):
-
-     1   DUS01 (PlusServer; formerly GUT01)
-     2   BER01 (IN-BERLIN)
-     3   FRA01 (vserver.site)
-     4   HAM01 (irz42; AS49745 location)
-     5   HAM02 (IPHH)
-     6   HAM03 (n@work)
-     7   AMS01 (coloclue; AS49745 location)
-
 IXPs, 1xx, for xx use (just use any consistent numbering >0):
 
     01   Community-IX BER
@@ -61,6 +34,34 @@ IXPs, 1xx, for xx use (just use any consistent numbering >0):
     10   DECIX FRA (local)
     11   LocIX
     12   KleyRex
+
+Traffic-Engineering:
+
+    (206813:2:REMOTE_ASN)      Prepend 206813 to REMOTE_ASN
+    (206813:2:0)               Prepend 206813 generally
+    (206813:3:REMOTE_ASN)      Prepend 206813 2x to REMOTE_ASN
+    (206813:3:0)               Prepend 206813 2x generally
+    (206813:4:REMOTE_ASN)      Reject export to REMOTE_ASN
+    (206813:4:0)               Reject export at all
+    (206813:5:REMOTE_ASN)      Allow export to REMOTE_ASN (precedence over (206813:4:*))
+
+    (206813:800:0) PLUS        Route originates at location xxx;
+       (206813:800:xxx)        locations != xxx will prepend ASN once
+    (206813:801:0) PLUS        Route originates at location xxx;
+       (206813:801:xxx)        locations != xxx will prepend ASN twice times
+     (206813:802:0) PLUS        Route originates at location xxx;
+       (206813:802:xxx)        locations != xxx will prepend ASN three times
+
+Locations (just use any consistent numbering, we use e. g.):
+
+     1   DUS01 (FFGT: PlusServer; formerly GUT01; FFLIP: vserver.site DUS1)
+     2   BER01 (IN-BERLIN, Site AK)
+     3   FRA01 (vserver.site (DC MK-Netzwerke))
+     4   HAM01 (irz42; AS49745 location)
+     5   HAM02 (IPHH)
+     6   HAM03 (n@work)
+     7   AMS01 (coloclue (DC EuNetworks); AS49745 location)
+
 
 
 ## Configuration example ##

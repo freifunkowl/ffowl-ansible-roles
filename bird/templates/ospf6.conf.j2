@@ -1,5 +1,9 @@
 {% if ospf is defined %}
 filter ospf_out {
+{% if ospf.export_filter6 is defined %}
+  include "/etc/bird/bird.conf.d/{{ ospf.export_filter6 }}";
+{% endif %}
+
 {% for p in ospf.prefixes.ipv6 | default([]) %}
   if (net ~ [ {{ p }} ] && (source = RTS_STATIC || source = RTS_DEVICE || source = RTS_STATIC_DEVICE)) then accept;
 {% endfor %}
@@ -8,6 +12,10 @@ filter ospf_out {
 }
 
 filter ospf_in {
+{% if ospf.import_filter6 is defined %}
+  include "/etc/bird/bird.conf.d/{{ ospf.import_filter6 }}";
+{% endif %}
+
 {% for p in ospf.prefixes.ipv6 | default([]) %}
   if (net ~ [ {{ p }} ]) then accept;
 {% endfor %}
@@ -33,7 +41,7 @@ protocol ospf o_intern {
 {% if interface.ttl_security | default(false) %}
       ttl security on;
 {% endif %}
-    bfd yes;
+      bfd yes;
     };
 {% endfor %}
 
