@@ -1,7 +1,7 @@
 {% if ospf is defined %}
 filter ospf_out {
 {% if ospf.export_filter6 is defined %}
-  include "/etc/bird/bird.conf.d/{{ ospf.export_filter6 }}";
+  include "/etc/bird/bird6.conf.d/{{ ospf.export_filter6 }}";
 {% endif %}
 
 {% for p in ospf.prefixes.ipv6 | default([]) %}
@@ -13,7 +13,7 @@ filter ospf_out {
 
 filter ospf_in {
 {% if ospf.import_filter6 is defined %}
-  include "/etc/bird/bird.conf.d/{{ ospf.import_filter6 }}";
+  include "/etc/bird/bird6.conf.d/{{ ospf.import_filter6 }}";
 {% endif %}
 
 {% for p in ospf.prefixes.ipv6 | default([]) %}
