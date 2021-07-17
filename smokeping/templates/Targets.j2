@@ -2,18 +2,18 @@
 
 probe = FPing
 
-{% if smokeping is defined %}
+{% if target is defined %}
 menu = Top
-title = {{ smokeping.target_title }}
-remark = {{ smokeping.target_remark }}
+title = {{ target_title }}
+remark = {{ target_remark }}
 
-{% for target in smokeping.targets %}
-+ {{ smokeping.target.target_group|regex_replace(' ','_')|regex_replace('\.','_') }}
+{% for target in targets %}
++ {{ target.target_group|regex_replace(' ','_')|regex_replace('\.','_') }}
 
-menu = {{ smokeping.target.target_menu }}
-title = {{ smokeping.target.target_title }}
+menu = {{ target.target_menu }}
+title = {{ target.target_title }}
 
-{% for host in smokeping.target.target_hosts %}
+{% for host in target.target_hosts %}
 ++ {{ host.target_host_name|regex_replace(' ','_')|regex_replace('\.','_') }}
 menu = {{ host.target_host_menu }}
 title = {{ host.target_host_title }}
