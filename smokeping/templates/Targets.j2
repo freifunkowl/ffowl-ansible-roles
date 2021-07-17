@@ -7,7 +7,7 @@ menu = Top
 title = {{ target_title }}
 remark = {{ target_remark }}
 
-{% for target in targets %}
+{% for target in smokeping_targets %}
 + {{ target.target_group|regex_replace(' ','_')|regex_replace('\.','_') }}
 
 menu = {{ target.target_menu }}
