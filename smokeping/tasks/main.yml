@@ -29,7 +29,7 @@
 
 - name: Configure smokeping Targets
   template: src=Targets.j2 dest=/etc/smokeping/config.d/Targets mode=0644
-  with_items: smokeping.targets
+  with_items: smokeping_targets
 
 - name: Copy smokeping FPing probe
   copy: src=Probes dest=/etc/smokeping/config.d/Probes mode=0644
