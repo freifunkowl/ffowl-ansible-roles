@@ -27,7 +27,7 @@
 - name: Disable smokeping Apache2 site, smokeping works via smokeping.conf
   shell: |
     set -o pipefail
-    /usr/sbin/a2dissite smokeping.conf && systemctl reload apache2
+    /usr/bin/test -e /etc/apache2/sites-enabled/smokeping.conf && /usr/sbin/a2dissite smokeping.conf && systemctl reload apache2
   args:
     executable: bash
   changed_when: False
