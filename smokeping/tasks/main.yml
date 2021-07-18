@@ -55,3 +55,6 @@
 - name: Enable smokeping Apache virtualhosts
   command: /usr/sbin/a2ensite smokeping.conf
   notify: restart apache
+
+- name: Create directory
+  file: path=/var/run/smokeping state=directory owner=smokeping group=smokeping
