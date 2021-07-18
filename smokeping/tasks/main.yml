@@ -24,6 +24,16 @@
   failed_when: False
   check_mode: no
 
+- name: Disable default Apache2 site
+  shell: |
+    set -o pipefail
+    /usr/sbin/a2dissite 000-default.conf && systemctl reload apache2
+  args:
+    executable: bash
+  changed_when: False
+  failed_when: False
+  check_mode: no
+
 - name: Configure smokeping General
   template: src=General.j2 dest=/etc/smokeping/config.d/General mode=0644
 
