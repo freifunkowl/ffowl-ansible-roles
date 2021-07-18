@@ -1,18 +1,8 @@
 ---
-- name: Disable smokeping Apache2 site, smokeping works via smokeping.conf
-  shell: |
-    set -o pipefail
-    apt install smokeping && /usr/sbin/a2dissite smokeping.conf
-  args:
-    executable: bash
-  changed_when: False
-  failed_when: False
-  check_mode: no
-
 - name: Install smokeping packages
   apt: name={{ item }} state=present update_cache=yes cache_valid_time=3600
   with_items:
-#    - smokeping
+    - smokeping
     - curl
     - libauthen-radius-perl
     - libnet-ldap-perl
@@ -23,6 +13,16 @@
     - libio-socket-inet6-perl
     - apache2
 #    - xmail
+
+- name: Disable smokeping Apache2 site, smokeping works via smokeping.conf
+  shell: |
+    set -o pipefail
+    /usr/bin/test -e /etc/apache2/sites-available/smokeping.conf && /usr/sbin/a2dissite smokeping.conf
+  args:
+    executable: bash
+  changed_when: False
+  failed_when: False
+  check_mode: no
 
 - name: Install sSMTP as /usr/sbin/sendmail if missing
   shell: |
