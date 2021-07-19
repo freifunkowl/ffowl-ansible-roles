@@ -27,9 +27,7 @@
 - name: Install smokeping's packages
   shell: |
     set -o pipefail
-    apt -y install smokeping curl libauthen-radius-perl libnet-ldap-perl libnet-dns-perl libio-socket-ssl-perl libnet-telnet-perl libsocket6-perl libio-socket-inet6-perl apache2
-    /usr/sbin/a2dissite smokeping.conf
-    systemctl restart apache2.service
+    apt -y install smokeping curl libauthen-radius-perl libnet-ldap-perl libnet-dns-perl libio-socket-ssl-perl libnet-telnet-perl libsocket6-perl libio-socket-inet6-perl apache2 ; /usr/sbin/a2dissite smokeping.conf ; systemctl restart apache2.service
   args:
     executable: bash
   changed_when: False
