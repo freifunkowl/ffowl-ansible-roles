@@ -49,3 +49,4 @@
 
 - name: Create directory
   file: path=/var/run/smokeping state=directory owner=smokeping group=smokeping
+
