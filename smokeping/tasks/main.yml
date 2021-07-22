@@ -36,10 +36,12 @@
 
 - name: Configure smokeping General
   template: src=General.j2 dest=/etc/smokeping/config.d/General mode=0644
+  notify: restart smokeping
 
 - name: Configure smokeping Targets
   template: src=Targets.j2 dest=/etc/smokeping/config.d/Targets mode=0644
   with_items: smokeping_targets
+  notify: restart smokeping
 
 - name: Copy smokeping FPing probe
   copy: src=Probes dest=/etc/smokeping/config.d/Probes mode=0644
@@ -48,22 +50,11 @@
 - name: Enable Apache CGI module
   apache2_module: state=present name=cgid
 
-# - name: Test copy apache2 config
-#   command: /bin/cp /etc/smokeping/apache2.conf /etc/apache2/conf-available/smokeping.conf creates=/etc/apache2/conf-available/smokeping.conf
-# 
-# - name: Test enable smokeping apache config
-#   command: /usr/sbin/a2enconf smokeping.conf creates=/etc/apache2/conf-enabled/smokeping.conf
-#   notify: restart apache
-
-#- name: Configure Apache virtualhost for smokeping
-#  template: src=smokeping.conf.j2 dest=/etc/apache2/sites-available/smokeping.conf
+- name: Configure Apache virtualhost for smokeping
+  template: src=smokeping.conf.j2 dest=/etc/apache2/sites-available/smokeping.conf
 
 #- name: Enable smokeping Apache virtualhosts
-#  file: src=/etc/apache2/sites-available/smokeping.conf dest=/etc/apache2/sites-enabled/smokeping.conf state=link
-#  notify: restart apache
-
-#- name: Enable smokeping Apache virtualhosts
-#  command: /usr/sbin/a2ensite smokeping.conf
+#  command: /usr/sbin/a2ensite smokeping.conf creates=/etc/apache2/conf-enabled/smokeping.conf
 #  notify: restart apache
 
 - name: Create directory
