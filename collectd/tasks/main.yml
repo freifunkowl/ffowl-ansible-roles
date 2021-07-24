@@ -6,14 +6,14 @@
     pkg: ['collectd', 'python-pip']
     update_cache: yes
     state: present
-  when: ansible_distribution == 'Ubuntu' and ansible_lsb.major_release < 20
+#  when: ansible_distribution == 'Ubuntu' and ansible_lsb.major_release < 20
 
-- name: install required packages
-  apt:
-    pkg: ['collectd' ]
-    update_cache: yes
-    state: present
-  when: ansible_distribution == 'Ubuntu' and ansible_lsb.major_release > 19
+#- name: install required packages
+#  apt:
+#    pkg: ['collectd' ]
+#    update_cache: yes
+#    state: present
+#  when: ansible_distribution == 'Ubuntu' and ansible_lsb.major_release > 19
 
 - name: install required packages
   apt:
