@@ -1,0 +1,55 @@
+---
+- name: Install yarn
+  npm:
+    name: yarn
+    global: yes
+
+- name: Clone repository
+  git:
+    repo: "{{ meshviewer_git_root }}"
+    dest: "{{ meshviewer_path_src }}/"
+    version: "{{ meshviewer_git_version }}"
+    force: yes
+
+- name: Install node dependencies
+  command: nodejs /usr/bin/yarn install
+  args:
+    chdir: "{{ meshviewer_path_src }}"
+
+- name: Build meshviewer
+  command: node_modules/.bin/gulp
+  args:
+    chdir: "{{ meshviewer_path_src }}"
+
+- name: Create destination directory
+  file:
+    path="{{ meshviewer_path_bin }}"
+    state=directory
+
+- name: Install rsync
+  apt:
+    name: rsync
+
+# does not work (https://github.com/ansible/ansible/issues/11873)
+#- name: Copy generated files
+#  delegate_to: "{{ inventory_hostname }}"
+#  synchronize:
+#    src: {{ meshviewer_path_src }}/build/
+#    dest: {{ meshviewer_path_bin }}/
+#    delete: True
+#    rsync_opts:
+#    - "--exclude=config.json"
+
+- name: Copy files
+  command: >
+    rsync -a --delete
+    {{ meshviewer_path_src }}/build/
+    {{ meshviewer_path_bin }}/
+
+- name: Enable Apache
+  include: apache.yml
+  when: meshviewer_apache
+
+- name: Enable Geojson
+  import_tasks: geojson.yml
+  when: meshviewer_geojson
