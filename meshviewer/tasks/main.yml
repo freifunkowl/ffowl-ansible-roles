@@ -52,7 +52,7 @@
     force: yes
 
 - name: Install node dependencies
-  command: nodejs /usr/bin/yarn install
+  command: yarn install
   args:
     chdir: "{{ meshviewer_path_src }}"
 
