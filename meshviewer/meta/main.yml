@@ -3,8 +3,11 @@ dependencies:
   - apt
   - git
   - nodejs
-Xgalaxy_info:
+galaxy_info:
   platforms:
     - name: Debian
       versions:
         - jessie
+    - name: Ubuntu
+      versions:
+        - bionic

@@ -61,6 +61,8 @@ Locations (just use any consistent numbering, we use e. g.):
      5   HAM02 (IPHH)
      6   HAM03 (n@work)
      7   AMS01 (coloclue (DC EuNetworks); AS49745 location)
+     8   HEL01 (Hetzner HEL, AS49745 location)
+     9   FKS01 (Hetzner FKS, AS49745 location)
 
 
 
