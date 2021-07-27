@@ -11,7 +11,13 @@
     url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
     state: present
 
-- name: Add repo for nodejs
+- name: Add yarn repo keys
+  apt_key:
+    id: 23E7166788B63E1E
+    url: "https://dl.yarnpkg.com/debian/pubkey.gpg"
+    state: present
+
+- name: Add repo for yarn
   apt_repository:
     repo: "{{ item }}"
     state: present
@@ -20,15 +26,23 @@
     - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
     - "deb-src https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
 
+- name: Add repo for yarn
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - "deb https://dl.yarnpkg.com/debian/ stable main "
+
 - name: Install nodejs
   apt:
     pkg: nodejs
     state: present
 
-#- name: Install yarn
-#  npm:
-#    name: yarn
-#    global: yes
+- name: Install yarn
+  apt:
+    pkg: yarn
+    state: present
 
 - name: Clone repository
   git:
