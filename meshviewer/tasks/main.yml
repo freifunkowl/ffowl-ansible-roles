@@ -4,8 +4,10 @@
     pkg: ['apt', 'git', 'dehydrated-apache2']
     update_cache: yes
     state: present
-    notify: register dehydrated
 
+- name: Initialize dehydrated
+  command: "/usr/bin/dehydrated --register --accept-terms"
+  
 - name: Add nodejs repo keys
   apt_key:
     id: 1655A0AB68576280
