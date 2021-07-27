@@ -1,9 +1,10 @@
 ---
 - name: Install required packages
   apt:
-    pkg: ['apt', 'git']
+    pkg: ['apt', 'git', 'dehydrated-apache2']
     update_cache: yes
     state: present
+    notify: register dehydrated
 
 - name: Add nodejs repo keys
   apt_key:

@@ -1,20 +1,20 @@
 ---
 - name: Get letsencrypt certificates
   lineinfile:
-    dest: /etc/letsencrypt/domains.txt
+    dest: /etc/dehydrated/domains.txt
     line: "{{inventory_hostname_short}}.{{freifunk.domain}}"
     create: yes
-  notify: regenerate certificates
+  notify: update dehydrated
 
 - name: Install Apache vHost config
   template:
     src: apache2.conf
     dest: "/etc/apache2/sites-available/{{inventory_hostname_short}}.{{freifunk.domain}}.conf"
     mode: 0644
-  notify: reload apache
+  notify: restart apache2
 
 - name: Enable Apache vHost config
   command: a2ensite {{inventory_hostname_short}}.{{freifunk.domain}}
   args:
     creates: /etc/apache2/sites-enabled/{{inventory_hostname_short}}.{{freifunk.domain}}.conf
-  notify: reload apache
+  notify: restart apache2

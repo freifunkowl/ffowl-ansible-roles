@@ -1,0 +1,10 @@
+---
+- name: restart apache2
+  service: name=apache2 state=restarted
+
+- name: update dehydrated
+  command: "/usr/bin/dehydrated -c"
+  notify: restart apache2
+
+- name: register dehydrated
+  command: "/usr/bin/dehydrated --register --accept-terms"
