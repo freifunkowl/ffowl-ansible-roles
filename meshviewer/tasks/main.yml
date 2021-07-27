@@ -1,4 +1,10 @@
 ---
+- name: Install required packages
+  apt:
+    pkg: ['apt', 'git', 'nodejs']
+    update_cache: yes
+    state: present
+
 - name: Install yarn
   npm:
     name: yarn
