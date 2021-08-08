@@ -56,7 +56,7 @@
 
 - name: Copy repo to working directory
   command: >
-    rsync -a --delete --exclude=config.json
+    rsync -a --delete --exclude=config.js
     {{ meshviewer_path_src }}/
     {{ meshviewer_path_work }}/
 
