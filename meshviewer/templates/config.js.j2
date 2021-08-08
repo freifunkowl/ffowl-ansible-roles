@@ -13,7 +13,7 @@ module.exports = function () {
         "href": "{{ nodeInfo.href }}",{% endif %}{% if nodeInfo.iframe is defined %}
         "iframe": "{{ nodeInfo.iframe }}"{% endif %}{% if nodeInfo.thumbnail is defined %}
         "thumbnail": "{{ nodeInfo.thumbnail }}"{% endif %}{% if nodeInfo.caption is defined %},
-        "caption": "{{ nodeInfo.caption }}"{% endif %}
+        "caption": "{{ nodeInfo.caption }}",{% endif %}
         "width": 650,
         "height": 350
       }{% if not loop.last %},{% endif %}
