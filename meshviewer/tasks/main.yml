@@ -1,13 +1,13 @@
 ---
 - name: Install required packages
   apt:
-    pkg: ['apt', 'git', 'dehydrated-apache2']
+    pkg: ['apt', 'git', 'dehydrated-apache2', 'dehydrated']
     update_cache: yes
     state: present
 
 - name: Initialize dehydrated
   command: "/usr/bin/dehydrated --register --accept-terms"
-  
+
 - name: Add nodejs repo keys
   apt_key:
     id: 1655A0AB68576280
@@ -54,10 +54,22 @@
     version: "{{ meshviewer_git_version }}"
     force: yes
 
+- name: Copy repo to working directory
+  command: >
+    rsync -a --delete --exclude=config.json
+    {{ meshviewer_path_src }}/
+    {{ meshviewer_path_work }}/
+
+- name: Deploy config.js
+  template:
+    src: config.js.j2
+    dest: {{ meshviewer_path_work }}/config.js
+    mode: 0644
+
 - name: Install node dependencies
   command: yarn install
   args:
-    chdir: "{{ meshviewer_path_src }}"
+    chdir: "{{ meshviewer_path_work }}"
 
 - name: Build meshviewer
   command: node_modules/.bin/gulp
@@ -67,6 +79,11 @@
 - name: Create destination directory
   file:
     path="{{ meshviewer_path_bin }}"
+    state=directory
+
+- name: Create working directory
+  file:
+    path="{{ meshviewer_path_work }}"
     state=directory
 
 - name: Install rsync

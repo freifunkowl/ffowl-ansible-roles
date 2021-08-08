@@ -3,6 +3,7 @@ meshviewer_git_root: "https://github.com/ffrgb/meshviewer.git"
 meshviewer_git_version: 'f590aaaae42c44a25c6858b25d6fa4081d8e5b6d'
 meshviewer_path_bin: '/var/www/html/meshviewer'
 meshviewer_path_src: '/usr/src/meshviewer'
+meshviewer_path_work: '/usr/src/mv-work'
 
 meshviewer_apache: true
 
