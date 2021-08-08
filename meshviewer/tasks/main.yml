@@ -63,7 +63,7 @@
 - name: Deploy config.js
   template:
     src: config.js.j2
-    dest: {{ meshviewer_path_work }}/config.js
+    dest: "{{ meshviewer_path_work }}/config.js"
     mode: 0644
 
 - name: Install node dependencies
