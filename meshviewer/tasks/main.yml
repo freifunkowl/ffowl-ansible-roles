@@ -74,7 +74,7 @@
 - name: Build meshviewer
   command: node_modules/.bin/gulp
   args:
-    chdir: "{{ meshviewer_path_src }}"
+    chdir: "{{ meshviewer_path_work }}"
 
 - name: Create destination directory
   file:
@@ -103,7 +103,7 @@
 - name: Copy files
   command: >
     rsync -a --delete
-    {{ meshviewer_path_src }}/build/
+    {{ meshviewer_path_work }}/build/
     {{ meshviewer_path_bin }}/
 
 - name: Enable Apache
