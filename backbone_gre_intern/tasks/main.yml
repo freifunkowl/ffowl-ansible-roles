@@ -1,7 +1,12 @@
 ---
 - name: Tunnels between backbones ({{ inventory_hostname }}, vm_id {{ vm_id }})
-  template: src="gre_interbackbone.j2" dest="/etc/network/interfaces.d/42_gre_interbackbone.cfg"
-  notify: restart networking
+  template:
+    src="gre_interbackbone.j2"
+    dest="/etc/network/interfaces.d/42_gre_interbackbone.cfg"
+  notify:
+    restart networking
+  vars:
+    vm_id: {{ vm_id }}
 
 - name: Routingtabelle 42 auch ffnet nennen
   blockinfile:
