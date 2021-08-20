@@ -5,8 +5,6 @@
     dest="/etc/network/interfaces.d/42_gre_interbackbone.cfg"
   notify:
     restart networking
-  debug:
-    msg: "{{ inventory_hostname }}, vm_id {{ vm_id }}"
 
 - name: Routingtabelle 42 auch ffnet nennen
   blockinfile:
