@@ -6,7 +6,7 @@
   notify:
     restart networking
   vars:
-    vm_id: {{ vm_id }}
+    vm_id: "{{ vm_id }}"
 
 - name: Routingtabelle 42 auch ffnet nennen
   blockinfile:
