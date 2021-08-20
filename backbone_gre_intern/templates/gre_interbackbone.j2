@@ -1,5 +1,6 @@
 # {{ ansible_managed }}
 
+{% set vm_id = hostvars[inventory_hostname].vm_id %}
 {% for host in groups['gateways'] %}
 {% if host != inventory_hostname %}
 {% set tunhost = host %}
