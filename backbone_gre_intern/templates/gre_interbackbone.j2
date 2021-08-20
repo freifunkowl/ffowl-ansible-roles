@@ -6,6 +6,7 @@
 {% if tunhost|length > 8 %}
 {% set tunhost=host[:2]+"-"+host[-5:] %}
 {% endif %}
+{% ('' if hostvars[host].vm_id is defined | mandatory('{{ host }} is missing vm_id variable!') %}
 {% if hostvars[host].vm_id is defined %}
 auto bck-{{tunhost}}
 iface bck-{{tunhost}} inet static
@@ -35,7 +36,6 @@ iface bck-{{tunhost}} inet6 static
 {% else %}
 
 # ERROR: {{ host }} is missing vm_id variable ...
-{% mandatory('{{ host }} is missing vm_id variable!') %}
 
 {% endif %}
 {% endif %}
