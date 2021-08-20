@@ -6,6 +6,7 @@
 {% if tunhost|length > 8 %}
 {% set tunhost=host[:2]+"-"+host[-5:] %}
 {% endif %}
+{% if hostvars[host].vm_id is defined %}
 auto bck-{{tunhost}}
 iface bck-{{tunhost}} inet static
 {% if hostvars[host].vm_id < hostvars[inventory_hostname].vm_id %}
@@ -28,6 +29,8 @@ iface bck-{{tunhost}} inet6 static
         post-up ip -6 rule add iif $IFACE table ffnet
         pre-down ip -6 rule del iif $IFACE table ffnet ||:
         post-down ip link delete $IFACE
-
+{% else %}
+# {{ host }} is missing vm_id variable ...
+{% endif %}
 {% endif %}
 {% endfor %}
