@@ -1,10 +1,17 @@
 ---
 
-- name: Disable systemd-timesyncd
-  systemd:
-    name: systemd-timesyncd
-    state: stopped
-    masked: yes
+#- name: Disable systemd-timesyncd
+#  systemd:
+#    name: systemd-timesyncd
+#    state: stopped
+#    masked: yes
+
+- name: Disable systemd-timesyncd (bash)
+  shell: |
+    set -o pipefail
+    systemctl disable systemd-timesyncd ||:
+  args:
+    executable: bash
 
 - name: Install ntp
   apt:
