@@ -1,6 +1,6 @@
 - name: Install dependencies for this role
   apt:
-    pkg: ['git', 'libnetfilter-conntrack-dev', 'libnfnetlink-dev', 'python3-dev', 'python-virtualenv', 'gcc',
+    pkg: ['git', 'libnetfilter-conntrack-dev', 'libnfnetlink-dev', 'python3-dev', 'virtualenv', 'gcc',
       'libnl-3-dev', 'libevent-dev', 'bridge-utils', 'ebtables', 'iproute2']
   when: domaenenliste is defined
 
