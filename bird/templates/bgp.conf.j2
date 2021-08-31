@@ -185,7 +185,8 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
   source address {{ peer.ipv4src | ipaddr('address') }};
   neighbor {{ peer.ipv4dst }} as {{ peer.peeras }};
   import keep filtered;
-  bfd graceful;
+{% if peer.nobfd is not defined %}  bfd graceful;
+{% endif %}
   import filter peer_in_{{ peer.name|replace("-", "_")|replace(":", "__") }};
   export filter peer_out_{{ peer.name|replace("-", "_")|replace(":", "__") }};
 {% if peer.multihop is defined %}  multihop {{ peer.multihop }};
