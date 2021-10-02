@@ -41,9 +41,13 @@ Traffic-Engineering:
     (206813:2:0)               Prepend 206813 generally
     (206813:3:REMOTE_ASN)      Prepend 206813 2x to REMOTE_ASN
     (206813:3:0)               Prepend 206813 2x generally
-    (206813:4:REMOTE_ASN)      Reject export to REMOTE_ASN
-    (206813:4:0)               Reject export at all
-    (206813:5:REMOTE_ASN)      Allow export to REMOTE_ASN (precedence over (206813:4:*))
+    (206813:4:REMOTE_ASN)      Prepend 206813 3x to REMOTE_ASN
+    (206813:4:0)               Prepend 206813 3x generally
+    (206813:5:REMOTE_ASN)      Prepend 206813 4x to REMOTE_ASN
+    (206813:5:0)               Prepend 206813 4x generally
+    (206813:8:REMOTE_ASN)      Do not export to REMOTE_ASN
+    (206813:8:0)               Do not export at all
+    (206813:9:REMOTE_ASN)      Allow export to REMOTE_ASN (precedence over (206813:8:*))
 
     (206813:800:0) PLUS        Route originates at location xxx;
        (206813:800:xxx)        locations != xxx will prepend ASN once
