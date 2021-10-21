@@ -4,7 +4,7 @@
 - apt_repository:
     repo: ppa:cz.nic-labs/bird
     state: present
-  when: ansible_distribution == 'Ubuntu' and ansible_distribution_major_version < 20
+  when: ansible_distribution == 'Ubuntu' and (ansible_distribution_version == '16.04' or ansible_distribution_version == '18.04')
 
 - name: install apt_key
   shell: |
