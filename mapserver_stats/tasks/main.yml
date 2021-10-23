@@ -7,16 +7,19 @@
     dest: /opt/node-stats
     version: respondd
     force: yes
+  when: collectd is defined
 
 - name: Deploy update.sh script
   template:
     src: update.sh.j2
     dest: /opt/node-stats/update.sh
     mode: "u+x,g+x"
+  when: collectd is defined
 
 - name: Define cron for node-stats.
   cron:
     name: "node-stats"
     minute: "*"
     job: "/opt/node-stats/update.sh >/dev/null 2>&1"
+  when: collectd is defined
 
