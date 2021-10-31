@@ -1,18 +1,10 @@
 ---
 - name: Install smokeping packages
-  apt: name={{ item }} state=present update_cache=yes cache_valid_time=3600
-  with_items:
-    - smokeping
-    - curl
-    - libauthen-radius-perl
-    - libnet-ldap-perl
-    - libnet-dns-perl
-    - libio-socket-ssl-perl
-    - libnet-telnet-perl
-    - libsocket6-perl
-    - libio-socket-inet6-perl
-    - apache2
-#    - xmail
+  apt:
+    name: ['smokeping', 'curl', 'libauthen-radius-perl', 'libnet-ldap-perl', 'libnet-dns-perl', 'libio-socket-ssl-perl', 'libnet-telnet-perl', 'libsocket6-perl', 'libio-socket-inet6-perl', 'apache2']
+    state: present
+    update_cache: yes
+    cache_valid_time: 1800
 
 - name: Install sSMTP as /usr/sbin/sendmail if missing
   shell: |
