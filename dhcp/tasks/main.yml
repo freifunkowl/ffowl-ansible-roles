@@ -23,5 +23,7 @@
 - name: Let restart isc-dhcp-server if none is running …
   cron:
     name: isc-dhcp-server restart
+    day: "*"
+    hour: "*"
     minute: "*/2"
     job: "ps -Aelf | grep -v grep | grep /etc/dhcp/dhcpd.conf >/dev/null || systemctl restart isc-dhcp-server"
