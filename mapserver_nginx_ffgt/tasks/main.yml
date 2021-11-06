@@ -97,7 +97,7 @@
   when: actsslconf.changed
 
 - name: Clone bootstrap and css files
-  git: repo=https://github.com/FreiFunkMuenster/nodesmap-page.git dest=/opt/nodesmappage force=yes
+  git: repo=https://github.com/ffgtso/nodesmap-page-ffgt.git dest=/opt/nodesmappage force=yes
 
 - name: link css
   file:
@@ -121,6 +121,12 @@
   file:
     src: /opt/nodesmappage/icons
     dest: /var/www/html/icons
+    state: link
+
+- name: link logo
+  file:
+    src: /opt/nodesmappage/logo.svg
+    dest: /var/www/html/logo.svg
     state: link
 
 - name: Generate index.html
