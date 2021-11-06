@@ -76,20 +76,20 @@
             <tr>
               <td>
                   <a href="map{{domaene[0]}}/">{{domaene[0]}} - {{domaene[1].name}}</a> 
-                  &ensp;
+                  <br/>
 {% if indexconfig.linktofwdownloader is defined %}
                   <span class="small">
-                      <a class="ffms-muted" href="{{indexconfig.linktofwdownloader}}{{domaene[0]}}">Firmware </a>
+                      <a class="ffms-muted" href="{{indexconfig.linktofwdownloader}}{{domaene[0]}}">Firmware&nbsp;</a>
                   </span>
 {% endif %}
 {% if domaene[1].main_url is defined %}
                   <span class="small">
-                      <a class="ffms-muted" href="{{domaene[1].main_url}}">Homepage </a>
+                      <a class="ffms-muted" href="{{domaene[1].main_url}}">Homepage&nbsp;</a>
                   </span>
 {% endif %}
 {% if domaene[1].forum_url is defined %}
                   <span class="small">
-                      <a class="ffms-muted" href="{{domaene[1].forum_url}}">Forum </a>
+                      <a class="ffms-muted" href="{{domaene[1].forum_url}}">Forum&nbsp;</a>
                   </span>
 {% endif %}
               </td>
