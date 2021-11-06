@@ -82,6 +82,16 @@
                       <a class="ffms-muted" href="{{indexconfig.linktofwdownloader}}{{domaene[0]}}">Firmware </a>
                   </span>
 {% endif %}
+{% if domaene[1].main_url is defined %}
+                  <span class="small">
+                      <a class="ffms-muted" href="{{domaene[1].main_url}}">Homepage </a>
+                  </span>
+{% endif %}
+{% if domaene[1].forum_url is defined %}
+                  <span class="small">
+                      <a class="ffms-muted" href="{{domaene[1].forum_url}}">Forum </a>
+                  </span>
+{% endif %}
               </td>
             </tr>
 {% endfor %}
