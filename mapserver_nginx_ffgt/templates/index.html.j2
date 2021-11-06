@@ -77,10 +77,16 @@
               <td>
                   <a href="map{{domaene[0]}}/">{{domaene[0]}} - {{domaene[1].name}}</a> 
                   <br/>
+{% if domaene[1].firmware_url is defined %}
+                  <span class="small">
+                      <a class="ffms-muted" href="{{domaene[1].firmware_url}}">Firmware&nbsp;</a>
+                  </span>
+{% else %}
 {% if indexconfig.linktofwdownloader is defined %}
                   <span class="small">
                       <a class="ffms-muted" href="{{indexconfig.linktofwdownloader}}{{domaene[0]}}">Firmware&nbsp;</a>
                   </span>
+{% endif %}
 {% endif %}
 {% if domaene[1].main_url is defined %}
                   <span class="small">
