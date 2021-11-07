@@ -12,6 +12,7 @@ galaxy_info:
         - bullseye
     - name: Ubuntu
       versions:
+        - bionic
         - focal
   galaxy_tags:
     - networking
