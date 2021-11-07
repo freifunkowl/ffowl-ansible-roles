@@ -1,0 +1,34 @@
+DATABASE = {
+    'NAME': '{{ peering_manager_database }}',
+    'USER': '{{ peering_manager_database_user }}',
+    'PASSWORD': '{{ peering_manager_database_password }}',
+    'HOST': '{{ peering_manager_database_host }}',
+    'PORT': '{{ peering_manager_database_port | default('') }}',
+}
+
+REDIS = {
+    'tasks': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'PASSWORD': '',
+        'DATABASE': 0,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    },
+    'caching': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'PASSWORD': '',
+        'DATABASE': 1,
+        'DEFAULT_TIMEOUT': 300,
+        'SSL': False,
+    }
+}
+
+{% for setting, value in peering_manager_config.items() %}
+{% if value in [True, False] %}
+{{ setting }} = {{ 'True' if value else 'False' }}
+{% else %}
+{{ setting }} = {{ value | to_nice_json }}
+{% endif %}
+{% endfor %}

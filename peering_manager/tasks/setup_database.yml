@@ -1,0 +1,34 @@
+---
+- name: ensure postgresql is ready
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: true
+  become: true
+
+- name: create postgresql database
+  community.postgresql.postgresql_db:
+    name: "{{ peering_manager_database }}"
+    encoding: UTF8
+    lc_collate: "{{ peering_manager_database_lc }}"
+    lc_ctype: "{{ peering_manager_database_lc }}"
+    template: template0
+  become: true
+  become_user: "{{ peering_manager_postgresql_user }}"
+
+- name: create postgresql user
+  community.postgresql.postgresql_user:
+    name: "{{ peering_manager_database_user }}"
+    password: "{{ peering_manager_database_password }}"
+    encrypted: true
+    db: "{{ peering_manager_database }}"
+    priv: ALL
+  no_log: true
+  become: true
+  become_user: "{{ peering_manager_postgresql_user }}"
+
+- name: ensure redis is ready
+  ansible.builtin.service:
+    name: "{{ peering_manager_redis_service }}"
+    state: started
+  become: true

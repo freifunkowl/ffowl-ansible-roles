@@ -1,0 +1,24 @@
+---
+galaxy_info:
+  role_name: peering_manager
+  author: gmazoyer
+  description: A role to install and update Peering Manager.
+  license: GPL-3+
+  min_ansible_version: 2.5.0
+  platforms:
+    - name: Debian
+      versions:
+        - buster
+        - bullseye
+    - name: Ubuntu
+      versions:
+        - focal
+  galaxy_tags:
+    - networking
+    - routing
+    - peering
+    - bgp
+    - django
+
+dependencies: []
+allow_duplicates: true

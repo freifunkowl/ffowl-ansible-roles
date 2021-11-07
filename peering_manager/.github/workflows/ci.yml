@@ -1,0 +1,66 @@
+---
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 5 * * 0"
+
+defaults:
+  run:
+    working-directory: "gmazoyer.peering_manager"
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: "gmazoyer.peering_manager"
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip3 install ansible ansible-lint
+      - name: Lint code
+        run: ansible-lint
+
+  molecule:
+    name: molecule
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro:
+          - debian10
+          - debian11
+          - ubuntu2004
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: "gmazoyer.peering_manager"
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip3 install ansible molecule[docker] docker
+      - name: Run Molecule
+        run: molecule test
+        env:
+          PY_COLORS: "1"
+          ANSIBLE_FORCE_COLOR: "1"
+          MOLECULE_DISTRO: ${{ matrix.distro }}
+      - name: Trigger Galaxy import
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/head/main' }}
+        run: >-
+          ansible-galaxy role import
+          --token ${{ secrets.GALAXY_API_KEY }}
+          peering-manager ansible-role-peering-manager
