@@ -30,6 +30,7 @@ menu = Internal Tunnel IPv4
 title = Cross-Gateway GRE Tunnel
 
 {% for host in groups['gateways']|default([]) %}
+{% if host != inventory_hostname %}
 ++ {{host|regex_replace('-','_')|regex_replace('\.','_')}}
 {% if hostvars[host].vm_id < vm_id %}
 menu = {{host}}
@@ -39,6 +40,7 @@ menu = {{host}}
 host = {{ipv4backbone16prefixstr}}{{ vm_id-1 }}.{{hostvars[host].vm_id*2+1}}
 {% endif %}
 
+{% endif %}
 {% endfor %}
 {% endif %}
 
@@ -49,6 +51,7 @@ menu = Internal Tunnel IPv6
 title = Cross-Gateway GRE Tunnel
 
 {% for host in groups['gateways']|default([]) %}
+{% if host != inventory_hostname %}
 ++ {{host}}
 {% if hostvars[host].vm_id < vm_id %}
 menu = {{host}}
@@ -58,5 +61,6 @@ menu = {{host}}
 host = {{ipv6backbone64prefixstr}}{{vm_id}}:{{hostvars[host].vm_id}}:0
 {% endif %}
 
+{% endif %}
 {% endfor %}
 {% endif %}
