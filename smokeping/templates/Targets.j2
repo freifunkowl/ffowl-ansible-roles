@@ -17,7 +17,7 @@ title = {{ target.target_title }}
 ++ {{ host.target_host_name|regex_replace(' ','_')|regex_replace('\.','_') }}
 menu = {{ host.target_host_menu }}
 title = {{ host.target_host_title }}
-{% if defined host.target_host_probe %}
+{% if host.target_host_probe is defined %}
 probe = {{host.target_host_probe}}
 {% endif %}
 host = {{ host.target_host_host }}
