@@ -1,0 +1,19 @@
+*** Probes ***
+
++ FPing
+
+binary = /usr/bin/fping
+blazemode = true
+pings = 20
+step = 60
+
++ FPing6
+
+{% if ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int <= 18 %}
+binary = /usr/bin/fping6
+{% else %}
+binary = /usr/bin/fping
+{% end %}
+blazemode = true
+pings = 20
+step = 60
