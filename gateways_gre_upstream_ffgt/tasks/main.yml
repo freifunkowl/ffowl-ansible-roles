@@ -4,6 +4,20 @@
   notify:
     - restart networking
 
+- name: Check for /etc/network/interfaces.d
+    stat:
+      path: /etc/network/interfaces.d
+    register: interfaces_d
+
+- name: Creates /etc/network/interfaces.d directory if missing
+  file:
+    path: /etc/network/interfaces.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+    when: interfaces_d.stat.exists == false
+
 - name: Konfig für die lo-Schnittstelle
   template: src="lo.j2" dest="/etc/network/interfaces.d/00_lo.cfg"
   notify:
