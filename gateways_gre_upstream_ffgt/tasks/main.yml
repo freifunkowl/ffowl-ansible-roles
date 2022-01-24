@@ -5,9 +5,9 @@
     - restart networking
 
 - name: Check for /etc/network/interfaces.d
-    stat:
-      path: /etc/network/interfaces.d
-    register: interfaces_d
+  stat:
+    path: /etc/network/interfaces.d
+  register: interfaces_d
 
 - name: Creates /etc/network/interfaces.d directory if missing
   file:
