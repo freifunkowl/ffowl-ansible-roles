@@ -128,6 +128,12 @@ int set bogon_asns;
     }
 
 {% if location is defined %}
+    if (({{ ouras }}, 899, 0) ~ bgp_large_community) then {
+      if (({{ ouras }}, 899, {{ location }}) !~ bgp_large_community) then {
+        reject;
+      }
+    }
+
     if (({{ ouras }}, 800, 0) ~ bgp_large_community) then {
       if (({{ ouras }}, 800, {{ location }}) !~ bgp_large_community) then {
         bgp_path.prepend({{ ouras }});

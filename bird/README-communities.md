@@ -19,6 +19,7 @@ Read-only:
     (206813:300:REMOTE_ASN)    Route learned from "customer" ASN
     (206813:400:0)             Route learned from transit
     (206813:400:REMOTE_ASN)    Route learned from transit ASN
+    (206813:500:xxx)           Route originates at location xxx (see below)
 
 IXPs, 1xx, for xx use (just use any consistent numbering >0):
 
@@ -53,8 +54,11 @@ Traffic-Engineering:
        (206813:800:xxx)        locations != xxx will prepend ASN once
     (206813:801:0) PLUS        Route originates at location xxx;
        (206813:801:xxx)        locations != xxx will prepend ASN twice times
-     (206813:802:0) PLUS        Route originates at location xxx;
+     (206813:802:0) PLUS       Route originates at location xxx;
        (206813:802:xxx)        locations != xxx will prepend ASN three times
+     (206813:899:0) PLUS       Route originates at location xxx;
+       (206813:899:xxx)        locations != xxx will not export this prefix
+
 
 Locations (just use any consistent numbering, we use e. g.):
 
