@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+
+auto {{ansible_default_ipv4.interface}}
+iface {{ansible_default_ipv4.interface}} inet6 manual
+    post-up /sbin/ip -6 rule add pref 8192 lookup ffnet ||:
+    pre-down /sbin/ip -6 rule del pref 8192 lookup ffnet ||:

@@ -184,3 +184,9 @@
   when: bgp_router is defined and bgp_sync_files is defined
   notify:
     - reload bird6
+
+- name: add rule to use table ffnet for IPv6
+  template: src="eth0.j2" dest="/etc/network/interfaces.d/{{ansible_default_ipv4.interface}}_iprule.cfg"
+  notify:
+    - restart networking
+  when: domaenenliste is defined
