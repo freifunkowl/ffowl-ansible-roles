@@ -138,18 +138,39 @@ int set bogon_asns;
       if (({{ ouras }}, 800, {{ location }}) !~ bgp_large_community) then {
         bgp_path.prepend({{ ouras }});
       }
-    } else {
-      if (({{ ouras }}, 801, 0) ~ bgp_large_community) then {
-        if (({{ ouras }}, 801, {{ location }}) !~ bgp_large_community) then {
-          bgp_path.prepend({{ ouras }});
-          bgp_path.prepend({{ ouras }});
-        }
-      } else if (({{ ouras }}, 802, 0) ~ bgp_large_community) then {
-        if (({{ ouras }}, 802, {{ location }}) !~ bgp_large_community) then {
-          bgp_path.prepend({{ ouras }});
-          bgp_path.prepend({{ ouras }});
-          bgp_path.prepend({{ ouras }});
-        }
+    }
+
+    if (({{ ouras }}, 801, 0) ~ bgp_large_community) then {
+      if (({{ ouras }}, 801, {{ location }}) !~ bgp_large_community) then {
+        bgp_path.prepend({{ ouras }});
+        bgp_path.prepend({{ ouras }});
+      }
+    }
+
+    if (({{ ouras }}, 802, 0) ~ bgp_large_community) then {
+      if (({{ ouras }}, 802, {{ location }}) !~ bgp_large_community) then {
+        bgp_path.prepend({{ ouras }});
+        bgp_path.prepend({{ ouras }});
+        bgp_path.prepend({{ ouras }});
+      }
+    }
+
+    if (({{ ouras }}, 803, 0) ~ bgp_large_community) then {
+      if (({{ ouras }}, 803, {{ location }}) !~ bgp_large_community) then {
+        bgp_path.prepend({{ ouras }});
+        bgp_path.prepend({{ ouras }});
+        bgp_path.prepend({{ ouras }});
+        bgp_path.prepend({{ ouras }});
+      }
+    }
+
+    if (({{ ouras }}, 804, 0) ~ bgp_large_community) then {
+      if (({{ ouras }}, 804, {{ location }}) !~ bgp_large_community) then {
+        bgp_path.prepend({{ ouras }});
+        bgp_path.prepend({{ ouras }});
+        bgp_path.prepend({{ ouras }});
+        bgp_path.prepend({{ ouras }});
+        bgp_path.prepend({{ ouras }});
       }
     }
 {% endif %}
