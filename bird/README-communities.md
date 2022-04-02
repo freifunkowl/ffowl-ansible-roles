@@ -56,6 +56,11 @@ Traffic-Engineering:
        (206813:801:xxx)        locations != xxx will prepend ASN twice times
      (206813:802:0) PLUS       Route originates at location xxx;
        (206813:802:xxx)        locations != xxx will prepend ASN three times
+     (206813:803:0) PLUS       Route originates at location xxx;
+       (206813:803:xxx)        locations != xxx will prepend ASN four times
+     (206813:804:0) PLUS       Route originates at location xxx;
+       (206813:804:xxx)        locations != xxx will prepend ASN five times
+
      (206813:899:0) PLUS       Route originates at location xxx;
        (206813:899:xxx)        locations != xxx will not export this prefix
 
