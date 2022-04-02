@@ -250,11 +250,14 @@ protocol bgp i_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
   neighbor {{ peer.ipv4dst }} as {{ ouras }};
   bfd graceful;
   import filter {
+{% if peer.import_filter4 is defined %}
+    include "/etc/bird/bird.conf.d/{{ peer.import_filter4 }}";
+{% endif %}
 {% if peer.pref is defined %}    bgp_local_pref = {{ peer.pref }};{% endif %}
 {% if peer.dfz is defined and peer.dfz != "no" %}
-    if is_default() then accept;
-{% else %}
     if is_default() then reject;
+{% else %}
+    if is_default() then accept;
 {% endif %}
     accept;
   };
