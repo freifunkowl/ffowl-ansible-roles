@@ -4,9 +4,15 @@ filter ospf_out {
   include "/etc/bird/bird6.conf.d/{{ ospf.export_filter6 }}";
 {% endif %}
 
+{% if ospf.legacymode|default(false) %}
+  if (source = RTS_STATIC) then accept;
+  if (source = RTS_DEVICE) then accept;
+  if (source = RTS_STATIC_DEVICE) then accept;
+{% else %}
 {% for p in ospf.prefixes.ipv6 | default([]) %}
   if (net ~ [ {{ p }} ] && (source = RTS_STATIC || source = RTS_DEVICE || source = RTS_STATIC_DEVICE)) then accept;
 {% endfor %}
+{% endif %}
 
   reject;
 }
@@ -16,11 +22,15 @@ filter ospf_in {
   include "/etc/bird/bird6.conf.d/{{ ospf.import_filter6 }}";
 {% endif %}
 
+{% if ospf.legacymode|default(false) %}
+  accept;
+{% else %}
 {% for p in ospf.prefixes.ipv6 | default([]) %}
   if (net ~ [ {{ p }} ]) then accept;
-{% endfor %}
 
+{% endfor %}
   reject;
+{% endif %}
 }
 
 protocol ospf o_intern {
