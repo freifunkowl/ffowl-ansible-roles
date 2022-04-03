@@ -51,7 +51,9 @@ protocol ospf o_intern {
 {% if interface.ttl_security | default(false) %}
       ttl security on;
 {% endif %}
+{% if interface.bfd|default(false) %}
       bfd yes;
+{% endif %}
     };
 {% endfor %}
 
@@ -79,7 +81,8 @@ protocol ospf upstream {
 {% if ospf_nat_options is defined %}
       {{ospf_nat_options}}
 {% endif %}
-    bfd yes;
+      #bfd yes;
+      type broadcast;
     };
     interface "lo" { stub; };
   };
