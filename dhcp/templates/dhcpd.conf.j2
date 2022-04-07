@@ -1,4 +1,11 @@
 # {{ ansible_managed }}
+{% if "capwap_server" in hostvars[inventory_hostname] %}
+option capwap code 138 = ip-address;
+option capwap {{capwap_server}};
+if exists dhcp-parameter-request-list {
+    option dhcp-parameter-request-list=concat(option dhcp-parameter-request-list,8A);
+}
+{% endif %}
 
 default-lease-time {{dhcp_global.lease_default}};
 max-lease-time {{dhcp_global.lease_max}};
