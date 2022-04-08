@@ -5,6 +5,8 @@ option capwap {{capwap_server}};
 if exists dhcp-parameter-request-list {
     option dhcp-parameter-request-list=concat(option dhcp-parameter-request-list,8A);
 }
+{% else %}
+# capwap_server not defined: {{capwap_server}}
 {% endif %}
 
 default-lease-time {{dhcp_global.lease_default}};
