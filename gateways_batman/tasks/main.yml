@@ -3,11 +3,6 @@
   apt:
     pkg: ['bridge-utils']
 
-# install package iperf3
-- name: iperf3-Paket installieren
-  apt:
-    pkg: ['iperf3']
-
 # creating batman interface
 - name: Create interfaces - batman file
   template: src="batman.j2" dest="/etc/network/interfaces.d/10_batman.cfg"
