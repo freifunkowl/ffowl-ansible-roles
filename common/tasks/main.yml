@@ -11,6 +11,17 @@
     mode: 0644
     create: yes
 
+- name: Disable mouse support in vim by default
+  lineinfile:
+    dest: ~/.vimrc
+    regexp: '^set mouse'
+    state: present
+    line: 'set mouse-=a'
+    owner: root
+    group: root
+    mode: 0644
+    create: yes
+
 - name: Update .bash_profile file
   template:
     src: bash_profile.j2
