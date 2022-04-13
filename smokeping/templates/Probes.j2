@@ -1,14 +1,20 @@
 *** Probes ***
 
 + FPing
-
 binary = /usr/bin/fping
 blazemode = true
 pings = 20
 step = 60
 
-+ FPing6
+{% if domaenenliste is defined %}
+{% for item in domaenenliste|dictsort %}
+++ FPing_Mesh{{item[0]}}
+sourceaddress = {{domaenen[item[0]].ffv4_network | ipaddr(item[1].server_id) | ipaddr('address') }}
 
+{% endfor %}
+{% endif %}
+
++ FPing6
 {% if ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int <= 18 %}
 binary = /usr/bin/fping6
 {% else %}
@@ -20,24 +26,7 @@ step = 60
 
 {% if domaenenliste is defined %}
 {% for item in domaenenliste|dictsort %}
-+ FPing_Mesh{{item[0]}}
-
-binary = /usr/bin/fping
-blazemode = true
-pings = 20
-step = 60
-sourceaddress = {{domaenen[item[0]].ffv4_network | ipaddr(item[1].server_id) | ipaddr('address') }}
-
-+ FPing6_Mesh{{item[0]}}
-
-{% if ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int <= 18 %}
-binary = /usr/bin/fping6
-{% else %}
-binary = /usr/bin/fping
-{% endif %}
-blazemode = true
-pings = 20
-step = 60
+++ FPing_Mesh{{item[0]}}
 sourceaddress = {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }}
 
 {% endfor %}
