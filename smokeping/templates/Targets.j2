@@ -67,3 +67,23 @@ host = {{ipv6backbone64prefixstr}}{{vm_id}}:{{hostvars[host].vm_id}}:0
 {% endif %}
 {% endfor %}
 {% endif %}
+
+{% if domaenenliste is defined %}
++ DNSv6_per_Mesh
+probe = FPing6
+menu = DNSv6 per Mesh
+title = DNSv6 server reachability per mesh
+
+{% for item in domaenenliste|dictsort %}
+++ one.one.one.one_from_Mesh{{item[0]}}
+menu = Mesh{{item[0]}}_one.one.one.one
+host = one.one.one.one
+sourceaddress = {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }}
+
+++ dns.google_from_Mesh{{item[0]}}
+menu = Mesh{{item[0]}}_dns.google
+host = dns.google
+sourceaddress = {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }}
+
+{% endfor %}
+{% endif %}
