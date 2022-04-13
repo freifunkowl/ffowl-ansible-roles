@@ -7,6 +7,8 @@ pings = 20
 step = 60
 
 {% if domaenenliste is defined %}
+++ FPing
+
 {% for item in domaenenliste|dictsort %}
 ++ FPing_Mesh{{item[0]}}
 sourceaddress = {{domaenen[item[0]].ffv4_network | ipaddr(item[1].server_id) | ipaddr('address') }}
@@ -25,6 +27,8 @@ pings = 20
 step = 60
 
 {% if domaenenliste is defined %}
+++ FPing6
+
 {% for item in domaenenliste|dictsort %}
 ++ FPing_Mesh{{item[0]}}
 sourceaddress = {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }}
