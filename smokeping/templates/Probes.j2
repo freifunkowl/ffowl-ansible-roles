@@ -30,7 +30,7 @@ step = 60
 ++ FPing6
 
 {% for item in domaenenliste|dictsort %}
-++ FPing_Mesh{{item[0]}}
+++ FPing6_Mesh{{item[0]}}
 sourceaddress = {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }}
 
 {% endfor %}
