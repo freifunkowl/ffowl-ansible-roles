@@ -82,31 +82,31 @@ host = 8.8.8.8
 
 ++ dns_googlev6_from_Mesh{{item[0]}}
 menu = dns.google v6
-title = Network Graph for dns.google IPv6 from Mesh{{item[0]}
+title = Network Graph for dns.google IPv6 from Mesh{{item[0]}}
 probe = FPing6_Mesh{{item[0]}}
 host = 2001:4860:4860::8888
 
 ++ one_one_one_onev4_from_Mesh{{item[0]}}
 menu = one.one.one.one v4
-title = Network Graph for one.one.one.one IPv4 from Mesh{{item[0]}
+title = Network Graph for one.one.one.one IPv4 from Mesh{{item[0]}}
 probe = FPing_Mesh{{item[0]}}
 host = 1.1.1.1
 
 ++ one_one_one_onev6_from_Mesh{{item[0]}}
 menu = one.one.one.one v6
-title = Network Graph for one.one.one.one IPv6 from Mesh{{item[0]}
+title = Network Graph for one.one.one.one IPv6 from Mesh{{item[0]}}
 probe = FPing6_Mesh{{item[0]}}
 host = 2606:4700:4700::1111
 
 ++ dns9_quad9_netv4_from_Mesh{{item[0]}}
 menu = dns9.quad9.net v4
-title = Network Graph for dns9.quad9.net IPv4 from Mesh{{item[0]}
+title = Network Graph for dns9.quad9.net IPv4 from Mesh{{item[0]}}
 probe = FPing_Mesh{{item[0]}}
 host = 9.9.9.9
 
 ++ dns9_quad9_netv6_from_Mesh{{item[0]}}
 menu = dns9.quad9.net v6
-title = Network Graph for dns9.quad9.net IPv6 from Mesh{{item[0]}
+title = Network Graph for dns9.quad9.net IPv6 from Mesh{{item[0]}}
 probe = FPing6_Mesh{{item[0]}}
 host = 2620:fe::9
 
@@ -120,8 +120,8 @@ title = Reachability of our update server, per Mesh
 
 {% for item in domaenenliste|dictsort %}
 ++ firmware_from_Mesh{{item[0]}}
-menu = firmware.ipv6.4830.org from from Mesh{{item[0]}
-title = Network Graph for firmware.ipv6.4830.org from Mesh{{item[0]}
+menu = firmware.ipv6.4830.org from from Mesh{{item[0]}}
+title = Network Graph for firmware.ipv6.4830.org from Mesh{{item[0]}}
 probe = FPing6_Mesh{{item[0]}}
 host = firmware.ipv6.4830.org
 
