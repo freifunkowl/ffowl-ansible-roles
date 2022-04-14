@@ -78,19 +78,19 @@ menu = DNSv4
 title = Public DNS servers via IPv4, per Mesh
 
 {% for item in domaenenliste|dictsort %}
-++ dns_googlev4_from_Mesh{{item[0]}}
++++ dns_googlev4_from_Mesh{{item[0]}}
 menu = Mesh{{item[0]}}: dns.google v4
 title = Network Graph for dns.google IPv4 from Mesh{{item[0]}}
 probe = FPing_Mesh{{item[0]}}
 host = 8.8.8.8
 
-++ one_one_one_onev4_from_Mesh{{item[0]}}
++++ one_one_one_onev4_from_Mesh{{item[0]}}
 menu = Mesh{{item[0]}}: one.one.one.one v4
 title = Network Graph for one.one.one.one IPv4 from Mesh{{item[0]}}
 probe = FPing_Mesh{{item[0]}}
 host = 1.1.1.1
 
-++ dns9_quad9_netv4_from_Mesh{{item[0]}}
++++ dns9_quad9_netv4_from_Mesh{{item[0]}}
 menu = Mesh{{item[0]}}: dns9.quad9.net v4
 title = Network Graph for dns9.quad9.net IPv4 from Mesh{{item[0]}}
 probe = FPing_Mesh{{item[0]}}
@@ -103,25 +103,25 @@ menu = DNSv6
 title = Public DNS servers via IPv6, per Mesh
 
 {% for item in domaenenliste|dictsort %}
-++ dns_googlev6_from_Mesh{{item[0]}}
++++ dns_googlev6_from_Mesh{{item[0]}}
 menu = Mesh{{item[0]}}: dns.google v6
 title = Network Graph for dns.google IPv6 from Mesh{{item[0]}}
 probe = FPing6_Mesh{{item[0]}}
 host = 2001:4860:4860::8888
 
-++ one_one_one_onev6_from_Mesh{{item[0]}}
++++ one_one_one_onev6_from_Mesh{{item[0]}}
 menu = Mesh{{item[0]}}: one.one.one.one v6
 title = Network Graph for one.one.one.one IPv6 from Mesh{{item[0]}}
 probe = FPing6_Mesh{{item[0]}}
 host = 2606:4700:4700::1111
 
-++ dns9_quad9_netv6_from_Mesh{{item[0]}}
++++ dns9_quad9_netv6_from_Mesh{{item[0]}}
 menu = Mesh{{item[0]}}: dns9.quad9.net v6
 title = Network Graph for dns9.quad9.net IPv6 from Mesh{{item[0]}}
 probe = FPing6_Mesh{{item[0]}}
 host = 2620:fe::9
 
-++ firmware_from_Mesh{{item[0]}}
++++ firmware_from_Mesh{{item[0]}}
 menu = Mesh{{item[0]}}: firmware.ipv6.4830.org
 title = Network Graph for firmware.ipv6.4830.org from Mesh{{item[0]}}
 probe = FPing6_Mesh{{item[0]}}
