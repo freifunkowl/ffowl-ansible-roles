@@ -107,7 +107,7 @@ protocol ospf backbone {
 #  };
 
   area 0.0.0.0 {
-{% if use_upstream_ospf is not defined or use_upstream_ospf is not true %}
+{% if use_upstream_ospf is not defined or not use_upstream_ospf %}
 {% if ipv6_direkt_ausleiten|default(false) %}
     interface "{{ansible_default_ipv6.interface}}" {
       cost 10;
