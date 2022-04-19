@@ -66,7 +66,7 @@ protocol ospf o_intern {
 }
 {% endif %}
 
-{% if 0 = 1 %}
+{% if use_upstream_ospf|default(false) %}
 {% if ipv6_direkt_ausleiten|default(false) %}
 protocol ospf upstream {
   table ffnet;
