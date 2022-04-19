@@ -66,6 +66,7 @@ protocol ospf o_intern {
 }
 {% endif %}
 
+{% if 0 = 1 %}
 {% if ipv6_direkt_ausleiten|default(false) %}
 protocol ospf upstream {
   table ffnet;
@@ -92,28 +93,42 @@ protocol ospf upstream {
   };
 };
 {% endif %}
+{% endif %}
 
 {% if domaenenliste is defined %}
 protocol ospf backbone {
   table ffnet;
   import filter freifunk;
-  export filter {
-    if source = RTS_BGP then reject;
-    #if source = RTS_OSPF then reject;
-    accept;
-  };
+  export filter subnetv6;
+#  export filter {
+#    if source = RTS_BGP then reject;
+#    #if source = RTS_OSPF then reject;
+#    accept;
+#  };
 
   area 0.0.0.0 {
+{% if ipv6_direkt_ausleiten|default(false) %}
+    interface "{{ansible_default_ipv6.interface}}" {
+      cost 10;
+{% if ospf_nat_options is defined %}
+      {{ospf_nat_options}}
+{% endif %}
+      #bfd yes;
+      type broadcast;
+    };
+{% endif %}
+
+
     interface "bat*" {
-    stub;
-  };
+      stub;
+    };
 
 {% for host in groups['gateways']|default([]) %}
 {% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
-    interface "bck-{{host}}" {
-      cost 1000;
-      bfd yes;
-    };
+#    interface "bck-{{host}}" {
+#      cost 1000;
+#      bfd yes;
+#    };
 {% endif %}
 {% endfor %}
     interface "bck-*" {

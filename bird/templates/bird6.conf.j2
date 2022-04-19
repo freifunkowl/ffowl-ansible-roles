@@ -18,6 +18,11 @@ filter subnetv6 {
   reject;
 };
 
+filter subnetv6_or_default {
+  if net ~ [::/0{% if domaenenliste is defined %}{% for domaene in domaenenliste|dictsort %}, {{domaenen[domaene[0]].ffv6_network}}{% endfor %}{% endif %}] then accept;
+  reject;
+};
+
 function is_default() {
 	return (net ~ [::/0]);
 };
