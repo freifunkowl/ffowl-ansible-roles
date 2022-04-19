@@ -125,13 +125,16 @@ protocol ospf backbone {
     };
 
 {% for host in groups['gateways']|default([]) %}
-    interface "bck-{{host}}" {
+{% set tunhost = host %}
+{% if tunhost|length > 8 %}
+{% set tunhost=host[:2]+"-"+host[-5:] %}
+{% endif %}
+    interface "bck-{{tunhost}}" {
 {% if hostvars[host].hoster|default('unknown') != hoster|default('unknown') %}
       cost 1000;
 {% else %}
       cost 300;
 {% endif %}
-
       bfd yes;
     };
 
