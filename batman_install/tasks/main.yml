@@ -19,7 +19,7 @@
 - name: Prüfe batman-adv-Version des Kernels
   shell: |
     set -o pipefail
-    modinfo -F version batman-adv | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || echo 1999.0
+    modinfo -F version batman-adv | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || echo 1999.9
   args:
     executable: bash
   register: installed_batman_version
