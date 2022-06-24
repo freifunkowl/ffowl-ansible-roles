@@ -39,6 +39,7 @@ IXPs, 1xx, for xx use (just use any consistent numbering >0):
 
 Traffic-Engineering:
 
+    (206813:1:REMOTE_ASN)      Skip all prepends to REMOTE_ASN
     (206813:2:REMOTE_ASN)      Prepend 206813 to REMOTE_ASN
     (206813:2:0)               Prepend 206813 generally
     (206813:3:REMOTE_ASN)      Prepend 206813 2x to REMOTE_ASN
