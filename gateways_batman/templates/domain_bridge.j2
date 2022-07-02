@@ -6,13 +6,13 @@ iface br{{item[0]}} inet manual
         # Bring up interface
         pre-up brctl addbr $IFACE
 {% if item[0] | length > 2 %}
-{% if defined item[1].server_id %}
+{% if item[1].server_id is defined %}
         pre-up ip link set address 02:ca:ff:{{item[0][0:2]}}:{{item[0][2:]}}:{{item[1].server_id}} dev $IFACE
 {% else %}
         pre-up ip link set address 02:ca:ff:{{item[0][0:2]}}:{{item[0][2:]}}:{{server_id}} dev $IFACE
 {% endif %}
 {% else %}
-{% if defined item[1].server_id %}
+{% if item[1].server_id is defined %}
         pre-up ip link set address 02:ca:ff:ee:{{item[0]}}:{{item[1].server_id}} dev $IFACE
 {% else %}
         pre-up ip link set address 02:ca:ff:ee:{{item[0]}}:{{server_id}} dev $IFACE
