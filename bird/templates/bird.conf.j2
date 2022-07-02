@@ -142,7 +142,11 @@ protocol static v4lexit {
 protocol static s_dhcp {
   table ffnet;
 {% for domaene in domaenenliste|dictsort %}
+{% if domaene[1].server_id is defined %}
   route {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}/32 via "bat{{domaene[0]}}";
+{% else %}
+  route {{domaenen[domaene[0]].ffv4_network | ipaddr(server_id) | ipaddr('address') }}/32 via "bat{{domaene[0]}}";
+{% endif %}
 {% endfor %}
 {% for result in more_specific_routes.results|sort(attribute='item') %}
 {% for line in result['stdout_lines'] %}
