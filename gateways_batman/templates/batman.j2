@@ -7,20 +7,20 @@
 {% for item in domaenenliste|dictsort %}
 auto bat{{item[0]}}
 iface bat{{item[0]}} inet static
-{% if defined item[1].server_id %}
+{% if item[1].server_id is defined %}
         address {{domaenen[item[0]].ffv4_network | ipaddr(item[1].server_id) | ipaddr('address') }}
 {% else %}
         address {{domaenen[item[0]].ffv4_network | ipaddr(server_id) | ipaddr('address') }}
 {% endif %}
         netmask {{domaenen[item[0]].ffv4_network | ipaddr('netmask')}}
 {% if item[0] | length > 2 %}
-{% if defined item[1].server_id %}
+{% if item[1].server_id is defined %}
         hwaddress f2:be:ef:{{item[0][0:2]}}:{{item[0][2:]}}:{{item[1].server_id}}
 {% else %}
         hwaddress f2:be:ef:{{item[0][0:2]}}:{{item[0][2:]}}:{{server_id}}
 {% endif %}
 {% else %}
-{% if defined item[1].server_id %}
+{% if item[1].server_id is defined %}
         hwaddress f2:be:ef:00:{{item[0]}}:{{item[1].server_id}}
 {% else %}
         hwaddress f2:be:ef:00:{{item[0]}}:{{server_id}}
@@ -59,7 +59,7 @@ iface bat{{item[0]}} inet static
         post-down ip link del bat{{item[0]}} ||:
 
 iface bat{{item[0]}} inet6 static
-{% if defined item[1].server_id %}
+{% if item[1].server_id is defined %}
         address {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }}
 {% else %}
         address {{domaenen[item[0]].ffv6_network | ipaddr(server_id) | ipaddr('address') }}
@@ -68,7 +68,7 @@ iface bat{{item[0]}} inet6 static
         post-up ip -6 rule add from all fwmark 0x1 table ffnet pref 16000 ||:
         post-up ip -6 rule add iif bat{{item[0]}} table ffnet pref 16000 ||:
         post-up ip -6 rule add iif lo lookup ffnet suppress_prefixlength 0 pref 16500 ||:
-{% if defined item[1].server_id %}
+{% if item[1].server_id is defined %}
         post-up ip -6 rule add from {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }} lookup ffnet pref 16000 ||:
 {% else %}
         post-up ip -6 rule add from {{domaenen[item[0]].ffv6_network | ipaddr(server_id) | ipaddr('address') }} lookup ffnet pref 16000 ||:
@@ -76,7 +76,7 @@ iface bat{{item[0]}} inet6 static
         post-down ip -6 rule del from all fwmark 0x1 table ffnet ||:
         post-down ip -6 rule del iif bat{{item[0]}} table ffnet ||:
         post-down ip -6 rule del iif lo lookup ffnet suppress_prefixlength 0 ||:
-{% if defined item[1].server_id %}
+{% if item[1].server_id is defined %}
         post-down ip -6 rule del from {{domaenen[item[0]].ffv6_network | ipaddr(item[1].server_id) | ipaddr('address') }} lookup ffnet ||:
 {% else %}
         post-down ip -6 rule del from {{domaenen[item[0]].ffv6_network | ipaddr(server_id) | ipaddr('address') }} lookup ffnet ||:
