@@ -10,7 +10,11 @@ $TTL    86400
                           86400 )       ; Negative Cache TTL
 ;
 @			IN      NS      ns01.{{freifunk.kurzname}}.
+{% if domaene[1].server_id is defined %}
 ns01			IN      A       {{domaenen[item].ffv4_network | ipaddr(domaenenliste[item].server_id) | ipaddr('address') }}
+{% else %}
+ns01			IN      A       {{domaenen[item].ffv4_network | ipaddr(server_id) | ipaddr('address') }}
+{% endif %}
 node			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
 node			IN      AAAA    {{domaenen[item].ffv6_network | ipaddr(1) | ipaddr('address')}}
 router			IN      A       {{domaenen[item].ffv4_network | ipaddr(1) | ipaddr('address')}}
