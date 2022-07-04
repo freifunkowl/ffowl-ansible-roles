@@ -22,7 +22,7 @@
 
 - name: install bird and other required packets
   apt:
-    name: ['bird', 'ipcalc', 'sipcalc', 'bgpq3']
+    name: ['bird', 'ipcalc', 'sipcalc', 'bgpq3', 'traceroute', 'mtr']
     cache_valid_time: 1800
     state: latest
 
