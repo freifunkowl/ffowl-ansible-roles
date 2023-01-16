@@ -27,19 +27,22 @@
   changed_when: False
   check_mode: no
 
-- debug: msg="{{ installed_batman_version.stdout }}"
-- debug: msg="{{ batman.version }}"
+#- debug: msg="{{ installed_batman_version.stdout }}"
+#- debug: msg="{{ batman.version }}"
 
 # batman-adv-Version im Kernel passt -> nur batctl installieren
+- name: batman-adv-Version im Kernel passt -> nur batctl installieren
 - include: install-deb.yml
   when: batman.version is not defined or batman.version == "kernel" or (installed_batman_version.stdout is defined and installed_batman_version.stdout == batman.version)
 
 # batman-adv-Version im Kernel passt nicht -> batctl-Paket deinstallieren und batman-adv und batctl aus Sourcen installieren
+- name: batman-adv-Version im Kernel passt nicht -> batctl-Paket deinstallieren ...
 - include: remove-deb.yml
   when: (batman.version is defined and batman.version != "kernel") and
         (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
 
 # batman-adv und batctl aus Quellen bauen
+-name: ... und batman-adv und batctl aus Sourcen installieren
 - include: install-src.yml
   when: (batman.version is defined and (batman.version != "kernel" and batman.version != "2013.4.0")) and
         (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
