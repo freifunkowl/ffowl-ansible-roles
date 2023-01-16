@@ -1,21 +1,7 @@
 - name: Install dependencies for this role
   apt:
-    pkg: "{{ item }}"
+    pkg: ['bridge-utils', 'ebtables', 'git', 'iproute', 'libevent-dev', 'libnetfilter-conntrack3', 'python-dev', 'python-virtualenv']
     state: present
-  with_items:
-    - bridge-utils
-    - ebtables
-    - git
-    - iproute
-    - libevent-dev
-    - libnetfilter-conntrack3
-    - python-dev
-    - python-virtualenv
-    # additional dependencies for wlanslovenija's version
-    # - libffi-dev
-    # - libnfnetlink-dev
-    # - libnetfilter-conntrack-dev
-    # - gcc
   when: domaenenliste is defined
 
 - name: Determine whether the global version of tunneldigger is installed or not
