@@ -42,12 +42,13 @@
         (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
 
 # batman-adv und batctl aus Quellen bauen
--name: ... und batman-adv und batctl aus Sourcen installieren
+- name: ... und modernen batman-adv und batctl aus Sourcen installieren ...
 - include: install-src.yml
   when: (batman.version is defined and (batman.version != "kernel" and batman.version != "2013.4.0")) and
         (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
 
 # Legacy (v14) batman-adv und batctl aus Gluon-Quellen bauen
+- name: ... bzw. die Uralt-Version aus Sourcen installieren
 - include: install-legacy-src.yml
   when: (batman.version is defined and batman.version == "2013.4.0") and
         (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
