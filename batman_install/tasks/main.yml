@@ -26,7 +26,9 @@
   #when: batman.version is defined and batman.version
   changed_when: False
   check_mode: no
-- debug: msg="{{ installed_batman_version.stdout }}"
+
+- debug: batman_version_installed_is="{{ installed_batman_version.stdout }}"
+- debug: batman_version_aimed_for_is="{{ batman.version }}"
 
 # batman-adv-Version im Kernel passt -> nur batctl installieren
 - include: install-deb.yml
