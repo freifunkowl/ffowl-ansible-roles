@@ -6,7 +6,7 @@
   args:
     executable: bash
   register: installed_batman_version
-  when: batman.version is defined and batman.version
+  #when: batman.version is defined and batman.version
   changed_when: False
   check_mode: no
 
@@ -23,14 +23,14 @@
   args:
     executable: bash
   register: installed_batman_version
-  when: batman.version is defined and batman.version != "kernel" and
-        (installed_batman_version.stdout is defined and installed_batman_version.stdout != batman.version)
+  #when: batman.version is defined and batman.version
   changed_when: False
   check_mode: no
+- debug: msg="{{ installed_batman_version.stdout }}"
 
 # batman-adv-Version im Kernel passt -> nur batctl installieren
 - include: install-deb.yml
-  when: batman.version is not defined or batman.version == "kernel" or installed_batman_version.stdout == batman.version
+  when: batman.version is not defined or batman.version == "kernel" or (installed_batman_version.stdout is defined and installed_batman_version.stdout == batman.version)
 
 # batman-adv-Version im Kernel passt nicht -> batctl-Paket deinstallieren und batman-adv und batctl aus Sourcen installieren
 - include: remove-deb.yml
