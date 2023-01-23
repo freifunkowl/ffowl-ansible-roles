@@ -2,8 +2,8 @@
 <html lang="en"><!-- Mit Ansible erzeugt - änderungen werden überschrieben -->
 <head>
   <title>
-{%- if defined freifunk-map.name -%}
-{{freifunk-map.name}}
+{%- if defined freifunk_map.name -%}
+{{freifunk_map.name}}
 {%- else -%}
 {{freifunk.name}}
 {-% endif -%}
@@ -29,14 +29,14 @@
     <div class="row">
       <div class="col-md-2 col-sm-3">
         <img id="
-{%- if defined freifunk-map.kurzname -%}
-{{freifunk-map.kurzname}}
+{%- if defined freifunk_map.kurzname -%}
+{{freifunk_map.kurzname}}
 {%- else -%}
 {{freifunk.kurzname}}
 {%- endif -%}
 -logo" width="160" src="logo.svg" class="img" alt="Logo
-{%- if defined freifunk-map.kurzname -%}
-{{freifunk-map.kurzname}}
+{%- if defined freifunk_map.kurzname -%}
+{{freifunk_map.kurzname}}
 {%- else -%}
 {{freifunk.kurzname}}
 {%- endif -%}
@@ -44,8 +44,8 @@
       </div>
       <div class="col-md-10 col-sm-9">
         <h2>Karten -
-{%- if defined freifunk-map.name -%}
-{{freifunk-map.name}}
+{%- if defined freifunk_map.name -%}
+{{freifunk_map.name}}
 {%- else -%}
 {{freifunk.name}}
 {%- endif -%}
@@ -73,8 +73,8 @@
         </form>
       <br/>
       <h4><strong><a href="map/">Gesamtkarte
-{%- if defined freifunk-map.name -%}
-{{freifunk-map.name}}
+{%- if defined freifunk_map.name -%}
+{{freifunk_map.name}}
 {%- else -%}
 {{freifunk.name}}
 {%- endif -%}
