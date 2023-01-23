@@ -3,12 +3,12 @@
 {% set my_long_name =  freifunk_map.name %}
 {%- else -%}
 {% set my_long_name =  freifunk.name %}
-{-% endif -%}
+{%- endif -%}
 {%- if freifunk_map.kurzname is defined -%}
 {% set my_short_name =  freifunk_map.kurzname %}
 {%- else -%}
 {% set my_short_name =  freifunk.kurzname %}
-{-% endif -%}
+{%- endif -%}
 <html lang="en"><!-- Mit Ansible erzeugt - änderungen werden überschrieben -->
 <head>
   <title>{{my_long_name}} - Karten</title>
