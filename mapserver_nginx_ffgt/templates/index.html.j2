@@ -1,13 +1,17 @@
 <!DOCTYPE html>
+{%- if freifunk_map.name is defined -%}
+{% set my_long_name =  freifunk_map.name %}
+{%- else -%}
+{% set my_long_name =  freifunk.name %}
+{-% endif -%}
+{%- if freifunk_map.kurzname is defined -%}
+{% set my_short_name =  freifunk_map.kurzname %}
+{%- else -%}
+{% set my_short_name =  freifunk.kurzname %}
+{-% endif -%}
 <html lang="en"><!-- Mit Ansible erzeugt - änderungen werden überschrieben -->
 <head>
-  <title>
-{%- if defined freifunk_map.name -%}
-{{freifunk_map.name}}
-{%- else -%}
-{{freifunk.name}}
-{-% endif -%}
- - Karten</title>
+  <title>{{my_long_name}} - Karten</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png?v=2">
@@ -28,28 +32,11 @@
 	  <div class="page-header">
     <div class="row">
       <div class="col-md-2 col-sm-3">
-        <img id="
-{%- if defined freifunk_map.kurzname -%}
-{{freifunk_map.kurzname}}
-{%- else -%}
-{{freifunk.kurzname}}
-{%- endif -%}
--logo" width="160" src="logo.svg" class="img" alt="Logo
-{%- if defined freifunk_map.kurzname -%}
-{{freifunk_map.kurzname}}
-{%- else -%}
-{{freifunk.kurzname}}
-{%- endif -%}
-">
+        <img id="{{my_short_name}}-logo" width="160" src="logo.svg" class="img" alt="Logo {{my_short_name}}">
       </div>
       <div class="col-md-10 col-sm-9">
-        <h2>Karten -
-{%- if defined freifunk_map.name -%}
-{{freifunk_map.name}}
-{%- else -%}
-{{freifunk.name}}
-{%- endif -%}
-    <br/><small>Karten der einzelnen Meshes und der Communities</small></h2>
+        <h2>Karten - {{my_long_name}}<br/>
+        <small>Karten der einzelnen Meshes und der Communities</small></h2>
       </div>
     </div>
     </div>
@@ -72,13 +59,7 @@
         </div>
         </form>
       <br/>
-      <h4><strong><a href="map/">Gesamtkarte
-{%- if defined freifunk_map.name -%}
-{{freifunk_map.name}}
-{%- else -%}
-{{freifunk.name}}
-{%- endif -%}
-</a></strong></h4>
+      <h4><strong><a href="map/">Gesamtkarte {{my_long_name}}</a></strong></h4>
       <p><a class="btn-ffms-collapse visible-xs" data-toggle="collapse" data-target="#narrow-results">&#187; Mehr Freifunk Links</a></p>
       <div id="narrow-results" class="narrow-results collapse">
 {% if indexconfig.links is defined %}
