@@ -4,9 +4,19 @@
 {% if proxy_urls.append(domain[1].site_code) %}{% endif %}
 {% endif %}
 {% endfor %}
+{%- if freifunk_map.name is defined -%}
+{% set my_long_name =  freifunk_map.name %}
+{%- else -%}
+{% set my_long_name =  freifunk.name %}
+{%- endif -%}
+{%- if freifunk_map.kurzname is defined -%}
+{% set my_short_name =  freifunk_map.kurzname %}
+{%- else -%}
+{% set my_short_name =  freifunk.kurzname %}
+{%- endif -%}
 {
   "dataPath": [ {% for url in proxy_urls %}"/proxy_{{ url }}/",{% endfor %}"/data/" ],
-  "siteName": "{{freifunk.name}}",
+  "siteName": "{{my_long_name}}",
   "mapSigmaScale": {{ mapconfig.globalMap.map_scale }},
   "showContact": {{ mapconfig.globalMap.map_show_contact | lower}},
   "maxAge": {{ mapconfig.globalMap.map_max_age }},
