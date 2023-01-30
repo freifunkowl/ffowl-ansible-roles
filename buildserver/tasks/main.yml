@@ -7,10 +7,10 @@
 
 - name: Creating user ffgt with admin access
   user:
-    name: {{build_user}}
+    name: "{{build_user}}"
     uid: 1000
-    comment: {{build_user_comment}}
-    password: {{build_user_passwd}}
+    comment: "{{build_user_comment}}"
+    password: "{{build_user_passwd}}"
     groups: sudo
     append: yes
     update_password: on_create
