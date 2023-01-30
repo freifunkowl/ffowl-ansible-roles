@@ -4,3 +4,19 @@
     name: ['vim', 'wget', 'rsync', 'git', 'subversion', 'python3', 'build-essential', 'gawk', 'unzip',
            'libncurses5-dev', 'zlib1g-dev', 'libssl-dev', 'wget', 'time', 'qemu-utils', 'python']
     update_cache: yes
+
+- name: Creating user ffgt with admin access
+  user:
+    name: ffgt
+    uid: 1000
+    comment: "FFGT Admins"
+    password: '$6$Q00QMxP6$NuZ2wtRTsBxmxxHanZL2H2rkLRtg4c2OKBKtvlZjhJjJp.ugFgV7o1rBSHiV4TEHz.2aEpkVPohKhkPJ54TCV1'
+    groups: sudo append=yes
+    update_password: on_create
+    shell: /bin/bash
+
+- name: SSH-Schlüsseldatei generieren
+  template:
+    src: authorized_keys.j2
+    dest: /home/ffgt/.ssh/authorized_keys
+  when: administratorenteam is defined
