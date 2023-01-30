@@ -19,5 +19,5 @@
 - name: SSH-Schlüsseldatei generieren
   template:
     src: authorized_keys.j2
-    dest: /home/{{build_user_comment}}/.ssh/authorized_keys
+    dest: /home/{{build_user}}/.ssh/authorized_keys
   when: administratorenteam is defined
