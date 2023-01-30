@@ -138,11 +138,15 @@ menu = Updateserver per Mesh
 title = Reachability of our update server, per Mesh
 
 {% for item in domaenenliste|dictsort %}
+{% set fwserver = firmware.ipv6.4830.org %}
+{% if smokeping_fwserver is defined  %}
+{% set fwserver = smokeping_fwserver %}
+{% endif %}
 ++ firmware_from_Mesh{{item[0]}}
-menu = Mesh{{item[0]}}: firmware.ipv6.4830.org
-title = Network Graph for firmware.ipv6.4830.org from Mesh{{item[0]}}
+menu = Mesh{{item[0]}}: {{fwserver}}
+title = Network Graph for {{fwserver}} from Mesh{{item[0]}}
 probe = FPing6_Mesh{{item[0]}}
-host = firmware.ipv6.4830.org
+host = {{fwserver}}
 
 {% endfor %}
 {% endif %}
