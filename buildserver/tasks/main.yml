@@ -28,4 +28,6 @@
   template:
     src: authorized_keys.j2
     dest: /home/{{build_user}}/.ssh/authorized_keys
+    owner: "{{build_user}}"
+    group: "{{build_user}}"
   when: administratorenteam is defined
