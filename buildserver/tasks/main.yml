@@ -1,0 +1,7 @@
+---
+- name: install packages to build gluon
+  apt:
+    name: ['vim', 'wget', 'rsync', 'git', 'subversion', 'python3', 'build-essential', 'gawk', 'unzip',
+           'libncurses5-dev', 'zlib1g-dev', 'libssl-dev', 'wget', 'time', 'qemu-utils']
+    update_cache: yes
+
