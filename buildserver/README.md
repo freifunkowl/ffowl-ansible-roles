@@ -14,3 +14,7 @@ Bereite einen Buildserver als solche vor, Stand Glupn v2022.1:
  * wget
  * time (built-in time doesn’t work)
  * qemu-utils
+
+Ziel ist es, eine Gluon-Build-Umgebung auf einem Debian-System schnell zu konfigurieren,
+um danach per Build-Skript Gluon auf potenten, ggf. temporären, (Cloud-) Servern schnell
+bauen zu können.
