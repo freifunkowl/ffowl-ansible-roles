@@ -21,7 +21,8 @@
     path: /home/{{build_user}}/.ssh
     owner: "{{build_user}}"
     group: "{{build_user}}"
-    mode: '0644'
+    state: directory
+    mode: '0755'
 
 - name: SSH-Schlüsseldatei generieren
   template:
