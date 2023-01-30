@@ -24,6 +24,17 @@
     state: directory
     mode: '0755'
 
+- name: Disable mouse support in vim by default
+  lineinfile:
+    dest: /home/{{build_user}}/.vimrc
+    regexp: '^set mouse'
+    state: present
+    line: 'set mouse-=a'
+    owner: "{{build_user}}"
+    group: "{{build_user}}"
+    mode: 0644
+    create: yes
+
 - name: SSH-Schlüsseldatei generieren
   template:
     src: authorized_keys.j2
