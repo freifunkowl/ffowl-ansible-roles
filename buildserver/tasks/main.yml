@@ -5,7 +5,7 @@
            'libncurses5-dev', 'zlib1g-dev', 'libssl-dev', 'wget', 'time', 'qemu-utils', 'python']
     update_cache: yes
 
-- name: Creating user ffgt with admin access
+- name: Creating build user with admin access
   user:
     name: "{{build_user}}"
     uid: 1000
@@ -15,6 +15,13 @@
     append: yes
     update_password: on_create
     shell: /bin/bash
+
+- name: create .ssh
+  file:
+    path: /home/{{build_user}}/.ssh
+    owner: "{{build_user}}"
+    group: "{{build_user}}"
+    mode: '0644'
 
 - name: SSH-Schlüsseldatei generieren
   template:
