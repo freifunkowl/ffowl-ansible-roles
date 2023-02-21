@@ -138,7 +138,7 @@ menu = Updateserver per Mesh
 title = Reachability of our update server, per Mesh
 
 {% for item in domaenenliste|dictsort %}
-{% set fwserver = firmware.ipv6.4830.org %}
+{% set fwserver = 'firmware.ipv6.4830.org' %}
 {% if smokeping_fwserver is defined  %}
 {% set fwserver = smokeping_fwserver %}
 {% endif %}
