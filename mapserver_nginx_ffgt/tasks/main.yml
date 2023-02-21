@@ -29,13 +29,13 @@
 - name: Create certificate
   shell: /root/.acme.sh/acme.sh --server letsencrypt --issue -d {{inventory_hostname_short}}.{{freifunk.domain}} -w /var/www/letsencrypt
   args:
-    creates: /root/.acme.sh/{{inventory_hostname_short}}.{{freifunk.domain}}/ca.cer
+    creates: /root/.acme.sh/{{inventory_hostname_short}}.{{freifunk.domain}}_ecc/ca.cer
   when: san_domains is not defined
 
 - name: Create certificates (main + SAN)
   shell: /root/.acme.sh/acme.sh --server letsencrypt --issue -d {{inventory_hostname_short}}.{{freifunk.domain}} -w /var/www/letsencrypt -d {{san_domains}}
   args:
-    creates: /root/.acme.sh/{{inventory_hostname_short}}.{{freifunk.domain}}/ca.cer
+    creates: /root/.acme.sh/{{inventory_hostname_short}}.{{freifunk.domain}}_ecc/ca.cer
   when: san_domains is defined
 
 - name: install cert to Nginx
