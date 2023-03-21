@@ -4,10 +4,11 @@
 {% for domaene in domaenenliste|dictsort -%}
 # view for (broadcast-)domain domaene-{{domaene[0]}}   
 view "domaene-{{domaene[0]}}" {
-        match-clients {
-                {{domaenen[domaene[0]].ffv4_network}};
-                {{domaenen[domaene[0]].ffv6_network}};
-        };
+	dnssec-validation no;
+	match-clients {
+		{{domaenen[domaene[0]].ffv4_network}};
+		{{domaenen[domaene[0]].ffv6_network}};
+	};
 	include "/etc/bind/named.conf.local";
 	include "/etc/bind/named.conf.default-zones";
 {% if is_external_nameserver is defined and is_external_nameserver %}
@@ -28,11 +29,11 @@ view "domaene-{{domaene[0]}}" {
 {% endfor %}
 {% if is_external_nameserver is defined and is_external_nameserver %}
 view "external" {
-        match-clients {
+	match-clients {
 		any;
 {% for domaene in domaenenliste|dictsort %}
-                !{{domaenen[domaene[0]].ffv4_network}};
-                !{{domaenen[domaene[0]].ffv6_network}};
+		!{{domaenen[domaene[0]].ffv4_network}};
+		!{{domaenen[domaene[0]].ffv6_network}};
 {% endfor %}
 	};
 	include "/etc/bind/named.conf.local";
