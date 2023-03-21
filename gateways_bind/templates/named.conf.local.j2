@@ -1,9 +1,3 @@
 // {{ ansible_managed }}
 
 include "/etc/bind/zones.rfc1918";
-
-zone "fflg" {
-  type forward;
-  forward only;
-  forwarders { 192.251.226.23; 2a06:e881:1700:1:400:c0ff:fefb:e217; };
-};

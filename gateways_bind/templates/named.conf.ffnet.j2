@@ -19,6 +19,11 @@ view "domaene-{{domaene[0]}}" {
 		file "/etc/bind/db.domaene-{{domaene[0]}}.ffnet";
 	};
 {% endif %}
+	zone "fflg" {
+		type forward;
+		forward only;
+		forwarders { 192.251.226.23; 2a06:e881:1700:1:400:c0ff:fefb:e217; };
+	};
 };
 {% endfor %}
 {% if is_external_nameserver is defined and is_external_nameserver %}
