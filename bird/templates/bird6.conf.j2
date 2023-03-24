@@ -125,7 +125,11 @@ filter freifunk {
 
 {% if domaenenliste is defined %}
 protocol radv {
+  propagate routes yes;
+  table ffnet;
+  export all;
 {% for domaene in domaenenliste|dictsort %}
+
   interface "bat{{domaene[0]}}" {
     max ra interval 20;
     link mtu 1280;
