@@ -11,7 +11,11 @@ subnet {{ff_network.v4_network | ipaddr('network')}} netmask {{ff_network.v4_net
     range {{dhcp.range_start}} {{dhcp.range_end}};
 
     option routers {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }};
+{% if nameservers is defined %}
+    option domain-name-servers {% for ns in nameservers -%}{% if ':' not in ns %}{{ns}}, {% endif %}{% endfor %}{{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }};
+{% else %}
     option domain-name-servers {{ff_network.v4_network | ipaddr(server_id) | ipaddr('address') }};
+{% endif %}
     option interface-mtu {{dhcp_global.mtu}};
 }
 {% if "static_hosts" in hostvars[inventory_hostname] %}
