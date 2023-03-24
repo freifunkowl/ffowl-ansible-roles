@@ -28,13 +28,11 @@ subnet {{domaenen[domaene[0]].ffv4_network | ipaddr('network')}} netmask {{domae
     option domain-name-servers {{domaene[1].jusprog_dns_ip}};
 {% elif public_dns_ip is defined %}
     option domain-name-servers {{public_dns_ip}};
-{% else %}
-{% if domaene[1].server_id is defined %}
-{% if nameservers is defined %}
+{% elif nameservers is defined %}
     option domain-name-servers {% for ns in nameservers -%}{% if ':' not in ns %}{{ns}}, {% endif %}{% endfor %}{{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address')}};
 {% else %}
+{% if domaene[1].server_id is defined %}
     option domain-name-servers {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address')}};
-{% endif %}
 {% else %}
     option domain-name-servers {{domaenen[domaene[0]].ffv4_network | ipaddr(server_id) | ipaddr('address')}};
 {% endif %}
