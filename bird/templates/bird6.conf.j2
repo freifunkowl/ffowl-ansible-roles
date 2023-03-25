@@ -127,7 +127,7 @@ filter freifunk {
 protocol radv {
   propagate routes yes;
   table ffnet;
-  export all;
+  export where net ~ [ ::/0 ];
 {% for domaene in domaenenliste|dictsort %}
 
   interface "bat{{domaene[0]}}" {
