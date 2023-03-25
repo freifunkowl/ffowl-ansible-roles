@@ -136,7 +136,13 @@ protocol radv {
     prefix {{domaenen[domaene[0]].ffv6_network}} { };
 {% if domaene[1].jusprog_dns_ip is not defined %}
     rdnss {
-{% if domaene[1].server_id is defined %}
+{% if nameservers is defined %}
+{% for ns in nameservers %}
+{% if ':' in ns %}
+      ns {{ns}};
+{% endif %}
+{% endfor %}
+{% elif domaene[1].server_id is defined %}
       ns {{domaenen[domaene[0]].ffv6_network | ipaddr(domaene[1].server_id) | ipaddr('address') }};
 {% else %}
       ns {{domaenen[domaene[0]].ffv6_network | ipaddr(server_id) | ipaddr('address') }};
