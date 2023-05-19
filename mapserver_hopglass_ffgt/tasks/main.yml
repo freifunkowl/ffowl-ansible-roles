@@ -6,7 +6,7 @@
 
 - name: Git for HopGlass
   git:
-    repo: https://github.com/freifunk-saar/hopglass.git
+    repo: https://github.com/ffgtso/hopglass.git
     dest: /opt/hopglass/client
     force: yes
     version: master
