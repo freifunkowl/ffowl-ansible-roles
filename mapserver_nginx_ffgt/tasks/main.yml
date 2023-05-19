@@ -26,17 +26,22 @@
   args:
     creates: /root/.acme.sh/acme.sh
 
+- name: check if cert file exists
+  stat:
+    path: /root/.acme.sh/{{inventory_hostname_short}}.{{freifunk.domain}}/ca.cer
+  register: acme_cert
+
 - name: Create certificate
   shell: /root/.acme.sh/acme.sh --server letsencrypt --issue -d {{inventory_hostname_short}}.{{freifunk.domain}} -w /var/www/letsencrypt
   args:
     creates: /root/.acme.sh/{{inventory_hostname_short}}.{{freifunk.domain}}/ca.cer
-  when: san_domains is not defined
+  when: san_domains is not defined and acme_cert.stat.exists == false
 
 - name: Create certificates (main + SAN)
   shell: /root/.acme.sh/acme.sh --server letsencrypt --issue -d {{inventory_hostname_short}}.{{freifunk.domain}} -w /var/www/letsencrypt -d {{san_domains}}
   args:
     creates: /root/.acme.sh/{{inventory_hostname_short}}.{{freifunk.domain}}/ca.cer
-  when: san_domains is defined
+  when: san_domains is defined and acme_cert.stat.exists == false
 
 - name: install cert to Nginx
   shell: /root/.acme.sh/acme.sh --installcert -d {{inventory_hostname_short}}.{{freifunk.domain}} --keypath "/etc/ssl/key.pem" --fullchainpath "/etc/ssl/fullchain.pem" --reloadcmd "systemctl restart nginx"
