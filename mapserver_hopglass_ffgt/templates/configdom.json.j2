@@ -93,20 +93,20 @@
   ],
 {% if item[1].deprecationInfo_text is defined %}
   "deprecation_text": "{{ item[1].deprecationInfo_text }}",
-{% if item[1].deprecationInfo_URL is defined %}
-  "deprecation_URL": "{{ item[1].deprecationInfo_URL }}"
-{% elif mapconfig.deprecationInfo is defined and mapconfig.deprecationInfo.URL is defined %}
-  "deprecation_URL": "{{ mapconfig.deprecationInfo.URL }}"
+{% if item[1].deprecationInfo_url is defined %}
+  "deprecation_url": "{{ item[1].deprecationInfo_url }}"
+{% elif mapconfig.deprecationInfo is defined and mapconfig.deprecationInfo.url is defined %}
+  "deprecation_url": "{{ mapconfig.deprecationInfo.url }}"
 {% else %}
-  "deprecation_URL": "https://freifunk-kreisgt.de/firmware-1-4/"
+  "deprecation_url": "https://freifunk-kreisgt.de/firmware-1-4/"
 {% endif %}
 {% else %}
 {% if mapconfig.deprecationInfo is defined %}
   "deprecation_text": "{{ mapconfig.deprecationInfo.text }}",
-  "deprecation_URL": "{{ mapconfig.deprecationInfo.URL }}"
+  "deprecation_url": "{{ mapconfig.deprecationInfo.url }}"
 {% else %}
   "deprecation_text": "Dieses Gerät ist leider veraltet und wird nicht mehr durch Software-Updates unterstützt!",
-  "deprecation_URL": "https://freifunk-kreisgt.de/firmware-1-4/"
+  "deprecation_url": "https://freifunk-kreisgt.de/firmware-1-4/"
 {% endif %}
 {% endif %}
 }
