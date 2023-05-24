@@ -3,6 +3,9 @@
   file:
     path: /opt/hopglass/client
     state: directory
+    owner: hopglass
+    group: hopglass
+    mode: 0644
 
 - name: Git for HopGlass
   git:
@@ -16,6 +19,9 @@
   file:
     path: /opt/hopglass/hwpics
     state: directory
+    owner: hopglass
+    group: hopglass
+    mode: 0644
 
 - name: Clone meshviewer hwpics repo
   git:
