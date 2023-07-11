@@ -7,7 +7,7 @@
 
 - name: Install MariaDB
   apt:
-    pkg: ['mariadb-server', 'mariadb-client', 'python-mysqldb']
+    pkg: ['mariadb-server', 'mariadb-client', 'python3-mysqldb']
     update_cache: no
     state: present
 
@@ -63,7 +63,8 @@
 
 - name: Install Apache and PHP 
   apt:
-    pkg: ['apache2', 'php', 'php-cli', 'php-mysql', 'php-gettext', 'php-mbstring', 'libapache2-mod-php', 'php-gd', 'php-imap', 'php-xml', 'php-xmlrpc', 'php-intl', 'php-apcu', 'php-curl']
+    pkg: ['apache2', 'php', 'php-cli', 'php-mysql', 'php-gettext', 'php-mbstring', 'libapache2-mod-php',
+          'php-gd', 'php-imap', 'php-xml', 'php-xmlrpc', 'php-intl', 'php-apcu', 'php-curl']
     update_cache: no
     state: present
   notify:
