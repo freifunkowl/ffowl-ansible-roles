@@ -87,7 +87,7 @@
 
 
 - name: set timezone in php.ini
-  lineinfile: dest=/etc/php/{{installed_php_version}}/apache2/php.ini regexp=^[;]?date.timezone line="date.timezone = Europe/Berlin"
+  lineinfile: dest=/etc/php/{{installed_php_version.stdout}}/apache2/php.ini regexp=^[;]?date.timezone line="date.timezone = Europe/Berlin"
   notify:
     - "restart apache"
 
