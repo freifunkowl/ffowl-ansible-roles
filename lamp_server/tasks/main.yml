@@ -77,7 +77,6 @@
 
 - name: get PHP version
   shell: |
-    set -o pipefail
     php -v | grep -oE '[0-9]+\.[0-9]?' | head -1
   args:
     executable: bash
