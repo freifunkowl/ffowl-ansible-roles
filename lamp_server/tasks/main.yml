@@ -140,7 +140,13 @@
   file: dest=/etc/dehydrated state=directory owner=root group=root mode=0755
 
 - name: Create /etc/dehydrated/domains.txt
-  file: dest=/etc/dehydrated/domains.txt state=file owner=root group=root mode=0755
+  copy:
+    content: ""
+    dest: /etc/dehydrated/domains.txt
+    force: false
+    group: root
+    owner: root
+    mode: 0755
 
 - name: Test for base FQDN
   shell: grep -c "{{inventory_hostname_short}}.{{freifunk.domain}}" /etc/dehydrated/domains.txt || true
