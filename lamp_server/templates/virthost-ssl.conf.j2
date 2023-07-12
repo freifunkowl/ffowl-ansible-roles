@@ -9,6 +9,8 @@
     AllowOverride All
   </Directory>
   RewriteEngine On
+  RewriteCond %{HTTPS} off
+  RewriteCond %{REQUEST_URI} !^\/\.well-known\/.*$
   RewriteRule ^(.*)$ https://%{HTTP_HOST}$1 [R=301,L]
 </VirtualHost> 
 
