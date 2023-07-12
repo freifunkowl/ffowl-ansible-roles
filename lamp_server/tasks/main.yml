@@ -149,6 +149,6 @@
 - name: add base domain
   lineinfile:
     dest: /etc/dehydrated/domains.txt
-    line: {{inventory_hostname_short}}.{{freifunk.domain}}
+    line: "{{inventory_hostname_short}}.{{freifunk.domain}}"
   when: test_base_FQDN.stdout == "0"
 
