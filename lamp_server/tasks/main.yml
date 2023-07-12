@@ -177,7 +177,7 @@
   when: not dehydrated_certs_dir.stat.exists
 
 - name: Generate certs
-  shell: dehydrated --cron ||:
+  shell: "dehydrated --cron ||:"
 
 - name: Enable mod_ssl
   shell: a2enmod ssl
