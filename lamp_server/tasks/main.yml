@@ -100,6 +100,15 @@
   file: name=/var/www/{{inventory_hostname_short}}.{{freifunk.domain}} state=directory
   when: virthostroot.stat.islnk is not defined
 
+- name: deploy empty index.html if not existing
+  copy:
+    content: ""
+    dest: /var/www/{{inventory_hostname_short}}.{{freifunk.domain}}/index.html
+    force: false
+    group: www-data
+    owner: www-data
+    mode: 0755
+
 - name: Deploy virthost config
   template:
     src: templates/virthost.conf.j2
@@ -170,18 +179,12 @@
 - name: Generate certs
   shell: dehydrated --cron ||:
 
+- name: Enable mod_ssl
+  shell: a2enmod ssl
+
 - name: Deploy virthost ssl config
   template:
     src: templates/virthost-ssl.conf.j2
     dest: /etc/apache2/sites-available/{{inventory_hostname_short}}.{{freifunk.domain}}.conf
   notify:
     - "restart apache"
-
-- name: deploy empty index.html if not existing
-  copy:
-    content: ""
-    dest: /var/www/{{inventory_hostname_short}}.{{freifunk.domain}}/index.html
-    force: false
-    group: www-data
-    owner: www-data
-    mode: 0755
