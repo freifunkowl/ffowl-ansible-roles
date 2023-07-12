@@ -158,3 +158,30 @@
     line: "{{inventory_hostname_short}}.{{freifunk.domain}}"
   when: test_base_FQDN.stdout == "0"
 
+- name: Check if certs dir exists
+  stat:
+    path: /var/lib/dehydrated/certs
+  register: dehydrated_certs_dir
+
+- name: Register with LE
+  shell: dehydrated --register --accept-terms
+  when: not dehydrated_certs_dir.stat.exists
+
+- name: Generate certs
+  shell: dehydrated --cron ||:
+
+- name: Deploy virthost ssl config
+  template:
+    src: templates/virthost-ssl.conf.j2
+    dest: /etc/apache2/sites-available/{{inventory_hostname_short}}.{{freifunk.domain}}.conf
+  notify:
+    - "restart apache"
+
+- name: deploy empty index.html if not existing
+  copy:
+    content: ""
+    dest: /var/www/{{inventory_hostname_short}}.{{freifunk.domain}}/index.html
+    force: false
+    group: www-data
+    owner: www-data
+    mode: 0755
