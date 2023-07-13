@@ -36,7 +36,7 @@ echo "Dumping all pgsql DBs"
 {% endif %}
 
 echo "Borg create"
-/usr/local/bin/borg create {{ item.borg_options }} \
+/usr/bin/borg create {{ item.borg_options }} \
         $REPOSITORY::'{hostname}-{now:%Y-%m-%d-%H-%M-%S}'\
         {{ item.directories | join(' ') }}{% if item.mysqldatabases is defined or item.pgsqldatabases is defined or (item.pgsqldumpall is defined and item.pgsqldumpall) %} \{% endif %}
 {% if item.mysqldatabases is defined %}
@@ -66,7 +66,7 @@ echo "Borg create"
 BORGRESULT=$?
 echo "Borg prune"
 if [ $BORGRESULT -eq 0 ] ; then
-/usr/local/bin/borg prune -v --list $REPOSITORY --prefix '{hostname}-' {{ item.borg_prune }}
+/usr/bin/borg prune -v --list $REPOSITORY --prefix '{hostname}-' {{ item.borg_prune }}
 fi
 {% endif %}
 echo "------------------------------------------------------------------STOP-------------------------------------------------------------------"
