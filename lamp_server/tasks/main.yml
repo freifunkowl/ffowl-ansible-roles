@@ -100,6 +100,15 @@
   file: name=/var/www/{{inventory_hostname_short}}.{{freifunk.domain}} state=directory
   when: virthostroot.stat.islnk is not defined
 
+- name: deploy empty index.html if not existing
+  copy:
+    content: ""
+    dest: /var/www/{{inventory_hostname_short}}.{{freifunk.domain}}/index.html
+    force: false
+    group: www-data
+    owner: www-data
+    mode: 0755
+
 - name: Deploy virthost config
   template:
     src: templates/virthost.conf.j2
@@ -140,7 +149,13 @@
   file: dest=/etc/dehydrated state=directory owner=root group=root mode=0755
 
 - name: Create /etc/dehydrated/domains.txt
-  file: dest=/etc/dehydrated/domains.txt state=file owner=root group=root mode=0755
+  copy:
+    content: ""
+    dest: /etc/dehydrated/domains.txt
+    force: false
+    group: root
+    owner: root
+    mode: 0755
 
 - name: Test for base FQDN
   shell: grep -c "{{inventory_hostname_short}}.{{freifunk.domain}}" /etc/dehydrated/domains.txt || true
@@ -152,3 +167,24 @@
     line: "{{inventory_hostname_short}}.{{freifunk.domain}}"
   when: test_base_FQDN.stdout == "0"
 
+- name: Check if certs dir exists
+  stat:
+    path: /var/lib/dehydrated/certs
+  register: dehydrated_certs_dir
+
+- name: Register with LE
+  shell: dehydrated --register --accept-terms
+  when: not dehydrated_certs_dir.stat.exists
+
+- name: Generate certs
+  shell: "dehydrated --cron --keep-going ||:"
+
+- name: Enable mod_ssl
+  shell: a2enmod ssl
+
+- name: Deploy virthost ssl config
+  template:
+    src: templates/virthost-ssl.conf.j2
+    dest: /etc/apache2/sites-available/{{inventory_hostname_short}}.{{freifunk.domain}}.conf
+  notify:
+    - "restart apache"

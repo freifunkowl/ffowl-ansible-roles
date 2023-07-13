@@ -1,0 +1,36 @@
+<VirtualHost *:80>
+  ServerName {{inventory_hostname_short}}.{{freifunk.domain}}
+  ServerAdmin {{freifunk.email}}
+  DocumentRoot /var/www/{{inventory_hostname_short}}.{{freifunk.domain}}
+  ErrorLog ${APACHE_LOG_DIR}/{{inventory_hostname_short}}.{{freifunk.domain}}-error.log
+  CustomLog ${APACHE_LOG_DIR}/{{inventory_hostname_short}}.{{freifunk.domain}}-access.log combined
+  <Directory /var/www/{{inventory_hostname_short}}.{{freifunk.domain}}>
+    Options -Indexes
+    AllowOverride All
+  </Directory>
+  RewriteEngine On
+  RewriteCond %{HTTPS} off
+  RewriteCond %{REQUEST_URI} !^\/\.well-known\/.*$
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}$1 [R=301,L]
+</VirtualHost> 
+
+<VirtualHost *:443>
+  ServerName {{inventory_hostname_short}}.{{freifunk.domain}}
+  ServerAdmin {{freifunk.email}}
+  DocumentRoot /var/www/{{inventory_hostname_short}}.{{freifunk.domain}}
+  ErrorLog ${APACHE_LOG_DIR}/{{inventory_hostname_short}}.{{freifunk.domain}}-ssl-error.log
+  CustomLog ${APACHE_LOG_DIR}/{{inventory_hostname_short}}.{{freifunk.domain}}-ssl-access.log combined
+  <Directory /var/www/{{inventory_hostname_short}}.{{freifunk.domain}}>
+    Options -Indexes
+    AllowOverride All
+  </Directory>
+
+  SSLEngine on
+  SSLCertificateFile      /var/lib/dehydrated/certs/{{inventory_hostname_short}}.{{freifunk.domain}}/cert.pem
+  SSLCertificateKeyFile   /var/lib/dehydrated/certs/{{inventory_hostname_short}}.{{freifunk.domain}}/privkey.pem
+  SSLCertificateChainFile /var/lib/dehydrated/certs/{{inventory_hostname_short}}.{{freifunk.domain}}/chain.pem
+
+  SSLCipherSuite EECDH+AES:EDH+AES:-SHA1:EECDH+AES256:DHE+AES256:AES256-SHA:!aNULL:!eNULL:!EXP:!LOW:!MD5
+  SSLProtocol ALL -SSLv2 -SSLv3
+  SSLHonorCipherOrder on
+</VirtualHost>
