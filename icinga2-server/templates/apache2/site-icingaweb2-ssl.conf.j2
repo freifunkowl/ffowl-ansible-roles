@@ -1,0 +1,62 @@
+# {{ ansible_managed }}
+
+<VirtualHost {{ icinga2.http_listener.address | default("*") }}:{{ icinga2.http_listener.port | default(80) }}>
+  ServerName {{inventory_hostname_short}}.{{freifunk.domain}}
+  ServerAdmin {{ freifunk.email }}
+  RewriteEngine On
+  RewriteCond %{HTTPS} off
+  RewriteCond %{REQUEST_URI} !^\/\.well-known\/.*$
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}$1 [R=301,L]
+  ErrorLog  /var/log/apache2/error-80.log
+  CustomLog /var/log/apache2/access-80.log combined
+</VirtualHost>
+
+<VirtualHost *:443>
+  ServerName {{inventory_hostname_short}}.{{freifunk.domain}}
+  ServerAdmin {{freifunk.email}}
+
+  SSLEngine on
+  SSLCertificateFile      /var/lib/dehydrated/certs/{{inventory_hostname_short}}.{{freifunk.domain}}/cert.pem
+  SSLCertificateKeyFile   /var/lib/dehydrated/certs/{{inventory_hostname_short}}.{{freifunk.domain}}/privkey.pem
+  SSLCertificateChainFile /var/lib/dehydrated/certs/{{inventory_hostname_short}}.{{freifunk.domain}}/chain.pem
+  SSLCipherSuite EECDH+AES:EDH+AES:-SHA1:EECDH+AES256:DHE+AES256:AES256-SHA:!aNULL:!eNULL:!EXP:!LOW:!MD5
+  SSLProtocol ALL -SSLv2 -SSLv3
+  SSLHonorCipherOrder on
+
+  DocumentRoot "/usr/share/icingaweb2/public"
+
+  <Directory "/usr/share/icingaweb2/public">
+    Options SymLinksIfOwnerMatch
+    AllowOverride None
+
+    AuthType Basic
+    AuthName "Icingaweb2"
+    AuthUserFile /etc/icingaweb2/.http-users
+    <RequireAny>
+      require valid-user
+    </RequireAny>
+
+    SetEnv ICINGAWEB_CONFIGDIR "/etc/icingaweb2"
+
+    EnableSendfile Off
+
+    <IfModule mod_rewrite.c>
+      RewriteEngine on
+      # RewriteBase /icingaweb2/
+      RewriteBase /
+      RewriteCond %{REQUEST_FILENAME} -s [OR]
+      RewriteCond %{REQUEST_FILENAME} -l [OR]
+      RewriteCond %{REQUEST_FILENAME} -d
+      RewriteRule ^.*$ - [NC,L]
+      RewriteRule ^.*$ index.php [NC,L]
+    </IfModule>
+
+    <IfModule !mod_rewrite.c>
+      DirectoryIndex error_norewrite.html
+      ErrorDocument 404 /error_norewrite.html
+    </IfModule>
+  </Directory>
+
+  ErrorLog  /var/log/apache2/error.log
+  CustomLog /var/log/apache2/access.log combined
+</VirtualHost>
