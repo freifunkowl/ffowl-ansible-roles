@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 {% for item in groups['gateways']|default([]) %}
-
+{% if hostvars[item].is_monitored is defined %}
 object Host "{{ item }}" {
   import "generic-host"
   address = "{{ hostvars[item].ipv4 }}"
@@ -15,4 +15,5 @@ object Host "{{ item }}" {
   }
 }
 
+{% endif %}
 {% endfor %}

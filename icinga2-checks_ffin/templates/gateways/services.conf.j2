@@ -86,6 +86,7 @@ object Service "respondd" {
   vars.nrpe_command = "check_respondd"
 }
 
+{% if hostvars[item].tunneldigger is defined %}
 object Service "Tunneldigger" {
   import "generic-service"
   host_name = "{{ item }}"
@@ -93,6 +94,8 @@ object Service "Tunneldigger" {
   vars.nrpe_command = "check_tunneldigger"
 }
 
+{% endif %}
+{% if hostvars[item].fastd is defined %}
 object Service "fastd" {
   import "generic-service"
   host_name = "{{ item }}"
@@ -100,6 +103,7 @@ object Service "fastd" {
   vars.nrpe_command = "check_fastd"
 }
 
+{% endif %}
 object Service "DHCP-Server" {
   import "generic-service"
   host_name = "{{ item }}"
