@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+
+{% for item in groups['hypervisors']|default([]) %}
+{% if hostvars[item].is_monitored is defined %}
+object Host "{{ item }}" {
+  import "generic-host"
+  address = "{{ hostvars[item].ipv4 }}"
+  check_command = "hostalive"
+  groups = ["hypervisors"]
+  vars.notification["mail"] = {
+    groups = ["freifunk_admins"]
+  }
+  vars.notification["xmpp"] = {
+    groups = ["freifunk_admins"]
+  }
+}
+
+{% endif %}
+{% endfor %}
