@@ -4,7 +4,7 @@ apply Service "web-tls-cert" {
     import "generic-service"
     display_name =			"Website: TLS certificate"
     check_command =			"http"
-    vars.http_vhost =			host.vars.vhost
+    vars.http_vhost =		host.vars.vhost
     vars.http_ssl =			"true"
     vars.http_sni =			"true"
     vars.http_certificate =		"14,7"			# cert expires <7 days: CRIT, <14 days: WARN
