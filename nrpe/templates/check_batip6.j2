@@ -71,7 +71,7 @@ while test -n "$1"; do
     shift
 done
 
-IPBASE=$(ip -f inet6 -o addr show bat$DOMAIN | sed -n 's/.*inet6 \(.*\)[0-9a-f]\/64 scope global.*/\1/p')
+IPBASE=$(ip -f inet6 -o addr show bat$DOMAIN | awk '/scope global/ {gsub("/.*", "", $4); for(i=length($4); i--; i>1) {if(substr($4, i, 1)==":") break;} print substr($4, 1, i);}')
 if [ "$IPBASE" == "" ] ; then
   echo "UNKNOWN: interface bat$DOMAIN not found"
   exit $STATE_UNKNOWN
@@ -88,9 +88,9 @@ done
 #echo es antworten $COUNTOK IPs 
 
 if [ $COUNTOK -le $COUNTREQUIRED ]; then
-  echo "CRITICAL: Es antworten nur $COUNTOK der V6Domain-IPs $CHECKIP"
+  echo "CRITICAL: Es antworten nur $COUNTOK der v6-Domain-IPs $CHECKIP"
   exit $STATE_CRITICAL
 else
-  echo "OK: es antworten $COUNTOK der V6Domain-IPs $CHECKIP"
+  echo "OK: es antworten $COUNTOK der v6-Domain-IPs $CHECKIP"
   exit $STATE_OK
 fi
