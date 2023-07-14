@@ -1,65 +1,10 @@
 # {{ ansible_managed }}
 
-object Host "api.freifunk-ingolstadt.de" {
+object Host "map03.4830.org" {
   import "generic-host"
-  address = "94.130.149.86"
-  vars.vhost = "api.freifunk-ingolstadt.de"
-  vars.webpage = ["web-api"]
-  groups = ["mapserver-docker"]
-  vars.notification["mail"] = {
-    groups = ["freifunk_admins"]
-  }
-  vars.notification["xmpp"] = {
-    groups = ["freifunk_admins"]
-  }
-}
-
-object Host "firmware.freifunk-ingolstadt.de" {
-  import "generic-host"
-  address = "94.130.149.86"
-  vars.vhost = "firmware.freifunk-ingolstadt.de"
-  vars.webpage = ["web-firmware"]
-  groups = ["mapserver-docker"]
-  vars.notification["mail"] = {
-    groups = ["freifunk_admins"]
-  }
-  vars.notification["xmpp"] = {
-    groups = ["freifunk_admins"]
-  }
-}
-
-object Host "map.freifunk-ingolstadt.de" {
-  import "generic-host"
-  address = "94.130.149.86"
+  address = "192.251.226.136"
   vars.vhost = "map.freifunk-ingolstadt.de"
   vars.webpage = ["web-meshviewer"]
-  groups = ["mapserver-docker"]
-  vars.notification["mail"] = {
-    groups = ["freifunk_admins"]
-  }
-  vars.notification["xmpp"] = {
-    groups = ["freifunk_admins"]
-  }
-}
-
-object Host "grafana.freifunk-ingolstadt.de" {
-  import "generic-host"
-  address = "94.130.149.86"
-  vars.vhost = "grafana.freifunk-ingolstadt.de"
-  vars.webpage = ["web-grafana"]
-  groups = ["mapserver-docker"]
-  vars.notification["mail"] = {
-    groups = ["freifunk_admins"]
-  }
-  vars.notification["xmpp"] = {
-    groups = ["freifunk_admins"]
-  }
-}
-
-object Host "UniFi Controller" {
-  import "generic-host"
-  address = "10.10.0.10"
-  vars.webpage = ["web-controller"]
   groups = ["mapserver-docker"]
   vars.notification["mail"] = {
     groups = ["freifunk_admins"]
