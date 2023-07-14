@@ -100,3 +100,11 @@
   notify: reload icinga2
   tags:
     - skip_ansible_lint
+
+- name: Install check_nrpe_legacy script, ssh-proxy for legacy systems
+  copy:
+    src: 'check_nrpe_legacy'
+    dest: '/usr/lib/nagios/plugins/check_nrpe_legacy'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
