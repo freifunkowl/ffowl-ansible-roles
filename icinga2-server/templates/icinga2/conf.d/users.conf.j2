@@ -4,12 +4,12 @@ object UserGroup "freifunk_admins" {
   display_name = "Freifunk-Adminstratoren"
 }
 
-{% for item in icinga2.userliste | default() | selectattr('email','defined') | union(icinga2.userliste | default() ) %}
-object User "{{ item.user | default(item.email ) }}" {
+{% for item in icinga2.userliste | default() | selectattr('email','defined') | union(icinga2.userliste | default()) %}
+object User "{{ item.user | default(item.email) }}" {
   import "generic-user"
   groups = ["freifunk_admins"]
 
-  display_name = "{{ item.user | default(item.email )) }}"
+  display_name = "{{ item.user | default(item.email) }}"
 {% if item.email is defined %}
   email = "{{ item.email }}"
 {% endif %}
