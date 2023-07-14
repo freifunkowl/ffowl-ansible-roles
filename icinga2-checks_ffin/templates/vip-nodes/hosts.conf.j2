@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+
+{% for item in groups['vip-nodes']|default([]) %}
+
+object Host "{{ item }}" {
+  import "generic-host"
+  address6 = "{{ hostvars[item].ipv6 }}"
+  check_command = "ping6"
+  check_interval = 1h
+  retry_interval = 5m
+  groups = ["vip-nodes"]
+  vars.notification["mail"] = {
+    groups = ["freifunk_admins"]
+  }
+  vars.notification["xmpp"] = {
+    groups = ["freifunk_admins"]
+  }
+}
+
+{% endfor %}

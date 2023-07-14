@@ -1,35 +1,18 @@
 # {{ ansible_managed }}
 
-{% for item in groups['gateways'] %}
-
-object Host "{{ item }}" {
-  import "generic-host"
-  import "host-perf"
-  address = "{{ hostvars[item].ipv4 }}"
-  check_command = "hostalive"
-  groups = [ "gateways" ]
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
-}
-
+{% for item in groups['gateways']|default([]) %}
 object Service "CPU load" {
   import "generic-service"
-  import "srv-perf"
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_load"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 object Service "RAM" {
   import "generic-service"
-  import "srv-perf"
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_ram"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 object Service "zombie procs" {
@@ -37,29 +20,20 @@ object Service "zombie procs" {
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_zombie_procs"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 object Service "Total Procs" {
   import "generic-service"
-  import "srv-perf"
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_total_procs"
-  vars.notification.hipchat = "1"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 object Service "Disk" {
   import "generic-service"
-  import "srv-perf"
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_disk"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 object Service "APT Updates" {
@@ -67,8 +41,6 @@ object Service "APT Updates" {
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_apt_succesful"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 object Service "Bird v4" {
@@ -76,8 +48,6 @@ object Service "Bird v4" {
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_bird"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 object Service "Bird v6" {
@@ -85,8 +55,6 @@ object Service "Bird v6" {
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_bird6"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 object Service "Bind" {
@@ -94,27 +62,28 @@ object Service "Bind" {
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_bind"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
-object Service "collectd" {
+#object Service "collectd" {
+#  import "generic-service"
+#  host_name = "{{ item }}"
+#  check_command = "nrpe2"
+#  vars.nrpe_command = "check_collectd"
+#}
+
+object Service "ISC-DHCPd Leases" {
   import "generic-service"
   host_name = "{{ item }}"
   check_command = "nrpe2"
-  vars.nrpe_command = "check_collectd"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
+  vars.nrpe_command = "check_isc-dhcp-server-leases"
 }
 
 {% if hostvars[item].domaenenliste is defined %}
-object Service "py-respondd" {
+object Service "respondd" {
   import "generic-service"
   host_name = "{{ item }}"
   check_command = "nrpe2"
-  vars.nrpe_command = "check_pyrespondd"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
+  vars.nrpe_command = "check_respondd"
 }
 
 object Service "Tunneldigger" {
@@ -122,77 +91,63 @@ object Service "Tunneldigger" {
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_tunneldigger"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
+}
+
+object Service "fastd" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_fastd"
 }
 
 object Service "DHCP-Server" {
   import "generic-service"
   host_name = "{{ item }}"
   check_command = "nrpe2"
-  vars.nrpe_command = "check_dhcp-server"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
+  vars.nrpe_command = "check_isc-dhcp-server"
 }
 {% endif %}
 
 object Service "DNSv4 vs. ipv4.google.com" {
   import "generic-service"
-  import "srv-perf"
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check-dns4-client"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 object Service "DNSv6 vs. ipv6.google.com" {
   import "generic-service"
-  import "srv-perf"
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check-dns6-client"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
-object Service "HTTPv4 vs. ipv4.google.com" {
-  import "generic-service"
-  host_name = "{{ item }}"
-  check_command = "nrpe2"
-  vars.nrpe_command = "check-http4-client"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
-}
+#object Service "HTTPv4 vs. hetzner.de" {
+#  import "generic-service"
+#  host_name = "{{ item }}"
+#  check_command = "nrpe2"
+#  vars.nrpe_command = "check-http4-client"
+#}
 
 object Service "v4 Ping vs. google.de" {
   import "generic-service"
-  import "srv-perf"
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check-ping-v4"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 object Service "current bandwidth" {
   import "generic-service"
-  import "srv-perf"
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_bandwidth"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
-
 
 object Service "Check IP Route" {
   import "generic-service"
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_iproute"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 object Service "Check IPv6 Route" {
@@ -200,8 +155,6 @@ object Service "Check IPv6 Route" {
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_iproute6"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 object Service "Check Bird Sessions" {
@@ -209,8 +162,6 @@ object Service "Check Bird Sessions" {
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_bird_sessions"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 object Service "Check Bird6 Sessions" {
@@ -218,18 +169,17 @@ object Service "Check Bird6 Sessions" {
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_bird6_sessions"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
 }
 
 {% if nrpe.check_websites_upstream_ipv4 is defined and hostvars[item].ffrl_nat_ip is defined %}
 object Service "Check selected Websites via FFRL tunnel (HTTP/IPv4) " {
   import "generic-service"
   host_name = "{{ item }}"
+  check_interval = 30m
+  retry_interval = 5m
   check_command = "nrpe2"
   vars.nrpe_command = "check_websites-ffrl-ipv4"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
+  vars.nrpe_timeout = "20"
 }
 {% endif %}
 
@@ -237,10 +187,11 @@ object Service "Check selected Websites via FFRL tunnel (HTTP/IPv4) " {
 object Service "Check selected Websites via FFNW tunnel (HTTP/IPv4) " {
   import "generic-service"
   host_name = "{{ item }}"
+  check_interval = 30m
+  retry_interval = 5m
   check_command = "nrpe2"
   vars.nrpe_command = "check_websites-ffnw-ipv4"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
+  vars.nrpe_timeout = "20"
 }
 {% endif %}
 
@@ -251,8 +202,7 @@ object Service "Check BATMAN Dom {{domaene[0]}} via IP" {
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_batip_{{domaene[0]}}"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
+  vars.nrpe_timeout = "120"
 }
 
 object Service "Check BATMAN Dom {{domaene[0]}} via IPv6" {
@@ -260,8 +210,7 @@ object Service "Check BATMAN Dom {{domaene[0]}} via IPv6" {
   host_name = "{{ item }}"
   check_command = "nrpe2"
   vars.nrpe_command = "check_batip6_{{domaene[0]}}"
-  vars.sla = "24x7"
-  vars.notification.hipchat = "1"
+  vars.nrpe_timeout = "120"
 }
 {% endfor %}
 {% endif %}

@@ -1,0 +1,18 @@
+- name: Create configuration directories
+  file:
+    path: "/etc/icinga2/conf.d/{{ item.path }}"
+    state: directory
+  with_filetree: "templates/"
+  when: item.state == "directory"
+  tags:
+    - skip_ansible_lint
+
+- name: Create configuration files
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/icinga2/conf.d/{{ item.path|regex_replace('.j2','') }}"
+  with_filetree: "templates/"
+  when: item.state == "file"
+  notify: reload icinga2
+  tags:
+    - skip_ansible_lint

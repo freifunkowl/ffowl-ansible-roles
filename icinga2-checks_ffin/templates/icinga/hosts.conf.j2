@@ -1,0 +1,17 @@
+# {{ ansible_managed }}
+
+{% for item in groups['monitoring']|default([]) %}
+
+object Host "{{ item }}" {
+  import "generic-host"
+  address = "{{ hostvars[item].ipv4 }}"
+  check_command = "hostalive"
+  vars.notification["mail"] = {
+    groups = ["freifunk_admins"]
+  }
+  vars.notification["xmpp"] = {
+    groups = ["freifunk_admins"]
+  }
+}
+
+{% endfor %}

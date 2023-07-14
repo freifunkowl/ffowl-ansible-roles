@@ -1,0 +1,169 @@
+### Ansible Prerequisites
+- name: Install python3-passlib (required by Ansible)
+  apt:
+    pkg: [ 'python3-passlib' ]
+
+### IcingaWeb2
+- name: Install IcingaWeb2
+  apt:
+    pkg: [ 'icingaweb2', 'apache2', 'php-mysql', 'php-curl', 'php-gd', 'php-imagick', 'php-intl', 'php-fpm' ]
+    state: present
+
+### IDO
+- name: Read ido-mysql.conf
+  slurp:
+    src: '/etc/icinga2/features-enabled/ido-mysql.conf'
+  register: icinga2_ido_db_conf_file
+
+- name: Extract icinga2 ido database password from ido-mysql.conf
+  set_fact:
+    icinga2_ido_db_pw: "{{ icinga2_ido_db_conf_file['content'] | b64decode | regex_findall('password = \"(.+)\"') | first }}"
+
+- name: Configure connection to IDO database
+  template:
+    src: 'icingaweb2/resources.ini.j2'
+    dest: '/etc/icingaweb2/resources.ini'
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '0640'
+
+### Monitoring Module
+- name: Install IcingaWeb2 monitoring module
+  apt:
+    pkg: [ 'icingaweb2-module-monitoring' ]
+    state: present
+
+- name: Create enabledModules directory
+  file:
+    path: '/etc/icingaweb2/enabledModules'
+    state: directory
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '2750'
+
+- name: Enable IcingaWeb2 monitoring module
+  file:
+    src: '/usr/share/icingaweb2/modules/monitoring'
+    dest: '/etc/icingaweb2/enabledModules/monitoring'
+    state: link
+
+- name: Configure IcingaWeb2 monitoring module
+  copy:
+    src: 'icingaweb2/modules/monitoring/'
+    dest: '/etc/icingaweb2/modules/monitoring'
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '0660'
+    directory_mode: '2770'
+
+### Logging
+- name: Configure logging
+  copy:
+    src: 'icingaweb2/config.ini'
+    dest: '/etc/icingaweb2/config.ini'
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '0640'
+
+### Users
+- name: Configure user roles
+  template:
+    src: 'icingaweb2/roles.ini.j2'
+    dest: '/etc/icingaweb2/roles.ini'
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '0640'
+
+## Enable Apache PHP-FPM
+- name: Enable required Apache modules
+  apache2_module:
+    name: '{{ item }}'
+    state: present
+  loop:
+    - proxy_fcgi
+    - setenvif
+  notify: reload apache2
+
+- name: Figure out PHP-FPM Apache configuration file
+  find:
+    paths: '/etc/apache2/conf-available/'
+    file_type: file
+    use_regex: yes
+    patterns: '^php[0-9\.]+\-fpm\.conf'
+  register: find_phpfpmconf
+
+- name: Enable PHP-FPM Apache configuration file
+  file:
+    src: '/etc/apache2/conf-available/{{ item.path | basename }}'
+    dest: '/etc/apache2/conf-enabled/{{ item.path | basename }}'
+    state: link
+  loop: '{{ find_phpfpmconf.files }}'
+  notify: reload apache2
+
+### Enable IcingaWeb2 in Apache
+- name: Disable default IcingaWeb2 Apache2 configuration
+  file:
+    path: '/etc/apache2/conf-enabled/icingaweb2.conf'
+    state: absent
+  notify: reload apache2
+
+- name: Add IcingaWeb2 site config to Apache2
+  template:
+    src: "apache2/site-icingaweb2.conf.j2"
+    dest: "/etc/apache2/sites-available/icingaweb2.conf"
+  notify: reload apache2
+
+- name: Enable IcingaWeb2 site config
+  file:
+    src: "/etc/apache2/sites-available/icingaweb2.conf"
+    dest: "/etc/apache2/sites-enabled/icingaweb2.conf"
+    state: link
+  notify: reload apache2
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Get all enabled Apache2 sites
+  shell: "/usr/bin/grep -Li '^[[:space:]]*SSL' /etc/apache2/sites-enabled/*"
+  register: httpsitesenabled
+  failed_when: "httpsitesenabled.rc == 2"
+  check_mode: no
+  changed_when: httpsitesenabled.stdout | length > 0
+
+- name: Disable unneeded site configs
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items: "{{ httpsitesenabled.stdout_lines }}"
+  when: httpsitesenabled.stdout | length > 0 and item != "/etc/apache2/sites-enabled/icingaweb2.conf"
+
+### Set up Apache Authentication
+- name: Delete old htpasswd file to force password updates and to get rid of deprecated users
+  file:
+    path: '/etc/icingaweb2/.http-users'
+    state: absent
+
+- name: Create htpasswd file
+  htpasswd:
+    path: '/etc/icingaweb2/.http-users'
+    name: '{{ item.user }}'
+    password: '{{ item.pw }}'
+    owner: 'root'
+    group: 'www-data'
+    mode: '0640'
+  with_items: "{{ icinga2.userliste }}"
+  when: item.user is defined and item.pw is defined
+
+- name: Configure IcingaWeb2 to use Apache authentication provider
+  copy:
+    src: 'icingaweb2/authentication.ini'
+    dest: '/etc/icingaweb2/authentication.ini'
+    owner: 'www-data'
+    group: 'icingaweb2'
+    mode: '0640'
+
+### Set Apache HTTP listening port and address
+- name: Set Apache2 listening ports
+  template:
+    src: "apache2/ports.conf.j2"
+    dest: "/etc/apache2/ports.conf"
+  notify: reload apache2
+
