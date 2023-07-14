@@ -68,6 +68,22 @@ object Service "APT Updates" {
   vars.nrpe_command = "check_apt_succesful"
 }
 
+{% if hostvars[item].bgp_router is defined and hostvars[item].bgp_router %}
+object Service "Bird v4" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_bird"
+}
+
+object Service "Bird v6" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check_bird6"
+}
+
+{% endif %}
 object Service "DNSv4 vs. ipv4.google.com" {
   import "generic-service"
   host_name = "{{ item }}"
