@@ -1,15 +1,15 @@
 # {{ ansible_managed }}
 
-object Host "map03.4830.org" {
-  import "generic-host"
-  address = "192.251.226.136"
-  vars.vhost = "map.freifunk-ingolstadt.de"
-  vars.webpage = ["web-meshviewer"]
-  groups = ["mapserver-docker"]
-  vars.notification["mail"] = {
-    groups = ["freifunk_admins"]
-  }
-  vars.notification["xmpp"] = {
-    groups = ["freifunk_admins"]
-  }
-}
+#object Host "map03.4830.org" {
+#  import "generic-host"
+#  address = "192.251.226.136"
+#  vars.vhost = "map.freifunk-ingolstadt.de"
+#  vars.webpage = ["web-meshviewer"]
+#  groups = ["mapserver-docker"]
+#  vars.notification["mail"] = {
+#    groups = ["freifunk_admins"]
+#  }
+#  vars.notification["xmpp"] = {
+#    groups = ["freifunk_admins"]
+#  }
+#}
