@@ -8,7 +8,7 @@ apply Service "web-homepage" {
     check_command =			"http"
     vars.http_ssl =			"true"
     vars.http_onredirect =		"follow"
-    vars.http_uri =			"/neuigkeiten/"
-    vars.http_string =			"Datenschutzerklärung"
+    vars.http_uri =			"/"
+    vars.http_string =			"Impressum"
     assign where host.address && "web-homepage" in host.vars.webpage
 }

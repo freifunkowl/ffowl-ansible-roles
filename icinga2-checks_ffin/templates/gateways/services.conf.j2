@@ -1,6 +1,7 @@
 # {{ ansible_managed }}
 
 {% for item in groups['gateways']|default([]) %}
+{% if hostvars[item].is_monitored is defined %}
 object Service "CPU load" {
   import "generic-service"
   host_name = "{{ item }}"
@@ -217,5 +218,6 @@ object Service "Check BATMAN Dom {{domaene[0]}} via IPv6" {
   vars.nrpe_timeout = "120"
 }
 {% endfor %}
+{% endif %}
 {% endif %}
 {% endfor %}
