@@ -1,5 +1,8 @@
 #!/bin/sh
 # {{ ansible_managed }}
+{% if server_id is not defined %}
+{% server_id = vm_id %}
+{% endif %}
 
 cat << 'EOF'
  This system is managed by Ansible.
