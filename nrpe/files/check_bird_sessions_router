@@ -9,11 +9,13 @@
 # Ausgabe von birdc show proto überprüfen, ob OSPF "running" und alle bgp "established" sind
 #########################################################################
 
-BGPSTATUSLIST=$(birdc show proto | egrep '^e_|^i_')
-if [ ${PIPESTATUS[0]} -gt 0 ] ; then
-  echo "CRITICAL: 'birdc show proto' exits with errorcode"
+BGPSTATUSLIST=$(birdc show proto)
+RC=$?
+if [ ${RC} -gt 0 ] ; then
+  echo "CRITICAL: 'birdc show proto' exits with errorcode ${RC}"
   exit 2
 fi
+BGPSTATUSLIST=$(birdc show proto | egrep '^e_|^i_')
 
 EBGPCOUNTESTABLISHED=$(echo "$BGPSTATUSLIST" | grep ^e_ | grep Established | wc -l)
 EBGPCOUNTNOTESTABLISHED=$(echo "$BGPSTATUSLIST" | grep ^e_ | grep -v Established | wc -l)
