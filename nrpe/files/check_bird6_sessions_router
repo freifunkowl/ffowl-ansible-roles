@@ -10,7 +10,7 @@
 #########################################################################
 
 BGPSTATUSLIST=$(birdc6 show proto | egrep '^e_|^i_')
-if [ $? -gt 0 ] ; then
+if [ ${PIPESTATUS[0]} -gt 0 ] ; then
   echo "CRITICAL: 'birdc6 show proto' exits with errorcode"
   exit 2
 fi
