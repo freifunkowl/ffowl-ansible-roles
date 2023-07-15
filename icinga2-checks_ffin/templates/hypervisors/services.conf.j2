@@ -91,6 +91,28 @@ object Service "Bird v6" {
   vars.nrpe_command = "check_bird6"
 }
 
+object Service "Check Bird Sessions" {
+  import "generic-service"
+  host_name = "{{ item }}"
+{% if hostvars[item].nrpe_legacy is defined %}
+  check_command = "nrpe-legacy"
+{% else %}
+  check_command = "nrpe2"
+{% endif %}
+  vars.nrpe_command = "check_bird_sessions"
+}
+
+object Service "Check Bird6 Sessions" {
+  import "generic-service"
+  host_name = "{{ item }}"
+{% if hostvars[item].nrpe_legacy is defined %}
+  check_command = "nrpe-legacy"
+{% else %}
+  check_command = "nrpe2"
+{% endif %}
+  vars.nrpe_command = "check_bird6_sessions"
+}
+
 {% endif %}
 {% if hostvars[item].check_raid is defined and hostvars[item].check_raid %}
 object Service "RAID" {
