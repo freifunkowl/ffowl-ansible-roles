@@ -18,6 +18,11 @@
     name: bc
     state: latest
 
+- name: Install nagios-plugins-contrib
+  package:
+    name: nagios-plugins-contrib
+    state: latest
+
 - name: Install vnstat
   package:
     name: vnstat

@@ -68,3 +68,6 @@ command[check_batip_{{domaene[0]}}]=/usr/lib/nagios/plugins/check_batip -D {{dom
 #command[check_FFTesterV6_{{domaene[0]}}]=sudo /root/gits/tools/Freifunk-Tester/icinga_reporter.sh {{freifunk.kurzname}}d{{domaene[0]}} IPv6-ping-test-to-google.de random
 # {% endfor %}
 #{% endif %}
+
+# RAID
+command[check_raid]=sudo /usr/lib/nagios/plugins/check_raid

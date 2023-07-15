@@ -72,15 +72,36 @@ object Service "APT Updates" {
 object Service "Bird v4" {
   import "generic-service"
   host_name = "{{ item }}"
+{% if hostvars[item].nrpe_legacy is defined %}
+  check_command = "nrpe-legacy"
+{% else %}
   check_command = "nrpe2"
+{% endif %}
   vars.nrpe_command = "check_bird"
 }
 
 object Service "Bird v6" {
   import "generic-service"
   host_name = "{{ item }}"
+{% if hostvars[item].nrpe_legacy is defined %}
+  check_command = "nrpe-legacy"
+{% else %}
   check_command = "nrpe2"
+{% endif %}
   vars.nrpe_command = "check_bird6"
+}
+
+{% endif %}
+{% if hostvars[item].check_raid is defined and hostvars[item].check_raid %}
+object Service "RAID" {
+  import "generic-service"
+  host_name = "{{ item }}"
+{% if hostvars[item].nrpe_legacy is defined %}
+  check_command = "nrpe-legacy"
+{% else %}
+  check_command = "nrpe2"
+{% endif %}
+  vars.nrpe_command = "check_raid"
 }
 
 {% endif %}
