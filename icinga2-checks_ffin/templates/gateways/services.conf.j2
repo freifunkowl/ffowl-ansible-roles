@@ -200,8 +200,7 @@ object Service "Check selected Websites via FFNW tunnel (HTTP/IPv4) " {
 }
 {% endif %}
 
-{% if 0 = 1 %}
-{% if hostvars[item].domaenenliste is defined %}
+{% if hostvars[item].domaenenliste2 is defined %}
 {% for domaene in hostvars[item].domaenenliste|dictsort %}
 object Service "Check BATMAN Dom {{domaene[0]}} via IP" {
   import "generic-service"
@@ -219,7 +218,6 @@ object Service "Check BATMAN Dom {{domaene[0]}} via IPv6" {
   vars.nrpe_timeout = "120"
 }
 {% endfor %}
-{% endif %}
 {% endif %}
 {% endif %}
 {% endfor %}
