@@ -200,24 +200,24 @@ object Service "Check selected Websites via FFNW tunnel (HTTP/IPv4) " {
 }
 {% endif %}
 
-{% if hostvars[item].domaenenliste is defined %}
-{% for domaene in hostvars[item].domaenenliste|dictsort %}
-object Service "Check BATMAN Dom {{domaene[0]}} via IP" {
-  import "generic-service"
-  host_name = "{{ item }}"
-  check_command = "nrpe2"
-  vars.nrpe_command = "check_batip_{{domaene[0]}}"
-  vars.nrpe_timeout = "120"
-}
-
-object Service "Check BATMAN Dom {{domaene[0]}} via IPv6" {
-  import "generic-service"
-  host_name = "{{ item }}"
-  check_command = "nrpe2"
-  vars.nrpe_command = "check_batip6_{{domaene[0]}}"
-  vars.nrpe_timeout = "120"
-}
-{% endfor %}
-{% endif %}
+#{% if hostvars[item].domaenenliste is defined %}
+#{% for domaene in hostvars[item].domaenenliste|dictsort %}
+#object Service "Check BATMAN Dom {{domaene[0]}} via IP" {
+#  import "generic-service"
+#  host_name = "{{ item }}"
+#  check_command = "nrpe2"
+#  vars.nrpe_command = "check_batip_{{domaene[0]}}"
+#  vars.nrpe_timeout = "120"
+#}
+#
+#object Service "Check BATMAN Dom {{domaene[0]}} via IPv6" {
+#  import "generic-service"
+#  host_name = "{{ item }}"
+#  check_command = "nrpe2"
+#  vars.nrpe_command = "check_batip6_{{domaene[0]}}"
+#  vars.nrpe_timeout = "120"
+#}
+#{% endfor %}
+#{% endif %}
 {% endif %}
 {% endfor %}
