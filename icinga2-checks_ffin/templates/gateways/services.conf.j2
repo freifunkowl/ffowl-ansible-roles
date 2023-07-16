@@ -141,6 +141,15 @@ object Service "v4 Ping vs. google.de" {
   vars.nrpe_command = "check-ping-v4"
 }
 
+object Service "v6 Ping vs. google.de" {
+  import "generic-service"
+  host_name = "{{ item }}"
+  check_command = "nrpe2"
+  vars.nrpe_command = "check-ping-v6"
+}
+
+
+{% if nrpe.check_bandwith is defined %}
 object Service "current bandwidth" {
   import "generic-service"
   host_name = "{{ item }}"
@@ -148,6 +157,7 @@ object Service "current bandwidth" {
   vars.nrpe_command = "check_bandwidth"
 }
 
+{% endif %}
 object Service "Check IP Route" {
   import "generic-service"
   host_name = "{{ item }}"
