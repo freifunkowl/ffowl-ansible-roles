@@ -7,7 +7,7 @@ STATE_CRITICAL=2
 STATE_UNKNOWN=3
 
 #########################################################################
-# Pro Domäne max. sechs Server pingen, falls mehr als die Hälfte nicht pingbar ? Wahrscheinlich hängt das Batman 
+# Pro Domäne max. zwei Mapserver pingen, alle müssen antworten
 #########################################################################
 
 MAPSERVER="{{ (groups['mapserver'] | default([]))[:2] | map('extract',hostvars,'server_id') | join(" ") }}"
@@ -85,10 +85,10 @@ done
 
 #echo es antworten $COUNTOK IPs 
 
-if [ $COUNTOK -le $COUNTREQUIRED ]; then
-  echo "CRITICAL: Es antworten nur $COUNTOK der Domain-IPs $CHECKIP"
+if [ $COUNTOK -lt $COUNTREQUIRED ]; then
+  echo "CRITICAL: Es antworten nur $COUNTOK der Mapserver (IPv4; $CHECKIP)"
   exit $STATE_CRITICAL
 else
-  echo "OK: es antworten $COUNTOK der Domain-IPs $CHECKIP"
+  echo "OK: es antworten $COUNTOK der Mapserver (IPv4; $CHECKIP)"
   exit $STATE_OK
 fi

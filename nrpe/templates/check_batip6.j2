@@ -7,15 +7,14 @@ STATE_CRITICAL=2
 STATE_UNKNOWN=3
 
 #########################################################################
-# Pro Domäne max. sechs Server pingen, falls mehr als die Hälfte nicht pingbar ? Wahrscheinlich hängt das Batman 
+# Pro Domäne max. zwei Mapserver pingen, alle müssen antworten
 #########################################################################
-# iPV6
+# IPv6
 #########################################################################
 
 MAPSERVER="{{ (groups['mapserver'] | default([]))[:2] | map('extract',hostvars,'server_id') | join(" ") }}"
 #GATEWAYS="{{ (groups['gateways'] | default([]))[:4] | map('extract',hostvars,'server_id') | join(" ") }}"
 CHECKIP="$MAPSERVER $GATEWAYS"
-
 COUNTREQUIRED=$(echo $CHECKIP | wc -w)
 
 PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
@@ -87,10 +86,10 @@ done
 
 #echo es antworten $COUNTOK IPs 
 
-if [ $COUNTOK -le $COUNTREQUIRED ]; then
-  echo "CRITICAL: Es antworten nur $COUNTOK der v6-Domain-IPs $CHECKIP"
+if [ $COUNTOK -lt $COUNTREQUIRED ]; then
+  echo "CRITICAL: Es antworten nur $COUNTOK der Mapserver (IPv6; $CHECKIP)"
   exit $STATE_CRITICAL
 else
-  echo "OK: es antworten $COUNTOK der v6-Domain-IPs $CHECKIP"
+  echo "OK: es antworten $COUNTOK der Mapserver (IPv6; $CHECKIP)"
   exit $STATE_OK
 fi
