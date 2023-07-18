@@ -16,6 +16,7 @@ MAPSERVER="{{ (groups['mapserver'] | default([]))[:2] | map('extract',hostvars,'
 #GATEWAYS="{{ (groups['gateways'] | default([]))[:4] | map('extract',hostvars,'server_id') | join(" ") }}"
 CHECKIP="$MAPSERVER $GATEWAYS"
 COUNTREQUIRED=$(echo $CHECKIP | wc -w)
+COUNTCHECKIPS=$(echo $CHECKIP | wc -w)
 
 PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
 export PATH
@@ -87,9 +88,9 @@ done
 #echo es antworten $COUNTOK IPs 
 
 if [ $COUNTOK -lt $COUNTREQUIRED ]; then
-  echo "CRITICAL: Es antworten nur $COUNTOK der Mapserver (IPv6; $CHECKIP)"
+  echo "CRITICAL: Only ${COUNTOK} of ${COUNTCHECKIPS} Mapserver(s) did answer (IPv6; $CHECKIP)"
   exit $STATE_CRITICAL
 else
-  echo "OK: es antworten $COUNTOK der Mapserver (IPv6; $CHECKIP)"
+  echo "OK: All ${COUNTCHECKIPS} Mapserver(s) did answer (IPv6; $CHECKIP)"
   exit $STATE_OK
 fi
