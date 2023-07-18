@@ -11,10 +11,10 @@ STATE_UNKNOWN=3
 #########################################################################
 
 MAPSERVER="{{ (groups['mapserver'] | default([]))[:2] | map('extract',hostvars,'server_id') | join(" ") }}"
-GATEWAYS="{{ (groups['gateways'] | default([]))[:4] | map('extract',hostvars,'server_id') | join(" ") }}"
+#GATEWAYS="{{ (groups['gateways'] | default([]))[:4] | map('extract',hostvars,'server_id') | join(" ") }}"
 CHECKIP="$MAPSERVER $GATEWAYS"
 
-COUNTREQUIRED=$(($(echo $CHECKIP | wc -w)/2))
+COUNTREQUIRED=$(echo $CHECKIP | wc -w)
 
 PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
 export PATH

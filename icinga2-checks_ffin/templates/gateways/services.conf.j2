@@ -210,7 +210,7 @@ object Service "Check selected Websites via FFNW tunnel (HTTP/IPv4) " {
 }
 {% endif %}
 
-{% if hostvars[item].domaenenliste2 is defined %}
+{% if hostvars[item].domaenenliste is defined %}
 {% for domaene in hostvars[item].domaenenliste|dictsort %}
 object Service "Check BATMAN Dom {{domaene[0]}} via IP" {
   import "generic-service"
