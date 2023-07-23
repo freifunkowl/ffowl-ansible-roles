@@ -4,6 +4,51 @@
     name: nagios-nrpe-server
     state: latest
 
+- name: Ensure absence of per-file configurations configured via nrpe_local.cfg
+  file:
+    path: '{{ item }}'
+    state: absent
+  with_items:
+   - /etc/nagios/nrpe.d/connection_timeout
+   - /etc/nagios/nrpe.d/command_timeout
+   - /etc/nagios/nrpe.d/allowed_hosts
+   - /etc/nagios/nrpe.d/check_speedtest-cli-2
+   - /etc/nagios/nrpe.d/check_speedtest-cli-10
+   - /etc/nagios/nrpe.d/check_speedtest-cli-50
+   - /etc/nagios/nrpe.d/check_speedtest-cli-100
+   - /etc/nagios/nrpe.d/check_bandwidth
+   - /etc/nagios/nrpe.d/
+   - /etc/nagios/nrpe.d/check_load
+   - /etc/nagios/nrpe.d/check_ram
+   - /etc/nagios/nrpe.d/check_zombie_procs
+   - /etc/nagios/nrpe.d/check_total_procs
+   - /etc/nagios/nrpe.d/check_disk
+   - /etc/nagios/nrpe.d/check_apt_succesful
+   - /etc/nagios/nrpe.d/check_bird
+   - /etc/nagios/nrpe.d/check_bird6
+   - /etc/nagios/nrpe.d/check_bind
+   - /etc/nagios/nrpe.d/check_collectd
+   - /etc/nagios/nrpe.d/check_pyrespondd
+   - /etc/nagios/nrpe.d/check_respondd
+   - /etc/nagios/nrpe.d/check_tunneldigger
+   - /etc/nagios/nrpe.d/check_dhcp-server
+   - /etc/nagios/nrpe.d/check_isc-dhcp-server
+   - /etc/nagios/nrpe.d/check_isc-dhcp-server-leases
+   - /etc/nagios/nrpe.d/check_vnstat
+   - /etc/nagios/nrpe.d/check-dhcp-client
+   - /etc/nagios/nrpe.d/check-dns4-client
+   - /etc/nagios/nrpe.d/check-dns6-client
+   - /etc/nagios/nrpe.d/check-http4-client
+   - /etc/nagios/nrpe.d/check-http6-client
+   - /etc/nagios/nrpe.d/check-ping-v4
+   - /etc/nagios/nrpe.d/check-ping-v6
+   - /etc/nagios/nrpe.d/check_iproute
+   - /etc/nagios/nrpe.d/check_iproute6
+   - /etc/nagios/nrpe.d/check_bird_sessions
+   - /etc/nagios/nrpe.d/check_bird6_sessions
+   - /etc/nagios/nrpe.d/check_nginx
+   - /etc/nagios/nrpe.d/check_raid
+
 - name: Configure NRPE-Server
   template: "src=nrpe_local.cfg.j2 dest='/etc/nagios/nrpe_local.cfg' owner=root group=root"
   notify: Reload nagios-nrpe-server
