@@ -16,10 +16,10 @@ command[check_speedtest-cli-100]=/usr/lib/nagios/plugins/check_speedtest-cli.sh 
 command[check_bandwidth]=/usr/lib/nagios/plugins/check_eth -i {{ansible_default_ipv4.interface}} -w 200M Bps -c 200M Bps ### TODO: check ist falschherum. Meldet bei Ueberschreiten aber leider nicht bei unterschreiten.
  
 # Debian Server
-command[check_load]=/usr/lib/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
+command[check_load]=/usr/lib/nagios/plugins/check_load -w 15,10,8 -c 30,25,22
 command[check_ram]=/usr/lib/nagios/plugins/check_ram -w 10 -c 5 -f -C
 command[check_zombie_procs]=/usr/lib/nagios/plugins/check_procs -w 5 -c 10 -s Z
-command[check_total_procs]=/usr/lib/nagios/plugins/check_procs -w 350 -c 440
+command[check_total_procs]=/usr/lib/nagios/plugins/check_procs -w 390 -c 450
 command[check_disk]=/usr/lib/nagios/plugins/check_disk -w 15% -c 10% -p /
 #command[check_update]=/usr/lib/nagios/plugins/check_apt
 command[check_apt_succesful]=/usr/lib/nagios/plugins/check_file_age -w 604800 -c 1209600 -f /var/lib/apt/periodic/update-success-stamp

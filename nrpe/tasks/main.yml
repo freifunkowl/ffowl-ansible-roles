@@ -48,6 +48,7 @@
    - /etc/nagios/nrpe.d/check_bird6_sessions
    - /etc/nagios/nrpe.d/check_nginx
    - /etc/nagios/nrpe.d/check_raid
+  notify: Reload nagios-nrpe-server
 
 - name: Configure NRPE-Server
   template: "src=nrpe_local.cfg.j2 dest='/etc/nagios/nrpe_local.cfg' owner=root group=root"
