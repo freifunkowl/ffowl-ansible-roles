@@ -69,7 +69,7 @@ Traffic-Engineering:
 
 Locations (just use any consistent numbering, we use e. g.):
 
-     1   DUS01 (FFGT: PlusServer; formerly GUT01; FFLIP: vserver.site DUS1)
+     1   DUS01 (FFGT: PlusServer; formerly GUT01)
      2   BER01 (IN-BERLIN, Site AK)
      3   FRA01 (vserver.site (DC MK-Netzwerke))
      4   HAM01 (irz42; AS49745 location)
@@ -78,7 +78,8 @@ Locations (just use any consistent numbering, we use e. g.):
      7   AMS01 (coloclue (DC EuNetworks); AS49745 location)
      8   HEL01 (Hetzner HEL, AS49745 location)
      9   FKS01 (Hetzner FKS, AS49745 location)
-
+    10   ATL01 (Vultr ATL, AS206946 location)
+    11   SIN01 (Vultr SIN, AS206946 location)
 
 
 ## Configuration example ##
