@@ -85,6 +85,9 @@ int set bogon_asns;
     if (({{ ouras }}, 500, 0) ~ bgp_large_community) then {
       bgp_large_community.add(({{ ouras }}, 8, 0));
     }
+{% if peer.bgpnexthop6 if defined %}
+    gw = {{ peer.bgpnexthop6 }};
+{% endif %}
     accept;
   }
 {% else %}
