@@ -6,7 +6,7 @@ cat << 'EOF'
 
 {% if figlethost.stdout is defined %}{{ figlethost.stdout }}{% endif %}
 
- {{ freifunk.name }}
+ {{ server_besitzer }}
 EOF
 
 echo " OS          : $(lsb_release -d -s) $(lsb_release -c -s)"
@@ -15,7 +15,7 @@ echo " IP address  : $(hostname -I | cut -d' ' -f1){% if ansible_default_ipv6.ad
 echo " System type : $(uname -s) $(uname -m)"
 echo " Kernel      : $(uname -r)"
 echo " "
-echo " Besitzer    : {{ server_besitzer }}"
+echo " Hoster      : {{ hoster }}"
 
 cat << 'EOF'
 
