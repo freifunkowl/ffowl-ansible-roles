@@ -34,7 +34,7 @@ int set bogon_asns;
   # ignore bogon AS_PATHs ...
   bogon_asns = BOGON_ASNS;
   # ... unless peer uses one (e. g. Vultr)
-  if (  !~ bogon_asns) then {
+  if ({{ peer.peeras }} !~ bogon_asns) then {
     if (bgp_path ~ bogon_asns) then {
       #print "Import rejected: bogon AS_PATH: ", net, " ", bgp_path;
       reject;

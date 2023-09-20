@@ -36,6 +36,7 @@ IXPs, 1xx, for xx use (just use any consistent numbering >0):
     10   DECIX FRA (local)
     11   LocIX
     12   KleyRex
+    13   NL-ix
 
 Traffic-Engineering:
 
