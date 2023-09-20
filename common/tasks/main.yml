@@ -40,13 +40,13 @@
   systemd:
     name: systemd-resolved
     state: stopped
-    when: "'systemd-resolved' in ansible_facts.packages"
+  when: "'systemd-resolved' in ansible_facts.packages"
 
 - name: systemd-resolved deaktivieren
   systemd:
     name: systemd-resolved
     enabled: no
-    when: "'systemd-resolved' in ansible_facts.packages"
+  when: "'systemd-resolved' in ansible_facts.packages"
 
 - name: resolv.conf Symlink entfernen
   file: path=/etc/resolv.conf state=absent
