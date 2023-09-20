@@ -36,17 +36,21 @@
     state: absent
     regexp: 'cdrom'
 
-- name: systemd-resolved stoppen
-  systemd:
-    name: systemd-resolved
-    state: stopped
-  when: systemd-resolved is installed
+- name: uninstall unneeded packages
+  apt:
+    pkg: ['rpcbind', 'puppet', 'resolvconf', 'systemd-resolved']
+    update_cache: yes
+    state: absent
 
-- name: systemd-resolved deaktivieren
-  systemd:
-    name: systemd-resolved
-    enabled: no
-  when: systemd-resolved is installed
+#- name: systemd-resolved stoppen
+#  systemd:
+#    name: systemd-resolved
+#    state: stopped
+
+#- name: systemd-resolved deaktivieren
+#  systemd:
+#    name: systemd-resolved
+#    enabled: no
 
 - name: resolv.conf Symlink entfernen
   file: path=/etc/resolv.conf state=absent
@@ -61,12 +65,6 @@
     name: ['vim', 'wget', 'vnstat', 'tmux', 'pastebinit', 'htop', 'jnettop', 'iotop', 'tcpdump', 'screen', 'strace', 'socat', 'dnsutils', 'host', 'ifupdown',
       'apt-transport-https', 'tshark', 'dwdiff', 'molly-guard', 'git', 'iperf3', 'mtr-tiny', 'dhcpdump', 'dhcping', 'irqbalance', 'build-essential', 'ethtool']
     update_cache: yes
-
-- name: uninstall unneeded packages
-  apt:
-    pkg: ['rpcbind', 'puppet', 'resolvconf']
-    update_cache: yes
-    state: absent
 
 - name: SSH-Schlüsseldatei generieren
   template:
