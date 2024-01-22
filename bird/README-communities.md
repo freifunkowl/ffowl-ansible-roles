@@ -36,7 +36,7 @@ IXPs, 1xx, for xx use (just use any consistent numbering >0):
     10   DECIX FRA (local)
     11   LocIX
     12   KleyRex
-    13   NL-ix
+    13   NL-ix BER
 
 Traffic-Engineering:
 
@@ -81,7 +81,8 @@ Locations (just use any consistent numbering, we use e. g.):
      9   FKS01 (Hetzner FKS, AS49745 location)
     10   ATL01 (Vultr ATL, AS206946 location)
     11   SIN01 (Vultr SIN, AS206946 location)
-
+    12   FRA02 (DECIX-Colo in Interxion FRA1)
+    13   FRA03 (meerbarbig-Colo)
 
 ## Configuration example ##
 
