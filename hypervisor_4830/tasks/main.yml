@@ -47,10 +47,16 @@
   shell: apt update
 
 
-- name: install prerequisite packages
+- name: install hp-health prerequisite packages
   apt:
     pkg: ['lib32gcc-s1', 'libc6-i386']
     state: latest
+
+
+- name: get latest hp-health package
+  get_url:
+    url: http://downloads.linux.hpe.com/SDR/repo/mcp/debian/pool/non-free/hp-health_10.80-1874.10_amd64.deb
+    dest: /root/hp-health-latest.deb
 
 
 - name: copy dummy .deb to local filesystem ...
@@ -59,8 +65,8 @@
     dest: /root/lib32gcc1-for-hphealth_1.0_all.deb
   when: ansible_distribution == 'Debian'
 
-- name: ... and install lib32gcc1-for-hphealth
-  shell: dpkg -i /root/lib32gcc1-for-hphealth_1.0_all.deb
+- name: ... and install lib32gcc1-for-hphealth and hp_health
+  shell: dpkg -i /root/lib32gcc1-for-hphealth_1.0_all.deb /root/hp-health-latest.deb
   when: ansible_distribution == 'Debian'
 
 
