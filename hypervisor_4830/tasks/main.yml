@@ -4,10 +4,16 @@
     dest: /etc/apt/sources.list.d/opennebula.list
   when: ansible_distribution == 'Debian'
 
-- name: Add OpenNebula repo key, Deb 11/12
+- name: Add OpenNebula repo key1, Deb 11/12
   copy:
-    src: opennebula.asc
-    dest: /etc/apt/trusted.gpg.d/opennebula.asc
+    src: opennebula1.asc
+    dest: /etc/apt/trusted.gpg.d/opennebula1.asc
+  when: ansible_distribution == 'Debian'
+
+- name: Add OpenNebula repo key2, Deb 11/12
+  copy:
+    src: opennebula2.asc
+    dest: /etc/apt/trusted.gpg.d/opennebula1.asc
   when: ansible_distribution == 'Debian'
 
 
