@@ -65,6 +65,7 @@
     dest: /root/lib32gcc1-for-hphealth_1.0_all.deb
   when: ansible_distribution == 'Debian'
 
+
 - name: ... and install lib32gcc1-for-hphealth and hp_health
   shell: dpkg -i /root/lib32gcc1-for-hphealth_1.0_all.deb /root/hp-health-latest.deb
   when: ansible_distribution == 'Debian'
