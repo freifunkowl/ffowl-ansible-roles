@@ -25,13 +25,13 @@
 
 
 - name: Add hwraid repo, Deb 12
-  file:
+  copy:
     src: hwraid.list
     dest: /etc/apt/sources.list.d/hwraid.list
   when: ansible_distribution == 'Debian'
 
 - name: Add hwraid repo key, Deb 12
-  file:
+  copy:
     src: hwraid.asc
     dest: /etc/apt/trusted.gpg.d/hwraid.asc
   when: ansible_distribution == 'Debian'
@@ -42,7 +42,7 @@
 
 
 - name: copy dummy .deb to local filesystem ...
-  file:
+  copy:
     src: lib32gcc1-for-hphealth_1.0_all.deb
     dest: /root/lib32gcc1-for-hphealth_1.0_all.deb
   when: ansible_distribution == 'Debian'
