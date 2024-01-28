@@ -98,6 +98,7 @@
 
 - name: Install check_tunneldigger
   copy: "src=check_tunneldigger dest='/usr/lib/nagios/plugins/check_tunneldigger' owner=root group=root mode=a+x"
+  when: domaenenliste is defined and (tunneldigger is defined and tunneldigger.interface is defined)
 
 - name: Install Speedtest
   package:
@@ -111,19 +112,23 @@
   package:
     name: dhcpd-pools
     state: present
-  when: not (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04')
+  when: domaenenliste is defined and not (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04')
 
 - name: Install check_batip
   template: "src=check_batip.j2 dest='/usr/lib/nagios/plugins/check_batip' owner=root group=root mode=a+x"
+  when: domaenenliste is defined
 
 - name: Install check_batip6
   template: "src=check_batip6.j2 dest='/usr/lib/nagios/plugins/check_batip6' owner=root group=root mode=a+x"
+  when: domaenenliste is defined
 
 - name: Install check_iproute
   copy: "src=check_iproute dest='/usr/lib/nagios/plugins/check_iproute' owner=root group=root mode=a+x"
+  when: domaenenliste is defined
 
 - name: Install check_iproute6
   copy: "src=check_iproute6 dest='/usr/lib/nagios/plugins/check_iproute6' owner=root group=root mode=a+x"
+  when: domaenenliste is defined
 
 - name: Install check_bird_sessions
   copy: "src=check_bird_sessions dest='/usr/lib/nagios/plugins/check_bird_sessions' owner=root group=root mode=a+x"
