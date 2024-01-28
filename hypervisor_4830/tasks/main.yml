@@ -2,41 +2,39 @@
   file:
     src: opennebula.list
     dest: /etc/apt/sources.list.d/opennebula.list
-  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '11') or
-        (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+  when: ansible_distribution == 'Debian'
 
 - name: Add OpenNebula repo key, Deb 11/12
   file:
     src: opennebula.asc
     dest: /etc/apt/trusted.gpg.d/opennebula.asc
-  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '11') or
-        (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+  when: ansible_distribution == 'Debian'
 
 
 - name: Add HPE repo, Deb 12
   file:
     src: HP-mcp.list
     dest: /etc/apt/sources.list.d/HP-mcp.list
-  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+  when: ansible_distribution == 'Debian'
 
 - name: Add HPE repo key, Deb 12
   file:
     src: HP-mcp.asc
     dest: /etc/apt/trusted.gpg.d/HP-mcp.asc
-  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+  when: ansible_distribution == 'Debian'
 
 
 - name: Add hwraid repo, Deb 12
   file:
     src: hwraid.list
     dest: /etc/apt/sources.list.d/hwraid.list
-  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+  when: ansible_distribution == 'Debian'
 
 - name: Add hwraid repo key, Deb 12
   file:
     src: hwraid.asc
     dest: /etc/apt/trusted.gpg.d/hwraid.asc
-  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+  when: ansible_distribution == 'Debian'
 
 
 - name: run apt update
@@ -47,15 +45,11 @@
   file:
     src: lib32gcc1-for-hphealth_1.0_all.deb
     dest: /root/lib32gcc1-for-hphealth_1.0_all.deb
-  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '10') or
-        (ansible_distribution == 'Debian' and ansible_distribution_version == '11') or
-        (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+  when: ansible_distribution == 'Debian'
 
 - name: ... and install lib32gcc1-for-hphealth
   shell: dpkg -i /root/lib32gcc1-for-hphealth_1.0_all.deb
-  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '10') or
-        (ansible_distribution == 'Debian' and ansible_distribution_version == '11') or
-        (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+  when: ansible_distribution == 'Debian'
 
 
 - name: install packages for hypervisor host
