@@ -1,0 +1,80 @@
+- name: Add OpenNebula repo, Deb 11/12
+  apt_repository:
+    repo: "deb https://downloads.opennebula.io/repo/6.2.0.1/Debian/11 stable opennebula"
+  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '11') or
+        (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+
+- name: Add OpenNebula repo, Deb 10
+  apt_repository:
+    repo: "deb https://downloads.opennebula.io/repo/6.2.0.1/Debian/10 stable opennebula"
+  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '10')
+
+- name: Add OpenNebula repo, Ubuntu 18.04
+  apt_repository:
+    repo: "deb https://downloads.opennebula.io/repo/6.2.0.1/Ubuntu/18.04 stable opennebula"
+  when: (ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04')
+
+- name: adding pub key for OpenNebula repo
+  ansible.builtin.get_url:
+    url: "https://downloads.opennebula.io/repo/repo2.key"
+    dest: /etc/apt/trusted.gpg.d/opennebula.asc
+    mode: '0444'
+    force: true
+  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '10') or
+         (ansible_distribution == 'Debian' and ansible_distribution_version == '11') or
+         (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+
+- name: Add HPE Repo, Deb 10/11/12
+  apt_repository:
+    repo: "deb http://downloads.linux.hpe.com/SDR/repo/mcp bookworm/current non-free"
+  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '10') or
+        (ansible_distribution == 'Debian' and ansible_distribution_version == '11') or
+        (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+
+- name: adding pub key for HPE repo
+  ansible.builtin.get_url:
+    url: "http://downloads.linux.hpe.com/SDR/hpePublicKey2048_key1.pub"
+    dest: /etc/apt/trusted.gpg.d/hpe_sdr.asc
+    mode: '0444'
+    force: true
+  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '10') or
+         (ansible_distribution == 'Debian' and ansible_distribution_version == '11') or
+         (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+
+- name: Add hwraid Repo, Deb 10/11/12
+  apt_repository:
+    repo: "deb http://hwraid.le-vert.net/debian {{ansible_distribution_release}} main"
+  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '10') or
+        (ansible_distribution == 'Debian' and ansible_distribution_version == '11') or
+        (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+
+- name: adding pub key for hwraid repo
+  ansible.builtin.get_url:
+    url: "https://hwraid.le-vert.net/debian/hwraid.le-vert.net.gpg.key"
+    dest: /etc/apt/trusted.gpg.d/hwraid-le-vert.asc
+    mode: '0444'
+    force: true
+  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '10') or
+        (ansible_distribution == 'Debian' and ansible_distribution_version == '11') or
+        (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+
+- name: copy dummy .deb to local filesystem ...
+  file:
+    src: lib32gcc1-for-hphealth_1.0_all.deb
+    dest: /root/lib32gcc1-for-hphealth_1.0_all.deb
+  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '10') or
+        (ansible_distribution == 'Debian' and ansible_distribution_version == '11') or
+        (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+
+- name: ... and install lib32gcc1-for-hphealth
+  shell: dpkg -i /root/lib32gcc1-for-hphealth_1.0_all.deb
+  when: (ansible_distribution == 'Debian' and ansible_distribution_version == '10') or
+        (ansible_distribution == 'Debian' and ansible_distribution_version == '11') or
+        (ansible_distribution == 'Debian' and ansible_distribution_version == '12')
+
+- name: install packages for hypervisor host
+  apt:
+    pkg: ['ssacli', 'hponcfg', 'hp-health', 'opennebula-node']
+    update_cache: no
+    state: latest
+
