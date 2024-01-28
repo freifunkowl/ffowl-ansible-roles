@@ -72,6 +72,6 @@
 
 - name: install packages for hypervisor host
   apt:
-    pkg: ['ssacli', 'hponcfg', 'hp-health', 'opennebula-node']
+    pkg: ['ssacli', 'hponcfg', 'opennebula-node']
     update_cache: no
     state: latest
