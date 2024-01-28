@@ -47,6 +47,12 @@
   shell: apt update
 
 
+- name: install prerequisite packages
+  apt:
+    pkg: ['lib32gcc-s1', 'libc6-i386']
+    state: latest
+
+
 - name: copy dummy .deb to local filesystem ...
   copy:
     src: lib32gcc1-for-hphealth_1.0_all.deb
