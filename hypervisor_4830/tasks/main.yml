@@ -1,24 +1,24 @@
 - name: Add OpenNebula repo, Deb 11/12
-  file:
+  copy:
     src: opennebula.list
     dest: /etc/apt/sources.list.d/opennebula.list
   when: ansible_distribution == 'Debian'
 
 - name: Add OpenNebula repo key, Deb 11/12
-  file:
+  copy:
     src: opennebula.asc
     dest: /etc/apt/trusted.gpg.d/opennebula.asc
   when: ansible_distribution == 'Debian'
 
 
 - name: Add HPE repo, Deb 12
-  file:
+  copy:
     src: HP-mcp.list
     dest: /etc/apt/sources.list.d/HP-mcp.list
   when: ansible_distribution == 'Debian'
 
 - name: Add HPE repo key, Deb 12
-  file:
+  copy:
     src: HP-mcp.asc
     dest: /etc/apt/trusted.gpg.d/HP-mcp.asc
   when: ansible_distribution == 'Debian'
