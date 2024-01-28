@@ -13,7 +13,7 @@
 - name: Add OpenNebula repo key2, Deb 11/12
   copy:
     src: opennebula2.asc
-    dest: /etc/apt/trusted.gpg.d/opennebula1.asc
+    dest: /etc/apt/trusted.gpg.d/opennebula2.asc
   when: ansible_distribution == 'Debian'
 
 
