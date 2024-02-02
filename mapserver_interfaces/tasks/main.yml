@@ -4,6 +4,7 @@
   template: src="batman.j2" dest="/etc/network/interfaces.d/30_batman.cfg"
   notify:
     - restart networking
+  debug: domaenen
 
 #append line in interfaces file for reading additional config files
 - name: let read interfaces from interfaces
