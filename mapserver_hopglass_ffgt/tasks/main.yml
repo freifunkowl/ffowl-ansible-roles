@@ -26,6 +26,9 @@
     group: hopglass
     mode: 0644
 
+- name: fix bloody git
+  shell: git config --global --add safe.directory /opt/hopglass/hwpics
+
 - name: Clone meshviewer hwpics repo
   git:
     repo: https://github.com/Moorviper/meshviewer_hwpics.git
