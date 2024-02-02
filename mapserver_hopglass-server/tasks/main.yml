@@ -83,6 +83,9 @@
     - "restart hopglass"
   register: hopglass_server_git_clone
 
+- name: fix bloody git
+  shell: git config --global --add safe.directory /opt/hopglass/server
+
 - name: Adjust permissions
   file:
     path: /opt/hopglass
