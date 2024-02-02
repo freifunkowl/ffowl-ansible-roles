@@ -74,7 +74,7 @@
     home: /opt/hopglass
 
 - name: fix bloody git
-  shell: git config --global --add safe.directory /opt/hopglass/server ||:
+  shell: git config --global --add safe.directory /opt/hopglass/server
 
 - name: Clone HopGlass Server Repo
   git:
