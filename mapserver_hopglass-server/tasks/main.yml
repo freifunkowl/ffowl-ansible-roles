@@ -73,6 +73,9 @@
     createhome: yes
     home: /opt/hopglass
 
+- name: fix bloody git
+  shell: git config --global --add safe.directory /opt/hopglass/server ||:
+
 - name: Clone HopGlass Server Repo
   git:
     repo: https://github.com/freifunk-saar/hopglass-server.git
@@ -82,9 +85,6 @@
   notify:
     - "restart hopglass"
   register: hopglass_server_git_clone
-
-- name: fix bloody git
-  shell: git config --global --add safe.directory /opt/hopglass/server
 
 - name: Adjust permissions
   file:
