@@ -93,7 +93,7 @@ if [ $COUNTOK -eq 0 ]; then
 else
   if [ $COUNTOK -lt $COUNTREQUIRED ]; then
     echo "WARNING: Only ${COUNTOK} of ${COUNTCHECKIPS} Mapserver(s) did answer (IPv6; $CHECKIP)"
-    exit $STATE_WARN
+    exit $STATE_WARNING
   else
     echo "OK: All ${COUNTCHECKIPS} Mapserver(s) did answer (IPv6; $CHECKIP)"
     exit $STATE_OK
