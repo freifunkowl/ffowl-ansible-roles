@@ -91,7 +91,7 @@ if [ $COUNTOK -eq 0 ]; then
   exit $STATE_CRITICAL
 else
   if [ $COUNTOK -lt $COUNTREQUIRED ]; then
-    echo "WARN: Only ${COUNTOK} of ${COUNTCHECKIPS} Mapserver(s) did answer (IPv4; $CHECKIP)"
+    echo "WARNING: Only ${COUNTOK} of ${COUNTCHECKIPS} Mapserver(s) did answer (IPv4; $CHECKIP)"
     exit $STATE_WARN
   else
     echo "OK: All ${COUNTCHECKIPS} Mapserver(s) did answer (IPv4; $CHECKIP)"
