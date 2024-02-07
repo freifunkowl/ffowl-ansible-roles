@@ -103,13 +103,13 @@ protocol direct {
   interface "bat*";
 }
 
-#protocol bfd {
-#  interface "gre*";
-#  interface "bck-*";
-#  multihop {
-#    passive;
-#  };
-#};
+protocol bfd {
+  interface "gre*";
+  interface "bck-*";
+  multihop {
+    passive;
+  };
+};
 
 protocol device {
   scan time 10;
