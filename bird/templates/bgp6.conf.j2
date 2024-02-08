@@ -75,7 +75,7 @@ int set bogon_asns;
 {% endif %}
 
     # Scrub BGP Communities (RFC 7454 Section 11)
-{% if ouras < 65536 %}
+{% if ouras | int < 65536 %}
     bgp_community.delete([({{ ouras }}, 3000)..({{ ouras }}, 3500)]);
     bgp_community.add(({{ ouras }}, {{ community_in }})); /* mark peering routes as peering routes */
 {% endif %}
