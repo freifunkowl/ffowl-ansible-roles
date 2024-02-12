@@ -73,6 +73,6 @@
 
 - name: install packages for hypervisor host
   apt:
-    pkg: ['ssacli', 'hponcfg', 'opennebula-node']
+    pkg: ['ssacli', 'hponcfg', 'opennebula-node', 'bridge-utils', 'ifenslave', 'vlan']
     update_cache: no
     state: latest
