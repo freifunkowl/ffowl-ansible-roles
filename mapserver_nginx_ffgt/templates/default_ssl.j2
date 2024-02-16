@@ -55,6 +55,8 @@ server {
 {% for domaene in domaenen|dictsort %}
 {% if domaene[1].proxy_map_data_url is defined and domaene[1].proxy_map_data_url %}
     location /proxy_{{domaene[1].site_code}}/ {
+        #rewrite "^proxy_{{domaene[1].site_code}}/(.+)$" /$1?filter=site&value={{domaenen[domaene[0]].site_code}} break;
+
         #proxy_set_header        Host $host;
         proxy_set_header        X-Real-IP $remote_addr;
         proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
