@@ -1,9 +1,3 @@
-{% set proxy_urls = [] %}
-{% for domain in domaenen|dictsort %}
-{% if domain[1].proxy_map_data_url is defined and domain[1].proxy_map_data_url %}
-{% if proxy_urls.append(domain[1].site_code) %}{% endif %}
-{% endif %}
-{% endfor %}
 {%- if freifunk_map.name is defined -%}
 {% set my_long_name =  freifunk_map.name %}
 {%- else -%}
@@ -15,7 +9,7 @@
 {% set my_short_name =  freifunk.kurzname %}
 {%- endif -%}
 {
-  "dataPath": [ {% for url in proxy_urls %}"/proxy_{{ url }}/",{% endfor %}"/data/" ],
+  "dataPath": [ "/data/" ],
   "siteName": "{{my_long_name}}",
   "mapSigmaScale": {{ mapconfig.globalMap.map_scale }},
   "showContact": {{ mapconfig.globalMap.map_show_contact | lower}},
