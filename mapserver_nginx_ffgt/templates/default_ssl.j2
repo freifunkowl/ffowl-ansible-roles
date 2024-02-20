@@ -86,7 +86,6 @@ server {
         gzip_proxied            any;
         gzip_types              text/plain text/css text/javascript application/javascript application/json application/x-javascript text/xml application/xml application/xml+rss;
     }
-{% endif %}
 {% endfor %}
 
 {% if nginx_tiles_cache is defined and 'instances' in nginx_tiles_cache %}
