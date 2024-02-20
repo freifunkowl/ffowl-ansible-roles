@@ -8,12 +8,8 @@
 {%- else -%}
 {% set my_short_name =  freifunk.kurzname %}
 {%- endif -%}
-{% set map_domains = [] %}
-{% for domain in domaenen|dictsort %}
-{% map_domains.append(domain) %}
-{% endfor %}
 {
-  "dataPath": [ {% for domain in map_domains %}"/data/map_{{ domain[0] }}/"{% if not loop.last %},{% endif %}{% endfor %} ],
+  "dataPath": [ {% for domain in domaenen|dictsort %}"/data/map_{{ domain[0] }}/"{% if not loop.last %},{% endif %}{% endfor %} ],
   "siteName": "{{my_long_name}}",
   "mapSigmaScale": {{ mapconfig.globalMap.map_scale }},
   "showContact": {{ mapconfig.globalMap.map_show_contact | lower}},
