@@ -1,0 +1,48 @@
+- name: Install iperf3 package
+  apt:
+    pkg: ['iperf3']
+
+- name: Get all enabled iperf3 (domain specific) instances
+  shell: |
+    set -o pipefail
+    /bin/ls /etc/systemd/system/multi-user.target.wants/iperf3@* | grep -oE "[0-9]+"
+  args:
+    executable: bash
+  changed_when: False
+  failed_when: False
+  check_mode: no
+  register: _iperf3_domain_instances
+  when: domaenenliste is defined
+
+- name: Stop and disable obsolete iperf3 instances
+  service:
+    name: "iperf3@{{ item }}.service"
+    enabled: no
+    state: stopped
+  with_items: "{{ _iperf3_domain_instances.stdout_lines }}"
+  when: domaenenliste is defined and item not in domaenenliste
+
+- name: Deploy iperf3@.service template file
+  copy:
+    src: iperf3@.service
+    dest: /etc/systemd/system/iperf3@.service
+  register: _domain_iperf3_systemd
+  notify:
+    - restart iperf3 per domain
+  when:
+    - domaenenliste is defined
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+  when:
+    - domaenenliste is defined
+    - _domain_iperf3_systemd.changed
+
+- name: enable all iperf3 instances
+  systemd:
+    name: "iperf3@{{ item }}.service"
+    enabled: yes
+  loop: "{{ domaenenliste | list }}"
+  when:
+    - domaenenliste is defined

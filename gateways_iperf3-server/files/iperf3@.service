@@ -1,0 +1,12 @@
+[Unit]
+Description=iperf3 server for domain %i
+After=network.target auditd.service
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -c "/usr/bin/iperf3 --server --bind $$(ip -4 -br addr show bat%i | awk '{print $3}'|cut -d'/' -f1)"
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

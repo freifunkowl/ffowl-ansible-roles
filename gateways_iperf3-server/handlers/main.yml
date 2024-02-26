@@ -1,0 +1,5 @@
+- name: restart iperf3 per domain
+  systemd:
+    name: "iperf3@{{ item }}.service"
+    state: restarted
+  loop: "{{ domaenenliste | list }}"
