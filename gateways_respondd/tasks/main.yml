@@ -1,4 +1,30 @@
 ---
+- name: Stop gateways_yanic_respondd's respondd service
+  service:
+    name: respondd
+    state: stopped
+
+- name: Disable gateways_yanic_respondd's respondd service
+  service:
+    name: respondd
+    enabled: no
+
+- name: Remove gateways_yanic_respondd's binary
+  ansible.builtin.file:
+    path: /usr/local/bin/yanic
+    state: absent
+
+- name: Remove gateways_yanic_respondd's systemd unit
+  ansible.builtin.file:
+    path: /lib/systemd/system/respondd.service
+    state: absent
+  notify: systemctl reload
+
+- name: Remove gateways_yanic_respondd's config file
+  ansible.builtin.file:
+    path: /etc/respondd.conf
+    state: absent
+
 - name: Install dependencies
   apt:
     pkg: ['python3', 'ethtool', 'lsb-release' ]
