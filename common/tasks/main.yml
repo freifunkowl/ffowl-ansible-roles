@@ -65,7 +65,8 @@
     name: ['vim', 'wget', 'vnstat', 'tmux', 'pastebinit', 'htop', 'jnettop', 'iotop', 'tcpdump',
            'screen', 'strace', 'socat', 'dnsutils', 'host', 'ifupdown', 'apt-transport-https',
            'tshark', 'dwdiff', 'molly-guard', 'git', 'iperf3', 'mtr-tiny', 'dhcpdump', 'dhcping',
-           'irqbalance', 'build-essential', 'ethtool', 'rsyslog', 'rsync', 'sudo', 'sysstat', 'sshguard']
+           'irqbalance', 'build-essential', 'ethtool', 'rsyslog', 'rsync', 'sudo', 'sysstat',
+           'sshguard', 'lldpd', 'traceroute', 'iputils-tracepath']
     update_cache: yes
 
 - name: SSH-Schlüsseldatei generieren
@@ -141,3 +142,11 @@
     regexp: "^MaxBandwidth"
     line: "MaxBandwidth 1000"
     state: present
+
+- name: enable lldpd
+  lineinfile:
+    dest: /etc/default/lldpd
+    regexp: "^#DAEMON_ARGS="-x -c -s -e"
+    line: "DAEMON_ARGS="-c -s -e"
+    state: present
+  notify: restart lldpd
