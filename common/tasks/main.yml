@@ -146,7 +146,7 @@
 - name: enable lldpd
   lineinfile:
     dest: /etc/default/lldpd
-    regexp: "^#DAEMON_ARGS="-x -c -s -e"
-    line: "DAEMON_ARGS="-c -s -e"
+    regexp: "^#DAEMON_ARGS=\"-x -c -s -e\""
+    line: "DAEMON_ARGS=\"-c -s -e\""
     state: present
   notify: restart lldpd
