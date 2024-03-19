@@ -10,3 +10,8 @@
   systemd:
     name: systemd-journald
     state: restarted
+
+- name: restart lldpd
+  systemd:
+    name: lldpd
+    state: restarted
