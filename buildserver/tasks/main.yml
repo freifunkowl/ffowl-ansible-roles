@@ -8,7 +8,7 @@
 - name: Creating build user with admin access
   user:
     name: "{{build_user}}"
-    uid: 1000
+    uid: 4830
     comment: "{{build_user_comment}}"
     password: "{{build_user_passwd}}"
     groups: sudo
