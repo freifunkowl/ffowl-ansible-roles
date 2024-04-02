@@ -7,6 +7,7 @@
   file: path=/var/lib/dhcp_persistent state=directory mode=0755
   notify:
     - restart isc-dhcp-server
+  ignore_errors: true
 
 - name: Ramdisk in fstab eintragen
   mount: name=/var/lib/dhcp src=tmpfs fstype=tmpfs opts='defaults,size=100M' state=mounted
@@ -37,11 +38,13 @@
   template: src=isc-dhcp-server.j2 dest=/etc/default/isc-dhcp-server
   notify:
     - restart isc-dhcp-server
+  ignore_errors: true
 
 - name: create dhcpd config
   template: src=dhcpd.conf.j2 dest=/etc/dhcp/dhcpd.conf
   notify:
     - restart isc-dhcp-server
+  ignore_errors: true
 
 - stat: path=/var/lib/dhcp/dhcpd.leases
   register: leases4_file
