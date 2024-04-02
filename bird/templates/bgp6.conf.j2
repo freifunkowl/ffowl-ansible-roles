@@ -221,7 +221,7 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% endif %}
   table ffnet;
   local as {{ ouras }};
-  source address {{ peer.ipv6src | ipaddr('address') }};
+  source address {{ peer.ipv6src | ansible.utils.ipaddr('address') }};
   neighbor {{ peer.ipv6dst }} {% if peer.ipv6dst is match('^fe80') %} % '{{ peer.name }}' {% endif %}as {{ peer.peeras }};
   import keep filtered;
 {% if peer.nobfd is not defined %}  bfd graceful;
@@ -352,7 +352,7 @@ template bgp uplink {
 protocol bgp ffrl_{{tun.name}} from uplink {
   description "Rheinland Backbone";
   source address {{ tun.v6_remote | next_nth_usable(1) }};
-  neighbor {{tun.v6_remote | ipaddr('address')}} as 201701;
+  neighbor {{tun.v6_remote | ansible.utils.ipaddr('address')}} as 201701;
 };
 
 {% endfor %}
@@ -363,7 +363,7 @@ protocol bgp ffrl_{{tun.name}} from uplink {
 protocol bgp ffnw_{{tun.name}} from uplink {
   description "Nordwest Backbone";
   # source address {{ tun.v6_remote | next_nth_usable(1) }};
-  neighbor {{tun.v6_remote | ipaddr('address')}}%'tun-ffnw-{{tun.name}}' as 206313;
+  neighbor {{tun.v6_remote | ansible.utils.ipaddr('address')}}%'tun-ffnw-{{tun.name}}' as 206313;
 };
 
 {% endfor %}
@@ -373,8 +373,8 @@ protocol bgp ffnw_{{tun.name}} from uplink {
 {% for tun in ffgt_tun %}
 protocol bgp ffgt_{{tun.name}} from uplink {
   description "Verein 4830.org";
-  source address {{ tun.v6_local | ipaddr('address') }};
-  neighbor {{tun.v6_remote | ipaddr('address')}} as 206813;
+  source address {{ tun.v6_local | ansible.utils.ipaddr('address') }};
+  neighbor {{tun.v6_remote | ansible.utils.ipaddr('address')}} as 206813;
 };
 
 {% endfor %}

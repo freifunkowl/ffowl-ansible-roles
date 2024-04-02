@@ -26,19 +26,19 @@ COMMIT
 {% endif %}
 {% elif ospf_nat_ip is defined %}
 {% if domaenenliste is defined %}
--A POSTROUTING -o {{ansible_default_ipv4.interface}} -j SNAT --source 10.0.0.0/8 --to-source {{ospf_nat_ip | ipaddr('address')}}
+-A POSTROUTING -o {{ansible_default_ipv4.interface}} -j SNAT --source 10.0.0.0/8 --to-source {{ospf_nat_ip | ansible.utils.ipaddr('address')}}
 {% endif %}
 {% elif ffrl_tun is defined and ffrl_nat_ip is defined %}
 {% if domaenenliste is defined %}
--A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{ffrl_nat_ip | ipaddr('address')}}
+-A POSTROUTING -o tun-ffrl+ -j SNAT --to-source {{ffrl_nat_ip | ansible.utils.ipaddr('address')}}
 {% endif %}
 {% elif ffnw_tun is defined and ffnw_nat_ip is defined %}
 {% if domaenenliste is defined %}
--A POSTROUTING -o tun-ffnw+ -j SNAT --to-source {{ffnw_nat_ip| ipaddr('address')}}
+-A POSTROUTING -o tun-ffnw+ -j SNAT --to-source {{ffnw_nat_ip| ansible.utils.ipaddr('address')}}
 {% endif %}
 {% elif ffgt_nat_ip is defined %}
 {% if domaenenliste is defined %}
--A POSTROUTING -o tun-ffgt+ -j SNAT --to-source {{ffgt_nat_ip| ipaddr('address')}}
+-A POSTROUTING -o tun-ffgt+ -j SNAT --to-source {{ffgt_nat_ip| ansible.utils.ipaddr('address')}}
 {% endif %}
 {% endif %}
 COMMIT
@@ -54,6 +54,6 @@ COMMIT
 {% for domaene in domaenenliste|dictsort %}
 -A POSTROUTING -o {{ansible_default_ipv4.interface}} -s {{domaenen[domaene[0]].ffv4_network}} -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss ! --mss 0:1240 -j TCPMSS --set-mss 1240
 {% endfor %}
--A POSTROUTING -o {{ansible_default_ipv4.interface}} -s {{ospf_nat_ip | ipaddr('address')}} -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss ! --mss 0:1240 -j TCPMSS --set-mss 1240
+-A POSTROUTING -o {{ansible_default_ipv4.interface}} -s {{ospf_nat_ip | ansible.utils.ipaddr('address')}} -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss ! --mss 0:1240 -j TCPMSS --set-mss 1240
 {% endif %}
 COMMIT

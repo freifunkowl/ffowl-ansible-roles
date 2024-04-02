@@ -221,7 +221,7 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% endif %}
   table ffnet;
   local as {{ ouras }};
-  source address {{ peer.ipv4src | ipaddr('address') }};
+  source address {{ peer.ipv4src | ansible.utils.ipaddr('address') }};
   neighbor {{ peer.ipv4dst }} as {{ peer.peeras }};
   import keep filtered;
 {% if peer.nobfd is not defined %}  bfd graceful;
@@ -325,7 +325,7 @@ template bgp internal {
 {% if ffrl_tun is defined %}
 {% for tun in ffrl_tun %}
 protocol bgp ffrl_{{tun.name}} from uplink {
-	source address {{ tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }};
+	source address {{ tun.v4_remote | ansible.utils.ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ansible.utils.ipaddr('address') }};
 	neighbor {{tun.v4_remote | regex_replace("^(\d+\.\d+\.\d+\.\d+)/\d+$","\\1")}} as 201701;
 {% if "bgp_local_pref" in tun %}
 	default bgp_local_pref {{tun.bgp_local_pref}};
@@ -346,7 +346,7 @@ protocol bgp ffrl_{{tun.name}} from uplink {
 {% if ffnw_tun is defined %}
 {% for tun in ffnw_tun %}
 protocol bgp ffnw_{{tun.name}} from uplink {
-	source address {{ tun.v4_remote | ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ipaddr('address') }};
+	source address {{ tun.v4_remote | ansible.utils.ipaddr( tun.v4_remote.split('.')[3] | int + 1) | ansible.utils.ipaddr('address') }};
 	neighbor {{tun.v4_remote | regex_replace("^(\d+\.\d+\.\d+\.\d+)/\d+$","\\1")}} as 206313;
 {% if "bgp_local_pref" in  tun %}
 	default bgp_local_pref {{tun.bgp_local_pref}};
@@ -359,8 +359,8 @@ protocol bgp ffnw_{{tun.name}} from uplink {
 {% if ffgt_tun is defined %}
 {% for tun in ffgt_tun %}
 protocol bgp ffgt_{{tun.name}} from uplink {
-	source address {{ tun.v4_local | ipaddr('address') }};
-	neighbor {{ tun.v4_remote | ipaddr('address') }} as 206813;
+	source address {{ tun.v4_local | ansible.utils.ipaddr('address') }};
+	neighbor {{ tun.v4_remote | ansible.utils.ipaddr('address') }} as 206813;
 {% if "bgp_local_pref" in tun %}
 	default bgp_local_pref {{tun.bgp_local_pref}};
 {% endif %}

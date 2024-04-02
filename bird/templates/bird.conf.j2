@@ -32,16 +32,16 @@ filter freifunk {
 
 filter hostroute {
 {% if ffrl_nat_ip is defined %}
-	if net ~ {{ffrl_nat_ip | ipaddr('address')}}/32 then accept;
+	if net ~ {{ffrl_nat_ip | ansible.utils.ipaddr('address')}}/32 then accept;
 {% endif %}
 {% if ffnw_nat_ip is defined %}
-	if net ~ {{ffnw_nat_ip | ipaddr('address')}}/32 then accept;
+	if net ~ {{ffnw_nat_ip | ansible.utils.ipaddr('address')}}/32 then accept;
 {% endif %}
 {% if ffgt_nat_ip is defined %}
-	if net ~ {{ffgt_nat_ip | ipaddr('address')}}/32 then accept;
+	if net ~ {{ffgt_nat_ip | ansible.utils.ipaddr('address')}}/32 then accept;
 {% endif %}
 {% if ospf_nat_ip is defined %}
-	if net ~ {{ospf_nat_ip | ipaddr('address')}}/32 then accept;
+	if net ~ {{ospf_nat_ip | ansible.utils.ipaddr('address')}}/32 then accept;
 {% endif %}
     reject;
 };
@@ -75,7 +75,7 @@ protocol kernel 'k_ffnet' {
   export filter {
 {% if domaenenliste is defined %}
 {% for domaene in domaenenliste|dictsort %}
-    if net ~ [{{ domaenen[domaene[0]].ffv4_network }}{ {{- domaenen[domaene[0]].ffv4_network | ipaddr('prefix') + 1 }},32}] then reject;
+    if net ~ [{{ domaenen[domaene[0]].ffv4_network }}{ {{- domaenen[domaene[0]].ffv4_network | ansible.utils.ipaddr('prefix') + 1 }},32}] then reject;
 {% endfor %}
 {% endif %}
 {% if loopback_ipv4 is defined %}
@@ -143,9 +143,9 @@ protocol static s_dhcp {
   table ffnet;
 {% for domaene in domaenenliste|dictsort %}
 {% if domaene[1].server_id is defined %}
-  route {{domaenen[domaene[0]].ffv4_network | ipaddr(domaene[1].server_id) | ipaddr('address') }}/32 via "bat{{domaene[0]}}";
+  route {{domaenen[domaene[0]].ffv4_network | ansible.utils.ipaddr(domaene[1].server_id) | ansible.utils.ipaddr('address') }}/32 via "bat{{domaene[0]}}";
 {% else %}
-  route {{domaenen[domaene[0]].ffv4_network | ipaddr(server_id) | ipaddr('address') }}/32 via "bat{{domaene[0]}}";
+  route {{domaenen[domaene[0]].ffv4_network | ansible.utils.ipaddr(server_id) | ansible.utils.ipaddr('address') }}/32 via "bat{{domaene[0]}}";
 {% endif %}
 {% endfor %}
 {% for result in more_specific_routes.results|sort(attribute='item') %}
