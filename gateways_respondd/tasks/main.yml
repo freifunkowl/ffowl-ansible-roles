@@ -1,13 +1,13 @@
 ---
-- name: Stop gateways_yanic_respondd's respondd service
-  service:
-    name: respondd
-    state: stopped
-
-- name: Disable gateways_yanic_respondd's respondd service
-  service:
-    name: respondd
-    enabled: no
+#- name: Stop gateways_yanic_respondd's respondd service
+#  service:
+#    name: respondd
+#    state: stopped
+#
+#- name: Disable gateways_yanic_respondd's respondd service
+#  service:
+#    name: respondd
+#    enabled: no
 
 - name: Remove gateways_yanic_respondd's binary
   ansible.builtin.file:
