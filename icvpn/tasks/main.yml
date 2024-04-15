@@ -3,7 +3,10 @@
   apt:
     name:
       - tinc
+      - git
+      - ca-certificates
       - python3-yaml
+      - sudo
 
 - name: Add icvpn to gitignore
   blockinfile:

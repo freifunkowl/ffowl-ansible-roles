@@ -1,8 +1,6 @@
 ---
 dependencies:
-  - git
-  - router-bird
-  - sudo
+  - ffhb-router-bird
 galaxy_info:
   platforms:
     - name: Debian
