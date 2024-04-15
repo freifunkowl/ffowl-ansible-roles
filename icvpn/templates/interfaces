@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
-{% set icvpn_ipv4_prefix = icvpn_ipv4_network | ipaddr('network/prefix') %}
-{% set icvpn_ipv6_prefix = icvpn_ipv6_network | ipaddr('network/prefix') %}
+{% set icvpn_ipv4_prefix = icvpn_ipv4_network | ansible.utils.ipaddr('network/prefix') %}
+{% set icvpn_ipv6_prefix = icvpn_ipv6_network | ansible.utils.ipaddr('network/prefix') %}
 allow-hotplug {{ icvpn_interface }}
 iface {{ icvpn_interface }} inet static
 	address {{ icvpn_ipv4.address }}
