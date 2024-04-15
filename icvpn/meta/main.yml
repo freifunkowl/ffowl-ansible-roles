@@ -1,6 +1,5 @@
 ---
 dependencies:
-  - firewall
   - git
   - router-bird
   - sudo
