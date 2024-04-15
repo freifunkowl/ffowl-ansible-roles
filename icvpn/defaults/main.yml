@@ -2,6 +2,7 @@
 icvpn_subnetmask_v4: '255.255.0.0'
 icvpn_subnet_v6: 96
 icvpn_port: 656
+icvpn_routing_table: 42
 
 icvpn_interface: 'icvpn'
 
