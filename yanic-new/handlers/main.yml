@@ -1,0 +1,13 @@
+---
+
+- name: Restart yanic
+  service: name=yanic state=restarted
+
+- name: Restart all yanics
+  command: /usr/local/bin/restart_yanic_services.sh
+
+- name: Restart yanic-publish
+  service: name=yanic-publish.timer state=restarted
+
+- name: Reload systemd
+  command: systemctl daemon-reload

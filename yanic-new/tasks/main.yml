@@ -1,0 +1,41 @@
+---
+
+- name: Create user
+  user: name=yanic
+
+- name: Install yanic
+  shell: /usr/local/go/bin/go get -v -u {{ yanic_source }}
+  args:
+    creates: /opt/go/bin/yanic
+  environment:
+    GOPATH: /opt/go
+  notify: Restart yanic
+
+- name: Configure yanic
+  template: src=config.toml.j2 dest=/etc/yanic-{{ item }}.conf
+  notify: Restart all yanics
+  with_items: "{{domaenen}}"
+
+- name: Create directories 1
+  file: path={{ item }}/ state=directory owner=yanic
+  with_items:
+  - /var/lib/yanic
+
+- name: Create directories 2
+  file: path=/var/www/html/meshviewer/data{{ item }}/ state=directory owner=yanic
+  with_items: "{{domaenen}}"
+
+- name: Install systemd unit
+  template: src=yanic.service.j2 dest=/lib/systemd/system/yanic-{{ item }}.service
+  notify:
+  - Reload systemd
+  - Restart all yanics
+  with_items: "{{domaenen}}"
+
+- name: Create restart script
+  template: src=restart_yanic_services.sh.j2 dest=/usr/local/bin/restart_yanic_services.sh owner=yanic group=yanic mode="u=rwx,g=rwx,o=rx"
+  notify: Restart all yanics
+
+- name: Enable yanic
+  service: name=yanic-{{ item }} enabled=yes
+  with_items: "{{domaenen}}"

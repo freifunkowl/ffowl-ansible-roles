@@ -1,0 +1,9 @@
+#!/bin/bash
+
+{% for domaene in domaenen|dictsort %}
+systemctl stop yanic-{{domaene[0]}} ||:
+{% endfor %}
+
+{% for domaene in domaenen|dictsort %}
+systemctl start yanic-{{domaene[0]}} ||:
+{% endfor %}

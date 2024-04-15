@@ -1,2 +1,2 @@
-Address = {{ site_vpn_prefix }}{{ "%02d" % vpn_id }}.{{ site_domain }}
+Address = {{ inventory_hostname }}.{{ freifunk.domain }}
 Port = {{ icvpn_port }}
