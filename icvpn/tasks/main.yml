@@ -65,7 +65,7 @@
 - name: Generate Hostsfile for Github
   template:
     src: pub-icvpn-gate
-    dest: "/etc/tinc/icvpn/hosts/{{ inventory_hostname }}
+    dest: "/etc/tinc/icvpn/hosts/{{ inventory_hostname }}"
     mode: 0755
     owner: root
     group: root
