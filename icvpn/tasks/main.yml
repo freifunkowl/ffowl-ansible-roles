@@ -52,7 +52,7 @@
 - name: Add network configuration
   template:
     src: interfaces
-    dest: "/etc/network/interfaces.d/{{ icvpn_interface }}"
+    dest: "/etc/network/interfaces.d/{{ icvpn_interface }}.cfg"
     mode: 0644
     owner: root
     group: root
