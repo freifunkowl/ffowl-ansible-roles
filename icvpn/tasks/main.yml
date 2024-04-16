@@ -108,3 +108,9 @@
   service:
     name: tinc
     enabled: yes
+
+- name: Ensure tinc is enabled
+  service:
+    name: "tinc@icvpn"
+    daemon_reload: yes
+    enabled: yes

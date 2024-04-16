@@ -1,5 +1,5 @@
 ---
 - name: restart tinc
   service:
-    name: tinc
+    name: "tinc@icvpn.service"
     state: restarted
