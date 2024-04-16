@@ -17,7 +17,7 @@ iface B{{tunhost}} inet static
  post-down /sbin/ip l2tp del tunnel tunnel_id {{hostvars[host].gw_id}}
  address {{icvpn_ipv4bgptunnel16prefixstr}}{{server_id}}.{{localipv4}}
  netmask 255.255.255.252
- post-up /sbin/ip -6 addr add {{icvpn_ipv6bgptunnel80prefixstr}}{{server_id}}:0:1/126 dev B{{tunhost}}
- pre-down /sbin/ip -6 addr del {{icvpn_ipv6bgptunnel80prefixstr}}{{server_id}}:0:1/126 dev B{{tunhost}}
+ post-up /sbin/ip -6 addr add {{icvpn_ipv6bgptunnel80prefixstr}}{{server_id}}:{{((hostvars[host].gw_id - 1) * 4)}}:1/126 dev B{{tunhost}}
+ pre-down /sbin/ip -6 addr del {{icvpn_ipv6bgptunnel80prefixstr}}{{server_id}}:{{((hostvars[host].gw_id - 1) * 4)}}:1/126 dev B{{tunhost}}
 
 {% endfor %}
