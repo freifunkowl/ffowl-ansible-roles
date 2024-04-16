@@ -1,25 +1,23 @@
 # {{ ansible_managed }}
 
 {% set indexer = [0] -%}
-
-
 {% for host in groups["gateways"] %}
 {% set tunhost = host %}
 {% if tunhost|length > 8 %}
-{% set tunhost=host[:2]+"-"+host[-5:] %}
+{% set tunhost=host[:2]++host[-5:] %}
 {% endif %}
 {% set localipv4 = ((hostvars[host].gw_id - 1) * 4) + 1 %}
-auto bgb-{{tunhost}}
-iface bgb-{{tunhost}} inet static
+auto B{{tunhost}}
+iface B{{tunhost}} inet static
  pre-up /sbin/ip l2tp add tunnel tunnel_id {{hostvars[host].gw_id}} peer_tunnel_id {{hostvars[host].gw_id}} encap ip local {{ansible_default_ipv4.address}} remote {{hostvars[host].ipv4}}
- pre-up /sbin/ip l2tp add session name bgb-{{tunhost}} tunnel_id {{hostvars[host].gw_id}} session_id {{hostvars[host].gw_id}} peer_session_id {{hostvars[host].gw_id}}
- up ifconfig bgb-{{tunhost}} multicast
- post-up ip link set bgb-{{tunhost}} mtu 1500
+ pre-up /sbin/ip l2tp add session name B{{tunhost}} tunnel_id {{hostvars[host].gw_id}} session_id {{hostvars[host].gw_id}} peer_session_id {{hostvars[host].gw_id}}
+ up ifconfig B{{tunhost}} multicast
+ post-up ip link set B{{tunhost}} mtu 1500
  post-down /sbin/ip l2tp del session tunnel_id {{hostvars[host].gw_id}}  session_id {{hostvars[host].gw_id}}
  post-down /sbin/ip l2tp del tunnel tunnel_id {{hostvars[host].gw_id}}
- address {{icvpn_ipv4bgptunnel16prefixstr}}.{{server_id}}.{{localipv4}}
+ address {{icvpn_ipv4bgptunnel16prefixstr}}{{server_id}}.{{localipv4}}
  netmask 255.255.255.252
- post-up /sbin/ip -6 addr add {{icvpn_ipv6bgptunnel80prefixstr}}:{{server_id}}:0:{{localipv4}}/126 dev bgb-{{tunhost}}
- pre-down /sbin/ip -6 addr del {{icvpn_ipv6bgptunnel80prefixstr}}:{{server_id}}:0:{{localipv4}}/126 dev bgb-{{tunhost}}
+ post-up /sbin/ip -6 addr add {{icvpn_ipv6bgptunnel80prefixstr}}{{server_id}}:0:1/126 dev B{{tunhost}}
+ pre-down /sbin/ip -6 addr del {{icvpn_ipv6bgptunnel80prefixstr}}{{server_id}}:0:1/126 dev B{{tunhost}}
 
 {% endfor %}
