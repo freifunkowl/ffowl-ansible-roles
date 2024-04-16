@@ -3,3 +3,8 @@
   service:
     name: "tinc@icvpn.service"
     state: restarted
+
+- name: restart networking
+  service:
+    name: networking
+    state: restarted

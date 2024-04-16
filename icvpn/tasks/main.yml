@@ -114,3 +114,8 @@
     name: "tinc@icvpn"
     daemon_reload: yes
     enabled: yes
+
+- name: Create bgptunnel interfaces file
+  template: src="bgptunnel.j2" dest="/etc/network/interfaces.d/10_bgptunnel.cfg"
+  notify:
+    - restart networking
