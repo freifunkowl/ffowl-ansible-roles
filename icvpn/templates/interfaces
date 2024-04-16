@@ -3,25 +3,25 @@
 {% set icvpn_ipv6_prefix = icvpn_ipv6_network | ansible.utils.ipaddr('network/prefix') %}
 allow-hotplug {{ icvpn_interface }}
 iface {{ icvpn_interface }} inet static
-	address {{ icvpn_ipv4.address }}
-	netmask {{ icvpn_ipv4.netmask }}
+	address {{ icvpn_ipv4_network | ansible.utils.ipaddr('address') }}
+	netmask {{ icvpn_ipv4_network | ansible.utils.ipaddr('netmask') }}
 	# network route in {{ icvpn_routing_table }}
 	post-up  ip -4 route add {{ icvpn_ipv4_prefix }} dev $IFACE table {{ icvpn_routing_table }}
 	pre-down ip -4 route del {{ icvpn_ipv4_prefix }} dev $IFACE table {{ icvpn_routing_table }}
 	# prevent leak of data
 	post-up ip -4 rule add iif {{ icvpn_interface }} table {{ icvpn_routing_table }} priority 16388
 	pre-down ip -4 rule del iif {{ icvpn_interface }} table {{ icvpn_routing_table }} priority 16388
-	post-up ip -4 rule add from {{ icvpn_ipv4.address }} table {{ icvpn_routing_table }} priority 16389
-	pre-down ip -4 rule del from {{ icvpn_ipv4.address }} table {{ icvpn_routing_table }} priority 16389
+	post-up ip -4 rule add from {{ icvpn_ipv4_network | ansible.utils.ipaddr('address') }} table {{ icvpn_routing_table }} priority 16389
+	pre-down ip -4 rule del from {{ icvpn_ipv4_network | ansible.utils.ipaddr('address') }} table {{ icvpn_routing_table }} priority 16389
 
 iface {{ icvpn_interface }} inet6 static
-	address {{ icvpn_ipv6.address }}
-	netmask {{ icvpn_ipv6.size }}
+	address {{ icvpn_ipv6_network | ansible.utils.ipaddr('address') }}
+	netmask {{ icvpn_ipv6_network | ansible.utils.ipaddr('netmask') }}
 	# network route in {{ icvpn_routing_table }}
 	post-up  ip -6 route add {{ icvpn_ipv6_prefix }} dev $IFACE table {{ icvpn_routing_table }}
 	pre-down ip -6 route del {{ icvpn_ipv6_prefix }} dev $IFACE table {{ icvpn_routing_table }}
 	# prevent leak of data
 	post-up ip -6 rule add iif {{ icvpn_interface }} table {{ icvpn_routing_table }} priority 16388
 	pre-down ip -6 rule del iif {{ icvpn_interface }} table {{ icvpn_routing_table }} priority 16388
-	post-up ip -6 rule add from {{ icvpn_ipv6.address }} table {{ icvpn_routing_table }} priority 16389
-	pre-down ip -6 rule del from {{ icvpn_ipv6.address }} table {{ icvpn_routing_table }} priority 16389
+	post-up ip -6 rule add from {{ icvpn_ipv6_network | ansible.utils.ipaddr('address') }} table {{ icvpn_routing_table }} priority 16389
+	pre-down ip -6 rule del from {{ icvpn_ipv6_network | ansible.utils.ipaddr('address') }} priority 16389
