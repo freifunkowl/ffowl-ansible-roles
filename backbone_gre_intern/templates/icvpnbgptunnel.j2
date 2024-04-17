@@ -14,7 +14,7 @@ iface B{{tunhost}} inet static
  post-up ip link set B{{tunhost}} mtu 1500
  post-down /sbin/ip l2tp del session tunnel_id {gw_id}} session_id {{gw_id}}
  post-down /sbin/ip l2tp del tunnel tunnel_id {{gw_id}}
- address {{icvpn_ipv4bgptunnel16prefixstr}}{{hostvars[host].server_id}}.{{locpv4}}
+ address {{icvpn_ipv4bgptunnel16prefixstr}}{{hostvars[host].server_id}}.{{locipv4}}
  netmask 255.255.255.252
  post-up /sbin/ip -6 addr add {{icvpn_ipv6bgptunnel80prefixstr}}{{hostvars[host].server_id}}:{{((gw_id - 1) * 4)}}:2/126 dev B{{tunhost}}
  pre-down /sbin/ip -6 addr del {{icvpn_ipv6bgptunnel80prefixstr}}{{hostvars[host].server_id}}:{{((gw_id - 1) * 4)}}:2/126 dev B{{tunhost}}
