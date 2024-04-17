@@ -143,6 +143,24 @@
   notify:
     - reload bird6
 
+- name: configure bird.conf.d/90-icvpn.conf
+  template:
+    src: icvpnbgptunnelv4.j2
+    dest: /etc/bird/bird.conf.d/90-icvpn.conf
+    owner: bird
+    group: bird
+  notify:
+    - reload bird
+
+- name: configure bird6.conf.d/90-icvpn.conf
+  template:
+    src: icvpnbgptunnelv6.j2
+    dest: /etc/bird/bird6.conf.d/90-icvpn.conf
+    owner: bird
+    group: bird
+  notify:
+    - reload bird
+
 - name: create folder for bird.service file
   file:
     path: /etc/systemd/system/bird.service.d

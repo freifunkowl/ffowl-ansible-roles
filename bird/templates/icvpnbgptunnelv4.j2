@@ -1,0 +1,35 @@
+# {{ ansible_managed }}
+
+filter icvpn_imp
+{
+  if net ~ [10.0.0.0/8+, 172.22.0.0/15{16,32}] then {
+    bgp_path.prepend({{icvpn_as}});
+    accept;
+  }
+  reject;
+}
+
+filter icvpn_exp
+{
+  if net ~ [10.0.0.0/8+] then accept;
+  reject;
+}
+
+{% for host in groups["icvpn"] %}
+{% set tunhost = host %}
+{% if tunhost|length > 8 %}
+{% set tunhost=host[:2]+""+host[-5:] %}
+{% endif %}
+{% set locipv4 = ((gw_id - 1) * 4) + 2 %}
+{% set remipv4 = ((gw_id - 1) * 4) + 1 %}
+protocol bgp icvpn_{{tunhost}} {
+  table ffnet;
+  local as {{ff_network.as_number}};
+  source address {{icvpn_ipv4bgptunnel16prefixstr}}{{hostvars[host].server_id}}.{{locipv4}};
+  neighbor {{icvpn_ipv4bgptunnel16prefixstr}}{{hostvars[host].server_id}}.{{remipv4}} as {{icvpn_as}};
+  import filter icvpn_imp;
+  export filter icvpn_exp;
+  next hop self;
+};
+
+{% endfor %}
