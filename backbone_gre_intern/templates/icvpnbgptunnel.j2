@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+
+{% for host in groups["icvpn"] %}
+{% set tunhost = host %}
+{% if tunhost|length > 8 %}
+{% set tunhost=host[:2]+""+host[-5:] %}
+{% endif %}
+{% set locipv4 = ((gw_id - 1) * 4) + 2 %}
+auto B{{tunhost}}
+iface B{{tunhost}} inet static
+ pre-up /sbin/ip l2tp add tunnel tunnel_id {{gw_id}} peer_tunnel_id {{gw_id}} encap ip local {{ansible_default_ipv4.address}} remote {{hostvars[host].ipv4}}
+ pre-up /sbin/ip l2tp add session name B{{tunhost}} tunnel_id {{gw_id}} session_id {{gw_id}} peer_session_id {{gw_id}}
+ up ifconfig B{{tunhost}} multicast
+ post-up ip link set B{{tunhost}} mtu 1500
+ post-down /sbin/ip l2tp del session tunnel_id {gw_id}} session_id {{gw_id}}
+ post-down /sbin/ip l2tp del tunnel tunnel_id {{gw_id}}
+ address {{icvpn_ipv4bgptunnel16prefixstr}}{{hostvars[host].server_id}}.{{locpv4}}
+ netmask 255.255.255.252
+ post-up /sbin/ip -6 addr add {{icvpn_ipv6bgptunnel80prefixstr}}{{hostvars[host].server_id}}:{{((gw_id - 1) * 4)}}:2/126 dev B{{tunhost}}
+ pre-down /sbin/ip -6 addr del {{icvpn_ipv6bgptunnel80prefixstr}}{{hostvars[host].server_id}}:{{((gw_id - 1) * 4)}}:2/126 dev B{{tunhost}}
+
+{% endfor %}

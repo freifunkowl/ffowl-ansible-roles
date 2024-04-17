@@ -6,6 +6,13 @@
   notify:
     restart networking
 
+- name: Tunnels to ICVPN gateways
+  template:
+    src="icvpnbgptunnel.j2"
+    dest="/etc/network/interfaces.d/90_icvpn.cfg"
+  notify:
+    restart networking
+
 - name: Routingtabelle 42 auch ffnet nennen
   blockinfile:
     path: "/etc/iproute2/rt_tables"
