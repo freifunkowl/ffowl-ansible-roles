@@ -28,25 +28,24 @@
   - reload bird
   - reload bird6
 
-#- name: Install internal ipv4 config templates
-#  template:
-#    src: internal_ipv4.conf
-#    dest: /etc/bird/bird.conf.d/internal.conf
-#    mode: 0644
-#    owner: root
-#    group: root
-#  notify:
-#  - reload bird
+- name: Install internal ipv4 config templates
+  template:
+    src: bgptunnelv4.j2
+    dest: /etc/bird/bird.conf.d/90_tunnel_ebgp.conf
+    mode: 0644
+    owner: root
+    group: root
+  notify:
+  - reload bird
 
-#- name: Install internal ipv6 config templates
-#  template:
-#    src: internal_ipv6.conf
-#    dest: /etc/bird/bird6.conf.d/internal.conf
-#    mode: 0644
-#    owner: root
-#    group: root
-#  notify:
-#  - reload bird6
+- name: Install internal ipv6 config templates
+    src: bgptunnelv6.j2
+    dest: /etc/bird/bird6.conf.d/90_tunnel_ebgp.conf
+    mode: 0644
+    owner: root
+    group: root
+  notify:
+  - reload bird6
 
 - name: Open firewall for BGP
   template:
