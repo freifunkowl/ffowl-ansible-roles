@@ -39,6 +39,7 @@
   - reload bird
 
 - name: Install internal ipv6 config templates
+  template:
     src: bgptunnelv6.j2
     dest: /etc/bird/bird6.conf.d/90_tunnel_ebgp.conf
     mode: 0644
