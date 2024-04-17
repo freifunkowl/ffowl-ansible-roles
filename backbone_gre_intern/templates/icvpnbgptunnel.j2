@@ -12,7 +12,7 @@ iface B{{tunhost}} inet static
  pre-up /sbin/ip l2tp add session name B{{tunhost}} tunnel_id {{gw_id}} session_id {{gw_id}} peer_session_id {{gw_id}}
  up ifconfig B{{tunhost}} multicast
  post-up ip link set B{{tunhost}} mtu 1500
- post-down /sbin/ip l2tp del session tunnel_id {gw_id}} session_id {{gw_id}}
+ post-down /sbin/ip l2tp del session tunnel_id {{gw_id}} session_id {{gw_id}}
  post-down /sbin/ip l2tp del tunnel tunnel_id {{gw_id}}
  address {{icvpn_ipv4bgptunnel16prefixstr}}{{hostvars[host].server_id}}.{{locipv4}}
  netmask 255.255.255.252
