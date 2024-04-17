@@ -25,7 +25,7 @@ iface {{ icvpn_interface }} inet6 static
   # prevent leak of data
   post-up ip -6 rule add iif {{ icvpn_interface }} table {{ icvpn_routing_table }} priority 16388
   pre-down ip -6 rule del iif {{ icvpn_interface }} table {{ icvpn_routing_table }} priority 16388
-  post-up ip -4 rule add from all table {{ icvpn_routing_table }} priority 16390
-  pre-down ip -4 rule del from all table {{ icvpn_routing_table }} priority 16390
+  post-up ip -6 rule add from all table {{ icvpn_routing_table }} priority 16390
+  pre-down ip -6 rule del from all table {{ icvpn_routing_table }} priority 16390
   post-up ip -6 rule add from {{ icvpn_ipv6_network | ansible.utils.ipaddr('address') }} table {{ icvpn_routing_table }} priority 16389
   pre-down ip -6 rule del from {{ icvpn_ipv6_network | ansible.utils.ipaddr('address') }} priority 16389
