@@ -6,14 +6,15 @@
 {% set tunhost=host[:2]+""+host[-5:] %}
 {% endif %}
 {% set locipv4 = ((gw_id - 1) * 4) + 2 %}
+{% set l2tpid = hostvars[host].server_id * 10 + gw_id %}
 auto B{{tunhost}}
 iface B{{tunhost}} inet static
- pre-up /sbin/ip l2tp add tunnel tunnel_id {{gw_id}} peer_tunnel_id {{gw_id}} encap ip local {{ansible_default_ipv4.address}} remote {{hostvars[host].ipv4}}
- pre-up /sbin/ip l2tp add session name B{{tunhost}} tunnel_id {{gw_id}} session_id {{gw_id}} peer_session_id {{gw_id}}
+ pre-up /sbin/ip l2tp add tunnel tunnel_id {{l2tpid}} peer_tunnel_id {{l2tpid}} encap ip local {{ansible_default_ipv4.address}} remote {{hostvars[host].ipv4}}
+ pre-up /sbin/ip l2tp add session name B{{tunhost}} tunnel_id {{l2tpid}} session_id {{l2tpid}} peer_session_id {{l2tpid}}
  up ifconfig B{{tunhost}} multicast
  post-up ip link set B{{tunhost}} mtu 1500
- post-down /sbin/ip l2tp del session tunnel_id {{gw_id}} session_id {{gw_id}}
- post-down /sbin/ip l2tp del tunnel tunnel_id {{gw_id}}
+ post-down /sbin/ip l2tp del session tunnel_id {{l2tpid}} session_id {{l2tpid}}
+ post-down /sbin/ip l2tp del tunnel tunnel_id {{l2tpid}}
  address {{icvpn_ipv4bgptunnel16prefixstr}}{{hostvars[host].server_id}}.{{locipv4}}
  netmask 255.255.255.252
  post-up /sbin/ip -6 addr add {{icvpn_ipv6bgptunnel80prefixstr}}{{hostvars[host].server_id}}:{{((gw_id - 1) * 4)}}:2/126 dev B{{tunhost}}
