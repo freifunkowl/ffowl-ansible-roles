@@ -9,7 +9,8 @@
 {% if hostvars[host].vm_id is defined %}
 auto bck-{{tunhost}}
 iface bck-{{tunhost}} inet static
-        pre-up echo 0 > /proc/sys/net/ipv6/conf/bck-{{tunhost}}/accept_dad
+        pre-up echo 0 > /proc/sys/net/ipv6/conf/all/accept_dad
+        post-up echo 1 > /proc/sys/net/ipv6/conf/all/accept_dad
 {% if hostvars[host].vm_id < vm_id %}
         address {{ipv4backbone16prefixstr}}{{ hostvars[host].vm_id-1 }}.{{vm_id*2+1}}
 {% else %}

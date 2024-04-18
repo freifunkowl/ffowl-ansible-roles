@@ -9,7 +9,8 @@
 {% set l2tpid = hostvars[host].server_id * 10 + gw_id %}
 auto B{{tunhost}}
 iface B{{tunhost}} inet static
- pre-up echo 0 > /proc/sys/net/ipv6/conf/B{{tunhost}}/accept_dad
+ pre-up echo 0 > /proc/sys/net/ipv6/conf/all/accept_dad
+ post-up echo 1 > /proc/sys/net/ipv6/conf/all/accept_dad
  pre-up /sbin/ip l2tp add tunnel tunnel_id {{l2tpid}} peer_tunnel_id {{l2tpid}} encap ip local {{ansible_default_ipv4.address}} remote {{hostvars[host].ipv4}}
  pre-up /sbin/ip l2tp add session name B{{tunhost}} tunnel_id {{l2tpid}} session_id {{l2tpid}} peer_session_id {{l2tpid}}
  up ifconfig B{{tunhost}} multicast
