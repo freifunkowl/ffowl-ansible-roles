@@ -29,11 +29,12 @@ iface bat{{item[0]}} inet static
         pre-up modprobe batman-adv
         pre-up ip link add bat{{item[0]}} type batadv
         post-up ip link set dev bat{{item[0]}} up
-        post-up batctl -m bat{{item[0]}} it 10000
-        post-up batctl -m bat{{item[0]}} gw server {{batman.downstream}}/{{batman.upstream}}
-        post-up batctl -m bat{{item[0]}} mm 0 ||: # mm does not exist in legacy batman/batctl
+        post-up batctl bat{{item[0]}} it 10000
+        post-up batctl bat{{item[0]}} gw server {{batman.downstream}}/{{batman.upstream}}
+        post-up batctl bat{{item[0]}} mm 0 ||: # mm does not exist in legacy batman/batctl
 {% if tunneldigger is defined or fastd is defined %}
-        post-up batctl -m bat{{item[0]}} if add br{{item[0]}} ||:
+        pre-up ifup br{{item[0]}} ||:
+        post-up batctl bat{{item[0]}} if add br{{item[0]}} ||:
 {% endif %}
 {% for host in groups['gateways'] %}
 {% if host != inventory_hostname %}
@@ -44,7 +45,8 @@ iface bat{{item[0]}} inet static
 {% if tunhost|length > 8 %}
 {% set tunhost=host[:2]+"-"+host[-5:] %}
 {% endif %}
-        post-up batctl -m bat{{item[0]}} if add t{{item[0]}}-{{tunhost}} ||:
+      pre-up ifup t{{item[0]}}-{{tunhost}} ||:
+      post-up batctl -m bat{{item[0]}} if add t{{item[0]}}-{{tunhost}} ||:
 {% endif %}
 {% endfor %}
 {% endif %}
