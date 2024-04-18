@@ -46,7 +46,7 @@ iface bat{{item[0]}} inet static
 {% set tunhost=host[:2]+"-"+host[-5:] %}
 {% endif %}
       pre-up ifup t{{item[0]}}-{{tunhost}} ||:
-      post-up batctl -m bat{{item[0]}} if add t{{item[0]}}-{{tunhost}} ||:
+      post-up batctl bat{{item[0]}} if add t{{item[0]}}-{{tunhost}} ||:
 {% endif %}
 {% endfor %}
 {% endif %}
