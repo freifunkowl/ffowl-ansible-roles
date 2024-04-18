@@ -38,7 +38,7 @@
 
 - name: uninstall unneeded packages
   apt:
-    pkg: ['rpcbind', 'puppet', 'resolvconf', 'systemd-resolved']
+    pkg: ['rpcbind', 'puppet', 'resolvconf', 'systemd-resolved', 'network-manager', 'netplan.io']
     update_cache: yes
     state: absent
 
