@@ -149,7 +149,7 @@
     dest: /etc/bird/bird.conf.d/90-icvpn.conf
     owner: bird
     group: bird
-  when: is defined gw_id
+  when: gw_id is defined
   notify:
     - reload bird
 
@@ -159,7 +159,7 @@
     dest: /etc/bird/bird6.conf.d/90-icvpn.conf
     owner: bird
     group: bird
-  when: is defined gw_id
+  when: gw_id is defined
   notify:
     - reload bird
 
