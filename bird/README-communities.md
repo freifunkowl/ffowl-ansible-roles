@@ -70,9 +70,9 @@ Traffic-Engineering:
 
 Locations (just use any consistent numbering, we use e. g.):
 
-     1   DUS01 (FFGT: PlusServer; formerly GUT01)
+     1   ----- (was: DUS01 (FFGT: PlusServer; formerly GUT01))
      2   BER01 (IN-BERLIN, Site AK)
-     3   FRA01 (vserver.site (DC MK-Netzwerke))
+     3   ----- (was: FRA01 (vserver.site (DC MK-Netzwerke)))
      4   HAM01 (irz42; AS49745 location)
      5   HAM02 (IPHH)
      6   HAM03 (n@work)
