@@ -82,7 +82,7 @@ Locations (just use any consistent numbering, we use e. g.):
     10   ATL01 (Vultr ATL, AS206946 location)
     11   SIN01 (Vultr SIN, AS206946 location)
     12   FRA02 (DECIX-Colo in Interxion FRA1)
-    13   FRA03 (meerbarbig-Colo)
+    13   FRA03 (meerfarbig-Colo)
 
 ## Configuration example ##
 
