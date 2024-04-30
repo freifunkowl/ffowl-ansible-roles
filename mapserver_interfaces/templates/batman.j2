@@ -8,8 +8,8 @@
 # BATMAN Interface für Domäne-{{domaene[0]}}
 auto bat{{domaene[0]}}
 iface bat{{domaene[0]}} inet6 static
-        pre-up echo 0 > /proc/sys/net/ipv6/conf/all/accept_dad
-        post-up echo 1 > /proc/sys/net/ipv6/conf/all/accept_dad
+        pre-up echo 0 > /proc/sys/net/ipv6/conf/all/accept_dad ||:
+        post-up echo 1 > /proc/sys/net/ipv6/conf/all/accept_dad ||:
         address fe80::dcad:beff:feef:{{ '%02x' % indexer[0] }}{{'%02d' % server_id}}
         netmask 64
         pre-up modprobe batman-adv
@@ -44,8 +44,8 @@ iface bat{{domaene[0]}} inet static
 {% endif %}
 auto t{{domaene[0]}}-{{ tunhost }}
 iface t{{domaene[0]}}-{{ tunhost }} inet manual
-        pre-up echo 0 > /proc/sys/net/ipv6/conf/all/accept_dad
-        post-up echo 1 > /proc/sys/net/ipv6/conf/all/accept_dad
+        pre-up echo 0 > /proc/sys/net/ipv6/conf/all/accept_dad ||:
+        post-up echo 1 > /proc/sys/net/ipv6/conf/all/accept_dad ||:
 {% if build_tunnels_over_ipv6_if_available is defined and build_tunnels_over_ipv6_if_available and ipv6 is defined and hostvars[host].ipv6 is defined %}
         pre-up ip link add $IFACE type ip6gretap local {{ipv6}} remote {{hostvars[host].ipv6}} dev {{ansible_default_ipv6.interface}} key {{domaene[0]|int}}
 {% else %}
