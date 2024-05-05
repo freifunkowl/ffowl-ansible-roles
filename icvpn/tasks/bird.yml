@@ -18,3 +18,37 @@
     mode: 0755
     owner: root
     group: root
+
+- name: Install config templates
+  template:
+    src: "{{ item }}"
+    dest: "/etc/bird/{{ item }}"
+    mode: 0644
+    owner: root
+    group: root
+  with_items:
+  - bird.conf
+  - bird6.conf
+  notify:
+  - reload bird
+  - reload bird6
+
+- name: Install internal ipv4 config templates
+  template:
+    src: bgptunnelv4.j2
+    dest: /etc/bird/bird.conf.d/90_tunnel_ebgp.conf
+    mode: 0644
+    owner: root
+    group: root
+  notify:
+  - reload bird
+
+- name: Install internal ipv6 config templates
+  template:
+    src: bgptunnelv6.j2
+    dest: /etc/bird/bird6.conf.d/90_tunnel_ebgp.conf
+    mode: 0644
+    owner: root
+    group: root
+  notify:
+  - reload bird6

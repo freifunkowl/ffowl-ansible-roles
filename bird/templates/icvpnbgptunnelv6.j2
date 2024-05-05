@@ -24,7 +24,7 @@ filter icvpn_exp
 {% set remipv4 = ((gw_id - 1) * 4) + 1 %}
 protocol bgp ebgp_{{tunhost|replace("-", "_")}} {
   table ffnet;
-  local as {{ff_network.as_number}};
+  local as {{icvpn_as}}; # {{ff_network.as_number}};
   source address {{icvpn_ipv6bgptunnel80prefixstr}}{{hostvars[host].server_id}}:{{((gw_id - 1) * 4)}}:2;
   neighbor {{icvpn_ipv6bgptunnel80prefixstr}}{{hostvars[host].server_id}}:{{((gw_id - 1) * 4)}}:1 as {{icvpn_as}};
   import filter icvpn_imp;
