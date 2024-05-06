@@ -7,6 +7,13 @@
       - ca-certificates
       - python3-yaml
       - sudo
+      - pipx
+
+- name: Install shyaml
+  shell: set -o pipefail && pipx install shyaml
+  args:
+    creates: /root/.local/bin/shyaml
+    executable: /bin/bash
 
 - name: Add icvpn to gitignore
   blockinfile:

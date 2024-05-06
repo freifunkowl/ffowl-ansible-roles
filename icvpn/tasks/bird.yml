@@ -52,3 +52,14 @@
     group: root
   notify:
   - reload bird6
+
+- name: Install icvpn prefix file generation script
+  template:
+    src: gen_icvpn_pfx_file.sh
+    dest: /tmp/gen_icvpn_pfx_file.sh
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Generate initial icvpn prefix file
+  ansible.builtin.shell: /tmp/gen_icvpn_pfx_file.sh
