@@ -2,7 +2,7 @@
 
 filter icvpn_imp
 {
-  if net ~ [10.0.0.0/8+, 172.22.0.0/15{16,32}] then {
+  if net ~ [10.0.0.0/8+] then {
     bgp_path.prepend({{icvpn_as}});
     accept;
   }
@@ -26,7 +26,7 @@ protocol bgp ebgp_{{tunhost|replace("-", "_")}} {
   table ffnet;
   local as {{icvpn_as}}; # {{ff_network.as_number}};
   source address {{icvpn_ipv4bgptunnel16prefixstr}}{{hostvars[host].server_id}}.{{locipv4}};
-  neighbor {{icvpn_ipv4bgptunnel16prefixstr}}{{hostvars[host].server_id}}.{{remipv4}} as {{icvpn_as}};
+  neighbor {{icvpn_ipv4bgptunnel16prefixstr}}{{hostvars[host].server_id}}.{{remipv4}} as 65534; # {{icvpn_as}};
   import filter icvpn_imp;
   export filter icvpn_exp;
   next hop self;

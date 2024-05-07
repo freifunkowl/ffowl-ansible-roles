@@ -2,7 +2,7 @@
 
 filter icvpn_imp
 {
-  if net ~ [fc00::/7{48,64}, 2001:bf7::/32{44,64}] then {
+  if net ~ [fc00::/7{48,64}}] then {
     bgp_path.prepend({{icvpn_as}});
     accept;
   }
@@ -11,7 +11,7 @@ filter icvpn_imp
 
 filter icvpn_exp
 {
-  if net ~ [fc00::/7{48,64}, 2001:bf7::/32{44,64}] then accept;
+  if net ~ [fc00::/7{48,64}] then accept;
   reject;
 }
 
@@ -26,7 +26,7 @@ protocol bgp ebgp_{{tunhost|replace("-", "_")}} {
   table ffnet;
   local as {{icvpn_as}}; # {{ff_network.as_number}};
   source address {{icvpn_ipv6bgptunnel80prefixstr}}{{hostvars[host].server_id}}:{{((gw_id - 1) * 4)}}:2;
-  neighbor {{icvpn_ipv6bgptunnel80prefixstr}}{{hostvars[host].server_id}}:{{((gw_id - 1) * 4)}}:1 as {{icvpn_as}};
+  neighbor {{icvpn_ipv6bgptunnel80prefixstr}}{{hostvars[host].server_id}}:{{((gw_id - 1) * 4)}}:1 as 65534; # {{icvpn_as}};
   import filter icvpn_imp;
   export filter icvpn_exp;
   next hop self;

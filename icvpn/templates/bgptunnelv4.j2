@@ -8,6 +8,7 @@
 {% set locipv4 = ((hostvars[host].gw_id - 1) * 4) + 1 %}
 {% set remipv4 = ((hostvars[host].gw_id - 1) * 4) + 2 %}
 protocol bgp e_{{tunhost}} from internal {
+  local as 65534;
   source address {{icvpn_ipv4bgptunnel16prefixstr}}{{server_id}}.{{locipv4}};
   neighbor {{icvpn_ipv4bgptunnel16prefixstr}}{{server_id}}.{{remipv4}} as {{icvpn_as}}; # {{ff_network.as_number}};
   next hop self;

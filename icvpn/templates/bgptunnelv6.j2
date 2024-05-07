@@ -6,6 +6,7 @@
 {% set tunhost=host[:2]+""+host[-5:] %}
 {% endif %}
 protocol bgp e_{{tunhost}} from internal {
+  local as 65534;
   source address {{icvpn_ipv6bgptunnel80prefixstr}}{{server_id}}:{{((hostvars[host].gw_id - 1) * 4)}}:1;
   neighbor {{icvpn_ipv6bgptunnel80prefixstr}}{{server_id}}:{{((hostvars[host].gw_id - 1) * 4)}}:2 as {{icvpn_as}}; # {{ff_network.as_number}};
   next hop self;
