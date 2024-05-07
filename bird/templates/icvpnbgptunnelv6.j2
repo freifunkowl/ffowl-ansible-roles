@@ -2,7 +2,7 @@
 
 filter icvpn_imp
 {
-  if net ~ [fc00::/7{48,64}}] then {
+  if net ~ [fc00::/7{48,64}] then {
     bgp_path.prepend({{icvpn_as}});
     accept;
   }
