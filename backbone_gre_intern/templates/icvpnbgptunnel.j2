@@ -9,9 +9,6 @@
 {% set l2tpid = hostvars[host].server_id * 10 + gw_id %}
 auto B{{tunhost}}
 iface B{{tunhost}} inet static
- pre-up logger "ifup start: B{{tunhost}}"
- pre-up sleep 5
- pre-up logger "5 seconds waited?"
  pre-up echo 0 > /proc/sys/net/ipv6/conf/all/accept_dad ||:
  pre-up /sbin/ip l2tp add tunnel tunnel_id {{l2tpid}} peer_tunnel_id {{l2tpid}} encap ip local {{ansible_default_ipv4.address}} remote {{hostvars[host].ipv4}}
  pre-up /sbin/ip l2tp add session name B{{tunhost}} tunnel_id {{l2tpid}} session_id {{l2tpid}} peer_session_id {{l2tpid}}
@@ -26,8 +23,6 @@ iface B{{tunhost}} inet static
  post-up ip rule add iif $IFACE table ffnet
  pre-down ip rule del iif $IFACE table ffnet ||:
  post-up ip rule show | grep -q "to 10.0.0.0/8 lookup ffnet" || ip rule add to 10.0.0.0/8 lookup ffnet ||:
- post-up logger "5 seconds wait ..."
- post-up sleep 5
- post-up logger "ifup done: B{{tunhost}} — $(ip addr show B{{tunhost}})"
+ post-up sleep 1
  post-up echo 1 > /proc/sys/net/ipv6/conf/all/accept_dad ||:
 {% endfor %}

@@ -1,0 +1,4 @@
+#!/bin/sh
+# {{ ansible_managed }}
+
+for i in $(grep -h ^auto /etc/network/interfaces.d/*|egrep -v '( lo| et| en)'|sed -e 's/auto //g') ; do ip addr show $i >/dev/null || (ifdown --force $i ; sleep 1 ; ifup $i) ; done

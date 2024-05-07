@@ -22,5 +22,13 @@
 
 #append line in interfaces file for reading additional config files
 - name: let read interfaces.d from interfaces
-  lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*"
+  lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*.cfg"
   notify: restart networking
+
+- name: Install cronjob to check_and_restart_interfaces -- FIXME!
+  template:
+    src: check_and_restart_interfaces
+    dest: /etc/cron.hourly/check_and_restart_interfaces
+    mode: 0754
+    owner: root
+    group: root
