@@ -21,5 +21,7 @@ iface B{{tunhost}} inet static
  pre-down /sbin/ip -6 addr del {{icvpn_ipv6bgptunnel80prefixstr}}{{hostvars[host].server_id}}:{{((gw_id - 1) * 4)}}:2/126 dev B{{tunhost}} ||:
  post-down /sbin/ip l2tp del session tunnel_id {{l2tpid}} session_id {{l2tpid}} ||:
  post-down /sbin/ip l2tp del tunnel tunnel_id {{l2tpid}} ||:
-
+ post-up ip rule add iif $IFACE table ffnet
+ pre-down ip rule del iif $IFACE table ffnet ||:
+ post-up ip rule show | grep -q "to 10.0.0.0/8 lookup ffnet" || ip rule add to 10.0.0.0/8 lookup ffnet ||:
 {% endfor %}
