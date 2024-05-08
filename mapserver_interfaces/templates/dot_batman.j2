@@ -4,10 +4,6 @@
 {% for host in groups["gateways"] %}
 {% if domaene[0] in hostvars[host].domaenenliste %}
 {% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
-{% set tunhost = host %}
-{% if tunhost|length > 8 %}
-{% set tunhost=host[:2]+"-"+host[-5:] %}
-{% endif %}
 {{inventory_hostname}}:{host}}
 {% endif %}
 {% endfor %}

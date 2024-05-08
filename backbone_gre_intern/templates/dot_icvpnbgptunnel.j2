@@ -1,9 +1,4 @@
 {% for host in groups["icvpn"] %}
 {% set tunhost = host %}
-{% if tunhost|length > 8 %}
-{% set tunhost=host[:2]+""+host[-5:] %}
-{% endif %}
-{% set locipv4 = ((gw_id - 1) * 4) + 2 %}
-{% set l2tpid = hostvars[host].server_id * 10 + gw_id %}
 {{inventory_hostname}}:{{host}}
 {% endfor %}
