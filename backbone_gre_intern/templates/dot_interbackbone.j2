@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+
+{% for host in groups['gateways'] %}
+{% if host != inventory_hostname %}
+{% set tunhost = host %}
+{% if tunhost|length > 8 %}
+{% set tunhost=host[:2]+"-"+host[-5:] %}
+{% endif %}
+{% if hostvars[host].vm_id is defined %}
+{{inventory_hostname}}:{{host}}
+{% else %}
+# ERROR: {{ host }} is missing vm_id variable ...
+{% endif %}
+{% endif %}
+{% endfor %}

@@ -6,12 +6,23 @@
   notify:
     restart networking
 
+- name: Create a .dot file about the tunnels between gateways
+  template:
+    src="dot_interbackbone.j2"
+    dest="/root/gre_interbackbone.dot"
+
 - name: Tunnels to ICVPN gateways
   template:
     src="icvpnbgptunnel.j2"
     dest="/etc/network/interfaces.d/90_icvpn.cfg"
   notify:
     restart networking
+
+- name: Create a .dot file about the tunnels to ICVPN gateways
+  template:
+    src="dot_icvpnbgptunnel.j2"
+    dest="/root/icvpnbgptunnel.dot"
+
 
 - name: Routingtabelle 42 auch ffnet nennen
   blockinfile:
