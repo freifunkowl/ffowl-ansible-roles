@@ -1,5 +1,3 @@
-# {{ ansible_managed }}
-
 {% for host in groups['gateways'] %}
 {% if host != inventory_hostname %}
 {% set tunhost = host %}

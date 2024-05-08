@@ -1,0 +1,10 @@
+{% set indexer = [0] -%}
+{% for host in groups["gateways"] %}
+{% set tunhost = host %}
+{% if tunhost|length > 8 %}
+{% set tunhost=host[:2]+""+host[-5:] %}
+{% endif %}
+{% set localipv4 = ((hostvars[host].gw_id - 1) * 4) + 1 %}
+{% set l2tpid = server_id * 10 + hostvars[host].gw_id %}
+{{inventory_hostname}}:{host}}
+{% endfor %}

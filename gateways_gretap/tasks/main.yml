@@ -7,6 +7,10 @@
     - restart networking
   when: domaenenliste is defined
 
+- name: Create interfaces - inter_gre file
+  template: src="dot_gretap.j2" dest="/root/gretap.dot"
+  when: domaenenliste is defined
+
 - name: let read interfaces from interfaces
   lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*.cfg"
   notify:

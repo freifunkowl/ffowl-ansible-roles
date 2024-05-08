@@ -126,3 +126,6 @@
   template: src="bgptunnel.j2" dest="/etc/network/interfaces.d/10_bgptunnel.cfg"
   notify:
     - restart networking
+
+- name: Create .dot file for tunnel interfaces
+  template: src="dot_bgptunnel.j2" dest="/root/bgptunnel.dot"

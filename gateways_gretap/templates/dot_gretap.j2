@@ -1,0 +1,28 @@
+{% set indexer = [0] %}
+{% set hosts = [] %}
+{% for domaene in domaenenliste|dictsort %}
+{% for dummy in hosts %}
+{% if hosts.pop() %}
+{% endif %}
+{% endfor %}
+{% if hosts|length and hosts.pop() %}
+{% endif %}
+{% for host in groups['mapserver']|default([]) %}
+{% if hosts.append(host) %}
+{% endif %}
+{% endfor %}
+{% for host in groups['gateways'] %}
+{% if ansible_ssh_host != hostvars[host].ansible_ssh_host and hostvars[host].domaenenliste is defined and domaene[0] in hostvars[host].domaenenliste and hosts.append(host) %}
+{% endif %}
+{% endfor %}
+{% for host in hosts %}
+{% if hostvars[host] is defined %}
+{% if indexer.append(indexer.pop() + 1) %}{% endif %}{# increment indexer by 1 #}
+{% set tunhost = host %}
+{% if tunhost|length > 8 %}
+{% set tunhost=host[:2]+"-"+host[-5:] %}
+{% endif %}
+{{inventory_hostname}}:{host}}
+{% endif %}
+{% endfor %}
+{% endfor %}

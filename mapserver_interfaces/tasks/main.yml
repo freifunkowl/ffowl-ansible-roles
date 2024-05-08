@@ -9,8 +9,11 @@
   notify:
     - restart networking
 
+- name: Create .dot file for tunnels
+  template: src="dot_batman.j2" dest="/root/batman.dot"
+
 #append line in interfaces file for reading additional config files
 - name: let read interfaces from interfaces
-  lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*"
+  lineinfile: dest="/etc/network/interfaces" line="source /etc/network/interfaces.d/*.cfg"
   notify:
     - restart networking

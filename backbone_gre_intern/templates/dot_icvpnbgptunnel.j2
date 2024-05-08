@@ -1,5 +1,3 @@
-# {{ ansible_managed }}
-
 {% for host in groups["icvpn"] %}
 {% set tunhost = host %}
 {% if tunhost|length > 8 %}
