@@ -22,7 +22,7 @@
 {% if tunhost|length > 8 %}
 {% set tunhost=host[:2]+"-"+host[-5:] %}
 {% endif %}
-{{inventory_hostname}}:{host}}
+{{inventory_hostname}}:{{host}}
 {% endif %}
 {% endfor %}
 {% endfor %}
