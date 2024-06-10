@@ -37,6 +37,7 @@ IXPs, 1xx, for xx use (just use any consistent numbering >0):
     11   LocIX
     12   KleyRex
     13   NL-ix BER
+    14   Community-IX HAM
 
 Traffic-Engineering:
 
