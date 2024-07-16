@@ -232,6 +232,8 @@ protocol bgp e_{{ peer.name|replace("-", "_")|replace(":", "__") }} {
 {% endif %}
 {% if peer.direct is defined %}  direct;
 {% endif %}
+{% if peer.rr_client is defined %}  rr client;
+{% endif %}
 {% if peer.passwd6 is defined %}  password "{{ peer.passwd6 }}";
 {% elif peer.passwd is defined %}  password "{{ peer.passwd }}";
 {% endif %}
