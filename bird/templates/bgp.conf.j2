@@ -60,13 +60,15 @@ int set bogon_asns;
 {% endif %}
 {% endif %}
     bgp_med = 0;
-    bgp_local_pref = 100;
+{% if peer.bgppref is defined or peer.pref is defined %}
 {% if peer.bgppref is defined %}
     bgp_local_pref = {{ peer.bgppref|int }};
-{% else %}
+{% endif %}
 {% if peer.pref is defined %}
     bgp_local_pref = {{ peer.pref|int }};
 {% endif %}
+{% else %}
+    bgp_local_pref = 100;
 {% endif %}
 {% if peer.import_filter4 is defined %}
 
