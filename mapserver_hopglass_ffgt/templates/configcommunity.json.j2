@@ -74,7 +74,7 @@
       "caption": "Knoten {MODELHASH}"
     }
   ],
-  "deprecated": [
+  "eol" : [
     "A5-V11",
     "AP121",
     "AP121U",
@@ -168,11 +168,34 @@
     "WD My Net N600",
     "WD My Net N750"
   ],
+  "deprecated": [
+    "TP-LINK RE305",
+    "TP-Link RE305 v1",
+    "TP-LINK RE355",
+    "TP-Link RE355 v1",
+    "TP-LINK RE450",
+    "TP-Link RE450 v1",
+    "TP-Link Archer C25 v1",
+    "TP-Link Archer C58 v1",
+    "TP-Link Archer C60 v1",
+    "TP-Link Archer C60 v2",
+    "TP-Link Archer D50",
+    "TP-Link TL-WR902AC v1",
+    "ZyXEL WRE6606"
+  ],
 {% if mapconfig.deprecationInfo is defined %}
   "deprecation_text": "{{ mapconfig.deprecationInfo.text }}",
-  "deprecation_url": "{{ mapconfig.deprecationInfo.url }}"
+  "deprecation_url": "{{ mapconfig.deprecationInfo.url }}",
 {% else %}
   "deprecation_text": "Dieses Gerät ist veraltet, bitte ersetzen!",
-  "deprecation_url": "https://freifunk-kreisgt.de/firmware/end-of-life-geraete-hintergrund-handlungsempfehlung/"
+  "deprecation_url": "https://freifunk-kreisgt.de/firmware/end-of-life-geraete-hintergrund-handlungsempfehlung/",
 {% endif %}
+{% if mapconfig.eolInfo is defined %}
+  "eol_text": "{{ mapconfig.eolInfo.text }}",
+  "eol_url": "{{ mapconfig.eolInfo.url }}",
+{% else %}
+  "eol_text": "Dieses Gerät bekommt KEINE SICHERHEITSUPDATES mehr, bitte dringend ersetzen!",
+  "eol_url": "https://freifunk-kreisgt.de/firmware/end-of-life-geraete-hintergrund-handlungsempfehlung/",
+{% endif %}
+  "dummyentry": "true"
 }
