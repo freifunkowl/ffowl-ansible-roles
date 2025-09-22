@@ -18,8 +18,9 @@
     ],
     "ifaces": [
 {% for domaene in domaenen|dictsort %}
+{% if domaene[1].proxy_map_data_url is not defined %}
       "bat{{domaene[0]}}"{% if not loop.last %},{% endif %}
-
+{% endif %}
 {% endfor %}
     ],
     "storage": {
@@ -43,8 +44,7 @@
       "minTtl": 86400,
       "nameservers":  [
         "ns1.{{freifunk.domain}}.",
-        "ns2.{{freifunk.domain}}.",
-        "ns3.{{freifunk.domain}}."
+        "ns2.{{freifunk.domain}}."
       ],
       "subdomainNet": [
           "{{ff_network.v6_network}}"
