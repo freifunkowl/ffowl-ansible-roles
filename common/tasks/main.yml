@@ -52,7 +52,8 @@
            'screen', 'strace', 'socat', 'dnsutils', 'host', 'ifupdown', 'apt-transport-https',
            'tshark', 'dwdiff', 'molly-guard', 'git', 'iperf3', 'mtr-tiny', 'dhcpdump', 'dhcping',
            'irqbalance', 'build-essential', 'ethtool', 'rsyslog', 'rsync', 'sudo', 'sysstat',
-           'sshguard', 'lldpd', 'traceroute', 'iputils-tracepath', 'etckeeper', 'unattended-upgrades']
+           'sshguard', 'lldpd', 'traceroute', 'iputils-tracepath', 'etckeeper', 'unattended-upgrades',
+           'locales']
     update_cache: yes
 
 - name: uninstall unneeded packages
