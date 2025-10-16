@@ -63,8 +63,10 @@
 
 - name: Install Apache and PHP 
   apt:
+#    pkg: ['apache2', 'php', 'php-cli', 'php-mysql', 'php-gettext-languages', 'php-mbstring', 'libapache2-mod-php',
+#          'php-gd', 'php-imap', 'php-xml', 'php-xmlrpc', 'php-intl', 'php-apcu', 'php-curl']
     pkg: ['apache2', 'php', 'php-cli', 'php-mysql', 'php-gettext-languages', 'php-mbstring', 'libapache2-mod-php',
-          'php-gd', 'php-imap', 'php-xml', 'php-xmlrpc', 'php-intl', 'php-apcu', 'php-curl']
+          'php-gd', 'php-xml', 'php-xmlrpc', 'php-intl', 'php-apcu', 'php-curl']
     update_cache: no
     state: present
   notify:
