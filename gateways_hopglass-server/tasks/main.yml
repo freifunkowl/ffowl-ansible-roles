@@ -97,7 +97,7 @@
 - name: force v4 for yarn install
   blockinfile:
     state: present
-    dest: etc_hosts
+    dest: /etc/hosts
     content: |
       104.16.0.35 registry.yarnpkg.com
 
@@ -110,7 +110,7 @@
 - name: undo force v4 for yarn install
   blockinfile:
     state: absent
-    dest: etc_hosts
+    dest: /etc/hosts
     content: |
       104.16.0.35 registry.yarnpkg.com
 
