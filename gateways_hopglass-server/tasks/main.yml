@@ -94,11 +94,25 @@
     recurse: yes
   when: hopglass_server_git_clone.changed
 
+- name: force v4 for yarn install
+  blockinfile:
+    state: present
+    dest: etc_hosts
+    content: |
+      104.16.0.35 registry.yarnpkg.com
+
 - name: install dependencies
   shell: yarn install
   args:
     chdir: /opt/hopglass/server
   when: hopglass_server_git_clone.changed
+
+- name: undo force v4 for yarn install
+  blockinfile:
+    state: absent
+    dest: etc_hosts
+    content: |
+      104.16.0.35 registry.yarnpkg.com
 
 - name: Create HopGlass-server Config directory if not existent
   file:
