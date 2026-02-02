@@ -31,8 +31,8 @@
   notify:
     - restart grafana-server
 
-- name: modify graphite datasource in grafana.db
-  shell: sqlite3 /var/lib/grafana/grafana.db "update data_source set url = 'https://{{graphite.nginx.host_name}}' where id=2;"
+#- name: modify graphite datasource in grafana.db
+#  shell: sqlite3 /var/lib/grafana/grafana.db "update data_source set url = 'https://{{graphite.nginx.host_name}}' where id=2;"
 
 - name: Ensure grafana.db are owned by grafana
   file:
