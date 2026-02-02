@@ -13,7 +13,7 @@
 
 - name: add repo for grafana
   apt_repository:
-    repo: 'deb https://packages.grafana.com/oss/deb stable main'
+    repo: 'deb [arch=amd64 trusted=yes] https://packages.grafana.com/oss/deb stable main'
     state: present
 
 - name: install grafana
