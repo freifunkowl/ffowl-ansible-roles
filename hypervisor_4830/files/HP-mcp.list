@@ -1,1 +1,1 @@
-deb https://downloads.linux.hpe.com/SDR/repo/mcp bookworm/current non-free
+deb [trusted=yes] https://downloads.linux.hpe.com/SDR/repo/mcp bookworm/current non-free
