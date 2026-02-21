@@ -55,7 +55,7 @@
 
 - name: get latest hp-health package
   get_url:
-    url: http://downloads.linux.hpe.com/SDR/repo/mcp/debian/pool/non-free/hp-health_10.80-1874.10_amd64.deb
+    url: https://downloads.linux.hpe.com/SDR/repo/mcp/debian/pool/non-free/hp-health_10.80-1874.10_amd64.deb
     dest: /root/hp-health-latest.deb
 
 
