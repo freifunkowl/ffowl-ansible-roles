@@ -61,6 +61,11 @@
     pkg: ['nodejs', 'yarn']
     state: present
 
+- name: Install apache2, jq
+  apt:
+    pkg: ['apache2', 'jq']
+    state: present
+
 - name: Create HopGlass-server directory if not existent
   file:
     path: /opt/hopglass
@@ -78,9 +83,9 @@
 
 - name: Clone HopGlass Server Repo
   git:
-    repo: https://github.com/freifunk-saar/hopglass-server.git
+    repo: https://github.com/ffgtso/hopglass-server.git
     dest: /opt/hopglass/server
-    version: 4a092690a775511f610c40bc69c55b5865c74c56
+    version: ed4d1cd9332720f5f99b29d322cb80b473850193
     force: yes
   notify:
     - "restart hopglass"
