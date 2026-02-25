@@ -47,9 +47,7 @@
     state: present
 
 - name: Add yarn repo keys
-  apt_key:
-    url: "https://dl.yarnpkg.com/debian/pubkey.gpg"
-    state: present
+  shell: curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /etc/apt/keyrings/yarn-archive-keyring.gpg > /dev/null
 
 - name: Add repo for nodejs and yarn
   apt_repository:
@@ -59,7 +57,7 @@
   with_items:
     - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
     - "deb-src https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
-    - "deb https://dl.yarnpkg.com/debian/ stable main"
+    - "deb [signed-by=/etc/apt/keyrings/yarn-archive-keyring.gpg] https://dl.yarnpkg.com/debian/ stable main"
 
 - name: Install nodejs, npm and yarn
   apt:
