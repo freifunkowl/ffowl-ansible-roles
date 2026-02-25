@@ -183,3 +183,9 @@
   shell: a2enmod cgi
   notify:
     - "restart apache2"
+
+- name: Copy proxy script
+  copy:
+    src: fix_data.sh
+    dest: /var/www/cgi-bin/fix_data.sh
+    mode: a+x
