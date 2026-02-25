@@ -1,0 +1,17 @@
+<VirtualHost 0.0.0.0:4000>
+	ServerName {{inventory_hostname}}.{{freifunk.domain}}
+	ServerAdmin info@{{freifunk.domain}}
+
+	LogLevel warn
+
+	ErrorLog ${APACHE_LOG_DIR}/hopglass-proxy-error.log
+	CustomLog ${APACHE_LOG_DIR}/hopglass-proxy-access.log combined
+
+	ScriptAlias / /var/www/cgi-bin/fix_data.sh
+
+	<Directory "/var/www/cgi-bin">
+		Options +ExecCGI
+		AddHandler cgi-script .sh
+		Require all granted
+	</Directory>
+</VirtualHost>

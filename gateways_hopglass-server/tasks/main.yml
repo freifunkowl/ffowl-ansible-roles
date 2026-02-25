@@ -163,3 +163,20 @@
     pkg: ['apache2']
     state: present
 
+- name: Copy apache2 config
+  template:
+    src: hg-srv-proxy.conf.j2
+    dest: /etc/apache2/sites-available/hg-srv-proxy.conf
+    mode: 0644
+  notify:
+    - "restart apache2"
+
+- name: Enable
+  shell: a2ensite hg-srv-proxy
+  notify:
+    - "restart apache2"
+
+- name: Enable cgi
+  shell: a2enmod cgi
+  notify:
+    - "restart apache2"

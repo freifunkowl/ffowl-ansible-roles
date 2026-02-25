@@ -1,3 +1,6 @@
 ---
 - name: restart hopglass
   service: name=hopglass-server@default state=restarted
+
+- name: restart apache2
+  service: name=apache2 state=restarted
