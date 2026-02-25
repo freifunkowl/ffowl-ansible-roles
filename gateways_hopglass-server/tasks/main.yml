@@ -61,11 +61,6 @@
     pkg: ['nodejs', 'yarn']
     state: present
 
-- name: Install apache2, jq
-  apt:
-    pkg: ['apache2', 'jq']
-    state: present
-
 - name: Create HopGlass-server directory if not existent
   file:
     path: /opt/hopglass
@@ -162,3 +157,9 @@
   service: 
     name: hopglass-server@default
     enabled: yes
+
+- name: Install apache2 for privacy filter
+  apt:
+    pkg: ['apache2']
+    state: present
+
