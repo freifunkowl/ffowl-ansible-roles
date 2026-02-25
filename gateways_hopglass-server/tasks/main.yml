@@ -41,6 +41,11 @@
     url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
     state: present
 
+- name: Purge old yarn repo keys
+  apt_key:
+    url: "https://dl.yarnpkg.com/debian/pubkey.gpg"
+    state: absent
+
 - name: Add yarn repo keys
   apt_key:
     url: "https://dl.yarnpkg.com/debian/pubkey.gpg"
