@@ -1,4 +1,9 @@
 ---
+- name: Remove samba if installed ...
+  apt:
+    pkg: ['samba-common-bin', 'samba-common', 'samba-dsdb-modules', 'samba-libs smbclient']
+    state: abssent
+
 - name: Increase Kernel default rx buffersize
   sysctl:
     name: net.core.rmem_default
