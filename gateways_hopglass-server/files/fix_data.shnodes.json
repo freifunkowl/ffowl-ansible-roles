@@ -7,7 +7,7 @@ echo
 # Query-String verfügbar als:
 # $QUERY_STRING  -> filter=bar&value=barfoo
 
-REQ_URI="$(echo $REQUEST_URI | sed -e 's%^/json%%g')"
+REQ_URI="$(echo $REQUEST_URI)"
 
 logger "$0: http://127.0.0.1:4444$REQ_URI"
 

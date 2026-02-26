@@ -184,8 +184,20 @@
   notify:
     - "restart apache2"
 
-- name: Copy proxy script
+- name: Copy proxy script 1
   copy:
-    src: fix_data.sh
-    dest: /var/www/cgi-bin/fix_data.sh
+    src: fix_data.shmetrics
+    dest: /var/www/cgi-bin/fix_data.shmetrics
+    mode: a+x
+
+- name: Copy proxy script 2
+  copy:
+    src: fix_data.shnodes.json
+    dest: /var/www/cgi-bin/fix_data.shnodes.json
+    mode: a+x
+
+- name: Copy proxy script 3
+  copy:
+    src: fix_data.shnodelist.json
+    dest: /var/www/cgi-bin/fix_data.shnodelist.json
     mode: a+x
