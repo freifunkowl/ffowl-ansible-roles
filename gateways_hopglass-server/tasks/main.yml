@@ -178,7 +178,8 @@
     dest: /etc/apache2/sites-available/hg-srv-proxy.conf
     mode: 0644
   notify:
-    - "restart apache2"
+   - "restart hopglass"
+   - "restart apache2"
 
 - name: Enable
   shell: a2ensite hg-srv-proxy
