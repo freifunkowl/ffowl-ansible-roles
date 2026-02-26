@@ -166,6 +166,12 @@
     pkg: ['apache2']
     state: present
 
+- name: Create /var/www/cgi-bin
+  ansible.builtin.file:
+    path: /var/www/cgi-bin
+    state: directory
+    mode: '0755'
+
 - name: Copy apache2 config
   template:
     src: hg-srv-proxy.conf.j2
