@@ -208,3 +208,9 @@
     src: fix_data.shnodelist.json
     dest: /var/www/cgi-bin/fix_data.shnodelist.json
     mode: a+x
+
+- name: Copy proxy script 4
+  copy:
+    src: fix_data.shgraph.json
+    dest: /var/www/cgi-bin/fix_data.shgraph.json
+    mode: a+x
