@@ -1,10 +1,10 @@
 ---
 
-#- name: Disable systemd-timesyncd
-#  systemd:
-#    name: systemd-timesyncd
-#    state: stopped
-#    masked: yes
+- name: Disable systemd-timesyncd
+  systemd:
+    name: systemd-timesyncd
+    state: stopped
+    masked: yes
 
 - name: Disable systemd-timesyncd (bash)
   shell: |
@@ -15,23 +15,23 @@
 
 - name: Install ntp
   apt:
-    name: ntp
+    name: ntpsec
 
 - name: Install ntp.conf
   template:
     src: ntp.conf.j2
-    dest: /etc/ntp.conf
+    dest: /etc/ntpsec.conf
   notify: Restart ntpd
 
 - name: create folder for ntp service override file
   file:
-    path: /etc/systemd/system/ntp.service.d
+    path: /etc/systemd/system/ntpsec.service.d
     state: directory
     mode: 0755
 
 - name: override ntp service
   template:
     src: ntp.service.override.j2
-    dest: /etc/systemd/system/ntp.service.d/ansible-managed.conf
+    dest: /etc/systemd/system/ntpsec.service.d/ansible-managed.conf
   notify:
     - reread systemd configs
