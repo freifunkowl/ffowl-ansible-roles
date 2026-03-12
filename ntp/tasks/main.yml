@@ -17,6 +17,10 @@
   apt:
     name: ntpsec
 
+- name: Install ntpdate
+  apt:
+    name: ntpsec-ntpdate
+
 - name: Install ntp.conf
   template:
     src: ntp.conf.j2
