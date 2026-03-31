@@ -5,6 +5,7 @@
     name: systemd-timesyncd
     state: stopped
     masked: yes
+    ignore_errors: yes
 
 - name: Disable systemd-timesyncd (bash)
   shell: |
