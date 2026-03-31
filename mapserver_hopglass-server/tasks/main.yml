@@ -41,6 +41,11 @@
     url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
     state: present
 
+- name: Wipe too frequently expiring repo key
+  file:
+    path: https://dl.yarnpkg.com/debian/pubkey.gp
+    state: absent
+
 - name: Add yarn repo keys
   apt_key:
     url: "https://dl.yarnpkg.com/debian/pubkey.gpg"
