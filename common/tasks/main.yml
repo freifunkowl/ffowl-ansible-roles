@@ -36,15 +36,17 @@
     state: absent
     regexp: 'cdrom'
 
-#- name: systemd-resolved stoppen
-#  systemd:
-#    name: systemd-resolved
-#    state: stopped
+- name: systemd-resolved stoppen
+  systemd:
+    name: systemd-resolved
+    state: stopped
+  ignore_errors: yes
 
-#- name: systemd-resolved deaktivieren
-#  systemd:
-#    name: systemd-resolved
-#    enabled: no
+- name: systemd-resolved deaktivieren
+  systemd:
+    name: systemd-resolved
+    enabled: no
+  ignore_errors: yes
 
 - name: install common packages
   apt:
@@ -58,7 +60,7 @@
 
 - name: uninstall unneeded packages
   apt:
-    pkg: ['rpcbind', 'puppet', 'resolvconf', 'systemd-resolved', 'network-manager', 'netplan.io']
+    pkg: ['rpcbind', 'puppet', 'resolvconf', 'systemd-resolved', 'network-manager', 'netplan.io', 'wpasupplicant']
     update_cache: no
     state: absent
 
