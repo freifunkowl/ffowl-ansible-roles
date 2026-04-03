@@ -26,7 +26,7 @@
   copy:
     src: HP-mcp.list
     dest: /etc/apt/sources.list.d/HP-mcp.list
-  when: ansible_distribution == 'Debian'
+  when: ansible_distribution == 'Debian' and ("ansible_system_vendor" == "HP" or "ansible_system_vendor" == "HPE")
 
 
 - name: Add hwraid repo, Deb 12
@@ -50,28 +50,39 @@
   apt:
     pkg: ['lib32gcc-s1', 'libc6-i386']
     state: latest
+  when: ansible_distribution == 'Debian' and ("ansible_system_vendor" == "HP" or "ansible_system_vendor" == "HPE")
 
 
 - name: get latest hp-health package
   copy:
     src: hp-health_10.80-1874.10_amd64.deb
     dest: /root/hp-health-latest.deb
+  when: ansible_distribution == 'Debian' and ("ansible_system_vendor" == "HP" or "ansible_system_vendor" == "HPE")
 
 
 - name: copy dummy .deb to local filesystem ...
   copy:
     src: lib32gcc1-for-hphealth_1.0_all.deb
     dest: /root/lib32gcc1-for-hphealth_1.0_all.deb
-  when: ansible_distribution == 'Debian'
+  when: ansible_distribution == 'Debian' and ("ansible_system_vendor" == "HP" or "ansible_system_vendor" == "HPE")
 
 
 - name: ... and install lib32gcc1-for-hphealth and hp_health
   shell: dpkg -i /root/lib32gcc1-for-hphealth_1.0_all.deb /root/hp-health-latest.deb
-  when: ansible_distribution == 'Debian'
+  when: ansible_distribution == 'Debian' and ("ansible_system_vendor" == "HP" or "ansible_system_vendor" == "HPE")
 
 
 - name: install packages for hypervisor host
   apt:
-    pkg: ['ssacli', 'hponcfg', 'opennebula-node', 'bridge-utils', 'ifenslave', 'vlan']
+    pkg: ['opennebula-node', 'bridge-utils', 'ifenslave', 'vlan']
     update_cache: no
     state: latest
+  when: ansible_distribution == 'Debian'
+
+
+- name: install packages for HE/HPE hypervisor host
+  apt:
+    pkg: ['ssacli', 'hponcfg']
+    update_cache: no
+    state: latest
+  when: ansible_distribution == 'Debian' and ("ansible_system_vendor" == "HP" or "ansible_system_vendor" == "HPE")
