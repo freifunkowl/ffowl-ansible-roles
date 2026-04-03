@@ -16,7 +16,7 @@
     dest: /etc/apt/trusted.gpg.d/opennebula2.asc
   when: ansible_distribution == 'Debian' and ansible_distribution_version < '12'
 
- - name: Add OpenNebula repo, Deb 11/12
+- name: Add OpenNebula repo, Deb 11/12
   copy:
     src: opennebula-12.list
     dest: /etc/apt/sources.list.d/opennebula.list
