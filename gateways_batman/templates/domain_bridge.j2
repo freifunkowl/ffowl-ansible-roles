@@ -7,15 +7,15 @@ iface br{{item[0]}} inet manual
         pre-up brctl addbr $IFACE
 {% if item[0] | length > 2 %}
 {% if item[1].server_id is defined %}
-        pre-up ip link set address 02:ca:ff:{{item[0][0:2]}}:{{item[0][2:]}}:{{'%x' % item[1].server_id}} dev $IFACE
+        pre-up ip link set address 02:ca:ff:{{item[0][0:2]}}:{{item[0][2:]}}:{{'%02x' % item[1].server_id}} dev $IFACE
 {% else %}
-        pre-up ip link set address 02:ca:ff:{{item[0][0:2]}}:{{item[0][2:]}}:{{'%x' % server_id}} dev $IFACE
+        pre-up ip link set address 02:ca:ff:{{item[0][0:2]}}:{{item[0][2:]}}:{{'%02x' % server_id}} dev $IFACE
 {% endif %}
 {% else %}
 {% if item[1].server_id is defined %}
-        pre-up ip link set address 02:ca:ff:ee:{{item[0]}}:{{'%x' % item[1].server_id}} dev $IFACE
+        pre-up ip link set address 02:ca:ff:ee:{{item[0]}}:{{'%02x' % item[1].server_id}} dev $IFACE
 {% else %}
-        pre-up ip link set address 02:ca:ff:ee:{{item[0]}}:{{'%x' % server_id}} dev $IFACE
+        pre-up ip link set address 02:ca:ff:ee:{{item[0]}}:{{'%02x' % server_id}} dev $IFACE
 {% endif %}
 {% endif %}
         pre-up ip link set dev $IFACE mtu 1364
