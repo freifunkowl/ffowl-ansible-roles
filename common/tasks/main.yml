@@ -65,7 +65,7 @@
            'tshark', 'dwdiff', 'molly-guard', 'git', 'iperf3', 'mtr-tiny', 'dhcpdump', 'dhcping',
            'irqbalance', 'build-essential', 'ethtool', 'rsyslog', 'rsync', 'sudo', 'sysstat',
            'sshguard', 'lldpd', 'traceroute', 'iputils-tracepath', 'etckeeper', 'unattended-upgrades',
-           'locales']
+           'locales', 'inetutils-ping']
     update_cache: yes
 
 - name: uninstall unneeded packages
