@@ -36,20 +36,36 @@
     update: yes
   register: hopglass_git_clone
 
-- name: Add nodejs repo keys
-  apt_key:
-    id: 1655A0AB68576280
-    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
-    state: present
+#- name: Add nodejs repo keys
+#  apt_key:
+#    id: 1655A0AB68576280
+#    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+#    state: present
 
-- name: Add repo for nodejs
+#- name: Add repo for nodejs
+#  apt_repository:
+#    repo: "{{ item }}"
+#    state: present
+#    update_cache: yes
+#  with_items:
+#    - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+#    - "deb-src https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+
+- name: to hell with those sucking keys
+  copy:
+    src: 99darnkey
+    dest: /etc/apt/apt.conf.d/99darnkey
+    mode: 0644
+
+- name: Add repo for nodejs and yarn
   apt_repository:
     repo: "{{ item }}"
     state: present
     update_cache: yes
   with_items:
-    - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
-    - "deb-src https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+    - "deb [trusted=yes] https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+    - "deb-src [trusted=yes] https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+    - "deb  [trusted=yes] https://dl.yarnpkg.com/debian/ stable main"
 
 - name: Install nodejs
   apt:
