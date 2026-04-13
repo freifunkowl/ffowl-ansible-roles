@@ -15,15 +15,15 @@ iface bat{{item[0]}} inet static
         netmask {{domaenen[item[0]].ffv4_network | ansible.utils.ipaddr('netmask')}}
 {% if item[0] | length > 2 %}
 {% if item[1].server_id is defined %}
-        hwaddress f2:be:ef:{{item[0][0:2]}}:{{item[0][2:]}}:{{item[1].server_id}}
+        hwaddress f2:be:ef:{{item[0][0:2]}}:{{item[0][2:]}}:{{'%x' % item[1].server_id}}
 {% else %}
-        hwaddress f2:be:ef:{{item[0][0:2]}}:{{item[0][2:]}}:{{server_id}}
+        hwaddress f2:be:ef:{{item[0][0:2]}}:{{item[0][2:]}}:{{'%x' % server_id}}
 {% endif %}
 {% else %}
 {% if item[1].server_id is defined %}
-        hwaddress f2:be:ef:00:{{item[0]}}:{{item[1].server_id}}
+        hwaddress f2:be:ef:00:{{item[0]}}:{{'%x' % item[1].server_id}}
 {% else %}
-        hwaddress f2:be:ef:00:{{item[0]}}:{{server_id}}
+        hwaddress f2:be:ef:00:{{item[0]}}:{{'%x' % server_id}}
 {% endif %}
 {% endif %}
         pre-up modprobe batman-adv
