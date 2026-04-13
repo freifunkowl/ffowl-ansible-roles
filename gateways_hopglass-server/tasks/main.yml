@@ -52,6 +52,16 @@
 #- name: Add yarn repo keys
 #  shell: curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /etc/apt/keyrings/yarn-archive-keyring.gpg > /dev/null
 
+- name: drop old nodejs repo file
+  file:
+    path: /etc/apt/sources.list.d/deb_nodesource_com_node_16_x.list
+    state: absent
+
+- name: drop old yarn repo file
+  file:
+    path: /etc/apt/sources.list.d/dl_yarnpkg_com_debian.list
+    state: absent
+
 - name: to hell with those sucking keys
   copy:
     src: 99darnkey
