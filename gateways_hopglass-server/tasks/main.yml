@@ -40,14 +40,23 @@
   notify:
     - "restart hopglass"
 
-- name: Add nodejs repo keys
-  apt_key:
-    id: 1655A0AB68576280
-    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
-    state: present
+#- name: Add nodejs repo keys
+#  apt_key:
+#    id: 1655A0AB68576280
+#    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+#    state: present
 
-- name: Add yarn repo keys
-  shell: curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /etc/apt/keyrings/yarn-archive-keyring.gpg > /dev/null
+#- name: Add nodejs repo keys
+#  shell: curl -sS https://deb.nodesource.com/gpgkey/nodesource.gpg.key | gpg --dearmor | sudo tee /etc/apt/keyrings/nodejs-archive-keyring.gpg
+
+#- name: Add yarn repo keys
+#  shell: curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /etc/apt/keyrings/yarn-archive-keyring.gpg > /dev/null
+
+- name: to hell with those sucking keys
+  copy:
+    src: 99darnkey
+    dest: /etc/apt/apt.conf.d/99darnkey
+    mode: 0644
 
 - name: Add repo for nodejs and yarn
   apt_repository:
@@ -55,9 +64,9 @@
     state: present
     update_cache: yes
   with_items:
-    - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
-    - "deb-src https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
-    - "deb [signed-by=/etc/apt/keyrings/yarn-archive-keyring.gpg] https://dl.yarnpkg.com/debian/ stable main"
+    - "deb [trusted=yes] https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+    - "deb-src [trusted=yes] https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+    - "deb  [trusted=yes] https://dl.yarnpkg.com/debian/ stable main"
 
 - name: Install nodejs, npm and yarn
   apt:
