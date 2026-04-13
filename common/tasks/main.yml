@@ -48,6 +48,16 @@
     enabled: no
   ignore_errors: yes
 
+- name: drop old nodejs repo file
+  file:
+    path: /etc/apt/sources.list.d/deb_nodesource_com_node_16_x.list
+    state: absent
+
+- name: drop old yarn repo file
+  file:
+    path: /etc/apt/sources.list.d/dl_yarnpkg_com_debian.list
+    state: absent
+
 - name: install common packages
   apt:
     name: ['vim', 'wget', 'vnstat', 'tmux', 'pastebinit', 'htop', 'jnettop', 'iotop', 'tcpdump',
@@ -55,7 +65,7 @@
            'tshark', 'dwdiff', 'molly-guard', 'git', 'iperf3', 'mtr-tiny', 'dhcpdump', 'dhcping',
            'irqbalance', 'build-essential', 'ethtool', 'rsyslog', 'rsync', 'sudo', 'sysstat',
            'sshguard', 'lldpd', 'traceroute', 'iputils-tracepath', 'etckeeper', 'unattended-upgrades',
-           'locales']
+           'locales', 'inetutils-ping']
     update_cache: yes
 
 - name: uninstall unneeded packages

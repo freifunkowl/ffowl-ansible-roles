@@ -34,7 +34,7 @@ iface t{{domaene[0]}}-{{tunhost}} inet manual
 {% else %}
         pre-up ip link add $IFACE type gretap local {{ipv4}} remote {{hostvars[host].ipv4}} dev {{ansible_default_ipv4.interface}} key {{domaene[0]|int}}
 {% endif %}
-        pre-up ip link set dev $IFACE address de:ad:be:ef:{{indexer[0]}}:{{vm_id}}
+        pre-up ip link set dev $IFACE address de:ad:be:ef:{{indexer[0]}}:{{'%02x' % vm_id}}
         pre-up ip link set $IFACE up
         post-up batctl -m bat{{domaene[0]}} if add $IFACE ||:
         pre-down batctl -m bat{{domaene[0]}} if del $IFACE ||:
