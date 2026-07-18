@@ -108,7 +108,7 @@ protocol static 's_master'{
 protocol static v6lexit {
 	table ffnet;
 	preference 1000;
-	route ::/0 via {{ ansible_default_ipv6.gateway }};
+	route ::/0 via fe80::1%{{ ansible_default_ipv6.interface }};
 };
 {% endif %}
 
@@ -116,10 +116,16 @@ filter freifunk {
 {% if ff_network.v6_network is defined %}
   if net ~ {{ff_network.v6_network}} then accept;
 {% endif %}
+  reject;
+}
+
+filter freifunk_or_default {
+{% if ff_network.v6_network is defined %}
+  if net ~ {{ff_network.v6_network}} then accept;
+{% endif %}
 {% if not ffrl_tun is defined and not ffgt_tun is defined %}
   if net ~ [::/0] then accept;
 {% endif %}
-
   reject;
 }
 
@@ -158,7 +164,8 @@ protocol radv {
 
 protocol static s_gesamt {
   table ffnet;
-  route {{ff_network.v6_network}} reject;
+  route {{ff_network.v6_network}} via fe80::1%{{ ansible_default_ipv6.interface }};
+  #route {{ff_network.v6_network}} reject;
 };
 
 {% if domaenenliste is defined %}
