@@ -108,7 +108,7 @@ protocol static 's_master'{
 protocol static v6lexit {
 	table ffnet;
 	preference 1000;
-	route ::/0 via fe80::1%{% if is defined tunneldigger.interface %}{{tunneldigger.interface}}{% else %}{{ ansible_default_ipv6.interface }}{% end %};
+	route ::/0 via fe80::1%{% if tunneldigger.interface is defined %}{{tunneldigger.interface}}{% else %}{{ ansible_default_ipv6.interface }}{% end %};
 };
 {% endif %}
 
@@ -164,7 +164,7 @@ protocol radv {
 
 protocol static s_gesamt {
   table ffnet;
-  route {{ff_network.v6_network}} via fe80::1%{% if is defined tunneldigger.interface %}{{tunneldigger.interface}}{% else %}{{ ansible_default_ipv6.interface }}{% end %};
+  route {{ff_network.v6_network}} via fe80::1%{% if tunneldigger.interface is defined %}{{tunneldigger.interface}}{% else %}{{ ansible_default_ipv6.interface }}{% end %};
   #route {{ff_network.v6_network}} reject;
 };
 
