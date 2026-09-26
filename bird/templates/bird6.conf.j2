@@ -133,7 +133,16 @@ filter freifunk_or_default {
 protocol radv {
   propagate routes yes;
   table ffnet;
-  export where net ~ [ ::/0 ];
+  #export where net ~ [ ::/0 ];
+  export filter {
+    if net ~ [ ::/0 ] then { accept; }
+    if net ~ [ 2a01:4f8:151:7367:B0:9:77:76/128 ] then { accept; }
+    if net ~ [ 2a06:e881:1709:1111:0:57ff:fefd:bc94/128 ] then { accept; }
+    if net ~ [ 2001:bf7:1311:f000::7/128 ] then { accept; }
+    if net ~ [ 2000::/3 ] then { accept; }
+    reject;
+  };
+
 {% for domaene in domaenenliste|dictsort %}
 
   interface "bat{{domaene[0]}}" {
