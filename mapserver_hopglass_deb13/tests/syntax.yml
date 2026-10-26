@@ -1,0 +1,6 @@
+---
+- name: Validate the HopGlass role syntax
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - role: mapserver_hopglass_deb13
