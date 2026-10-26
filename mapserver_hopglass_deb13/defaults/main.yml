@@ -1,7 +1,7 @@
 ---
 hopglass_client_repo: https://github.com/ffgtso/hopglass.git
 # Required: a published commit containing the npm/security patchset.
-hopglass_client_version: ''
+hopglass_client_version: 'c3d954df8e1fe344f9fd76beb2021b44ef4dd577'
 hopglass_client_dir: /opt/hopglass/client
 hopglass_client_force_build: false
 hopglass_client_run_tests: true
