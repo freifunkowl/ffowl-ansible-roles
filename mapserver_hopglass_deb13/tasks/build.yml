@@ -1,0 +1,97 @@
+---
+- name: Inspect required npm build inputs
+  ansible.builtin.stat:
+    path: '{{ hopglass_client_dir }}/{{ item }}'
+    checksum_algorithm: sha256
+  loop:
+    - package-lock.json
+    - scripts/build.cjs
+  register: hopglass_build_inputs
+
+- name: Reject the legacy Yarn and Grunt checkout
+  ansible.builtin.assert:
+    that:
+      - hopglass_build_inputs.results[0].stat.isreg | default(false)
+      - hopglass_build_inputs.results[1].stat.isreg | default(false)
+    fail_msg: >-
+      The selected HopGlass commit lacks package-lock.json or scripts/build.cjs.
+      Publish the npm/security patchset first, then select that commit.
+
+- name: Read the installed Node.js version
+  ansible.builtin.command:
+    argv: [node, --version]
+  register: hopglass_node_version
+  changed_when: false
+
+- name: Require the Node.js version used by the new build tools
+  ansible.builtin.assert:
+    that:
+      - (hopglass_node_version.stdout | regex_replace('^v', '')) is version('20.19.0', '>=')
+
+- name: Read the installed npm version
+  ansible.builtin.command:
+    argv: [npm, --version]
+  register: hopglass_npm_version
+  changed_when: false
+
+- name: Compute the successful-build marker
+  ansible.builtin.set_fact:
+    hopglass_build_signature: >-
+      {{ ['npm-build-v1', hopglass_client_git.after,
+          hopglass_build_inputs.results[0].stat.checksum,
+          hopglass_node_version.stdout, hopglass_npm_version.stdout,
+          hopglass_client_run_tests | bool] | to_json }}
+
+- name: Inspect build outputs and marker
+  ansible.builtin.stat:
+    path: '{{ hopglass_client_dir }}/{{ item }}'
+  loop:
+    - .ansible-npm-build
+    - node_modules
+    - build/app.js
+    - build/style.css
+    - build/index.html
+  register: hopglass_build_outputs
+
+- name: Read the previous successful-build marker
+  ansible.builtin.slurp:
+    src: '{{ hopglass_client_dir }}/.ansible-npm-build'
+  register: hopglass_previous_build
+  when: hopglass_build_outputs.results[0].stat.exists
+
+- name: Install, test and build changed or incomplete clients
+  when: >-
+    (hopglass_client_force_build | bool)
+    or (hopglass_build_outputs.results | selectattr('stat.exists', 'equalto', false) | list | length > 0)
+    or ((hopglass_previous_build.content | default('') | b64decode | trim) != hopglass_build_signature)
+  block:
+    - name: Invalidate the marker before attempting the build
+      ansible.builtin.file:
+        path: '{{ hopglass_client_dir }}/.ansible-npm-build'
+        state: absent
+
+    - name: Install locked dependencies without lifecycle hooks
+      ansible.builtin.command:
+        argv: [npm, ci, --ignore-scripts, --include=dev, --no-audit, --no-fund]
+        chdir: '{{ hopglass_client_dir }}'
+      changed_when: true
+
+    - name: Run the client regression tests
+      ansible.builtin.command:
+        argv: [npm, test]
+        chdir: '{{ hopglass_client_dir }}'
+      when: hopglass_client_run_tests | bool
+      changed_when: false
+
+    - name: Build the static client
+      ansible.builtin.command:
+        argv: [npm, run, build]
+        chdir: '{{ hopglass_client_dir }}'
+      changed_when: true
+
+    - name: Record the successful build only after all commands succeeded
+      ansible.builtin.copy:
+        content: |
+          {{ hopglass_build_signature }}
+        dest: '{{ hopglass_client_dir }}/.ansible-npm-build'
+        mode: '0644'

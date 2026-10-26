@@ -1,139 +1,157 @@
 ---
-- name: Create HopGlass directory if not existent
-  file:
-    path: /opt/hopglass/client
+- name: Require Debian 13 and a pinned HopGlass revision
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['distribution'] == 'Debian'
+      - ansible_facts['distribution_major_version'] == '13'
+      - hopglass_client_version is match('^[0-9a-f]{40}$')
+    fail_msg: >-
+      Debian 13 and hopglass_client_version (a published 40-character commit
+      containing the npm/security patchset) are required. See this role's README.
+
+- name: Remove the obsolete global APT authentication bypass
+  ansible.builtin.file:
+    path: /etc/apt/apt.conf.d/99darnkey
+    state: absent
+
+- name: Find legacy APT source lists
+  ansible.builtin.find:
+    paths: /etc/apt/sources.list.d
+    patterns: '*.list'
+    file_type: file
+  register: hopglass_apt_lists
+
+- name: Inspect the main APT source list
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list
+  register: hopglass_main_apt_list
+
+- name: Remove obsolete NodeSource 16 and Yarn source entries
+  ansible.builtin.lineinfile:
+    path: '{{ item }}'
+    regexp: '^\s*deb(?:-src)?\s+(?:\[[^\]]*\]\s+)?https?://(?:deb\.nodesource\.com/node_16\.x|dl\.yarnpkg\.com/debian)/?\s+.*$'
+    state: absent
+  loop: >-
+    {{ (hopglass_apt_lists.files | map(attribute='path') | list)
+       + (['/etc/apt/sources.list'] if hopglass_main_apt_list.stat.exists else []) }}
+
+- name: Install build tools from the configured Debian repositories
+  ansible.builtin.apt:
+    name:
+      - nodejs
+      - npm
+      - git
+      - ca-certificates
+      - python3
+      - acl
+    state: latest
+    update_cache: true
+    cache_valid_time: 0
+    install_recommends: false
+
+- name: Ensure the HopGlass group exists
+  ansible.builtin.group:
+    name: hopglass
+    system: true
+
+- name: Ensure the HopGlass account exists
+  ansible.builtin.user:
+    name: hopglass
+    group: hopglass
+    system: true
+    home: /opt/hopglass
+    create_home: false
+
+- name: Create traversable HopGlass directories
+  ansible.builtin.file:
+    path: '{{ item }}'
     state: directory
     owner: hopglass
     group: hopglass
-    mode: 0644
+    mode: '0755'
+  loop:
+    - /opt/hopglass
+    - '{{ hopglass_client_dir }}'
+    - /opt/hopglass/hwpics
 
-- name: fix bloody git
-  shell: git config --global --add safe.directory /opt/hopglass/client
+- name: Migrate ownership of existing root-owned checkouts
+  ansible.builtin.file:
+    path: '{{ item }}'
+    owner: hopglass
+    group: hopglass
+    recurse: true
+  loop:
+    - '{{ hopglass_client_dir }}'
+    - /opt/hopglass/hwpics
 
-- name: Git for HopGlass
-  git:
-    repo: https://github.com/ffgtso/hopglass.git
-    dest: /opt/hopglass/client
-    force: yes
-    version: master
-  register: hopglass_git_clone
+- name: Manage sources and build as the HopGlass account
+  become: true
+  become_user: hopglass
+  environment:
+    HOME: /opt/hopglass
+  block:
+    - name: Check out the pinned HopGlass client
+      ansible.builtin.git:
+        repo: '{{ hopglass_client_repo }}'
+        dest: '{{ hopglass_client_dir }}'
+        version: '{{ hopglass_client_version }}'
+        force: false
+      register: hopglass_client_git
 
-- name: Create hwpics directory if not exists
-  file:
-    path: /opt/hopglass/hwpics
+    - name: Build the npm-based client when necessary
+      ansible.builtin.include_tasks: build.yml
+      when: not ansible_check_mode
+
+    - name: Update hardware pictures independently of the client build
+      ansible.builtin.git:
+        repo: '{{ hopglass_hwpics_repo }}'
+        dest: /opt/hopglass/hwpics
+        version: '{{ hopglass_hwpics_version }}'
+        update: true
+        force: false
+      register: hopglass_hwpics_git
+
+- name: Create configuration directories
+  ansible.builtin.file:
+    path: '{{ item }}'
     state: directory
     owner: hopglass
     group: hopglass
-    mode: 0644
-
-- name: fix bloody git
-  shell: git config --global --add safe.directory /opt/hopglass/hwpics
-
-- name: Clone meshviewer hwpics repo
-  git:
-    repo: https://github.com/Moorviper/meshviewer_hwpics.git
-    dest: /opt/hopglass/hwpics
-    update: yes
-  register: hopglass_git_clone
-
-#- name: Add nodejs repo keys
-#  apt_key:
-#    id: 1655A0AB68576280
-#    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
-#    state: present
-
-#- name: Add repo for nodejs
-#  apt_repository:
-#    repo: "{{ item }}"
-#    state: present
-#    update_cache: yes
-#  with_items:
-#    - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
-#    - "deb-src https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
-
-- name: to hell with those sucking keys
-  copy:
-    src: 99darnkey
-    dest: /etc/apt/apt.conf.d/99darnkey
-    mode: 0644
-
-- name: Add repo for nodejs and yarn
-  apt_repository:
-    repo: "{{ item }}"
-    state: present
-    update_cache: yes
-  with_items:
-    - "deb [trusted=yes] https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
-    - "deb-src [trusted=yes] https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
-    - "deb  [trusted=yes] https://dl.yarnpkg.com/debian/ stable main"
-
-- name: Install nodejs
-  apt:
-    pkg: nodejs
-    state: present
-
-- name: Install dependencies
-  shell: yarn install
-  args:
-    chdir: /opt/hopglass/client
-  when: hopglass_git_clone.changed
-
-- name: Build HopGlass
-  shell: node_modules/.bin/grunt
-  args:
-    chdir: /opt/hopglass/client
-  when: hopglass_git_clone.changed
-
-- name: Adjust permissions
-  file:
-    path: /opt/hopglass/client
-    owner: hopglass
-    group: hopglass
-    recurse: yes
-  when: hopglass_git_clone.changed
-
-- name: Create directory
-  file:
-    path: /opt/hopglass/client/build/
-    state: directory
-
-- name: fix permissions
-  shell: chmod 0755 /opt/hopglass/client
+    mode: '0755'
+  loop:
+    - '{{ hopglass_client_dir }}/build'
+    - '{{ hopglass_client_dir }}/build/config'
 
 - name: Deploy config.json
-  template:
+  ansible.builtin.template:
     src: config.json.j2
-    dest: /opt/hopglass/client/build/config.json
+    dest: '{{ hopglass_client_dir }}/build/config.json'
     owner: hopglass
     group: hopglass
-    mode: 0644
+    mode: '0644'
+    validate: '/usr/bin/python3 -m json.tool %s'
 
-- name: Create directory for domainspecific config files
-  file:
-    path: /opt/hopglass/client/build/config/
-    state: directory
-
-- name: Deploy domainspecific config.json files
-  template:
+- name: Deploy domain configuration files
+  ansible.builtin.template:
     src: configdom.json.j2
-    dest: "/opt/hopglass/client/build/config/config_{{item[0]}}.json"
+    dest: '{{ hopglass_client_dir }}/build/config/config_{{ item[0] }}.json'
     owner: hopglass
     group: hopglass
-    mode: 0644
-  with_items:
-    - "{{domaenen|dictsort}}"
+    mode: '0644'
+    validate: '/usr/bin/python3 -m json.tool %s'
+  loop: '{{ domaenen | dictsort }}'
 
-- name: Generate list of all community names
-  set_fact:
+- name: Generate list of community names
+  ansible.builtin.set_fact:
     communities: "{{ domaenen | list | map('extract', domaenen, 'community') | list | unique | sort }}"
 
-- name: Deploy config.json configcommunity
-  template:
+- name: Deploy community configuration files
+  ansible.builtin.template:
     src: configcommunity.json.j2
-    dest: "/opt/hopglass/client/build/config/config_{{item}}.json"
+    dest: '{{ hopglass_client_dir }}/build/config/config_{{ item }}.json'
     owner: hopglass
     group: hopglass
-    mode: 0644
-  when: item != "None"
-  with_items:
-    - "{{communities}}"
+    mode: '0644'
+    validate: '/usr/bin/python3 -m json.tool %s'
+  when: item != 'None'
+  loop: '{{ communities }}'
