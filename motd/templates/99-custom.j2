@@ -45,6 +45,10 @@ cat << 'EOF'
 
  Domäne: {{ group_names | last }}
 {% else %}
+{% if aufgabe is defined %}
+ Aufgabe: {{ aufgabe }}
+{% else %}
  Aufgabe: {{ group_names | last }}
+{% endif %}
 {% endif %}
 EOF
