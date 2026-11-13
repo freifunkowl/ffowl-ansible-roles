@@ -2,10 +2,10 @@
 INTERFACE="$3"
 if grep -Fq "$8" "/srv/tunneldigger/broker/scripts/sperrliste.txt"
 then
-	echo "Der Knoten $8 ist auf der Sperrliste, verweigere Zugang."
-	exit 1
+	echo "$(date '+%F %H:%M:%S') Knoten $8 ist auf Sperrliste, Verbindung von Interface ${INTERFACE}, IP $5, verweigert." >> /var/log/tunneldigger-broker_domain{{item.key}}.log
+	exit 0
 else
-	echo $(date '+%F %H:%M:%S') "Verbindung von Knoten "$8" aufgebaut. Interface: "$3" IP: "$5 >> /var/log/tunneldigger-broker_domain{{item.key}}.log
+	echo "$(date '+%F %H:%M:%S') Verbindung von Knoten $8 aufgebaut. Interface: ${INTERFACE} IP: $5" >> /var/log/tunneldigger-broker_domain{{item.key}}.log
 	ip link set dev $INTERFACE up mtu 1364
-	brctl addif br{{item.key}} $INTERFACE
+	brctl addif br{{item.key}} ${INTERFACE}
 fi
