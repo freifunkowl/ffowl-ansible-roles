@@ -1,0 +1,153 @@
+---
+- name: Check the endpoint and the manager SSH destination
+  ansible.builtin.assert:
+    that:
+      - wazuh_manager_inventory_host in hostvars
+      - wazuh_manager_inventory_host != inventory_hostname
+      - inventory_hostname is match('^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,127}$')
+      - wazuh_manager_address is match('^[A-Za-z0-9_.:%-]+$')
+      - "not (['wazuh-manager', 'ossec-hids', 'ossec-hids-agent', 'wazuh-api'] | intersect(ansible_facts.packages.keys()))"
+      - wazuh_connection_timeout | int >= 0
+    fail_msg: Check the manager inventory host, reachable address and conflicting packages. Use a unique Wazuh-compatible inventory hostname.
+
+- name: Record the endpoint package state
+  ansible.builtin.set_fact:
+    wazuh__agent_installed: "{{ 'wazuh-agent' in ansible_facts.packages }}"
+
+- name: Check any existing agent version
+  ansible.builtin.assert:
+    that:
+      - not wazuh__agent_installed or ansible_facts.packages['wazuh-agent'][0].version == wazuh__package_version
+    fail_msg: The existing Wazuh agent differs from the configured release. Coordinate its upgrade with the manager first.
+
+- name: Check the installed manager version over SSH
+  ansible.builtin.command:
+    argv: [dpkg-query, -W, '-f=${Status} ${Version}', wazuh-manager]
+    expand_argument_vars: false
+  delegate_to: '{{ wazuh_manager_inventory_host }}'
+  register: wazuh__manager_package
+  check_mode: false
+  changed_when: false
+  failed_when: false
+
+- name: Require a compatible installed manager
+  ansible.builtin.assert:
+    that:
+      - wazuh__manager_package.rc == 0
+      - wazuh__manager_package.stdout.startswith('install ok installed ') or wazuh__manager_package.stdout.startswith('hold ok installed ')
+      - wazuh__manager_package.stdout.split()[-1].split('-')[0] is version(wazuh__version, '>=')
+      - wazuh__manager_package.stdout.split()[-1].startswith('4.')
+    fail_msg: The delegated host must run a Wazuh 4.x manager at least as new as the agent. Run the server play first.
+  when: not (ansible_check_mode and wazuh__manager_package.rc == 1 and not wazuh__agent_installed)
+
+- name: Plan the first agent installation in check mode
+  ansible.builtin.debug:
+    msg: Would install the pinned agent, provision its individual key on the manager, and verify its connection.
+  changed_when: true
+  when: ansible_check_mode and not wazuh__agent_installed
+
+- name: Configure a Wazuh agent
+  when: not ansible_check_mode or wazuh__agent_installed
+  block:
+    - name: Configure the Wazuh APT repository
+      ansible.builtin.include_tasks: repository.yml
+      vars:
+        wazuh__needs_install: '{{ not wazuh__agent_installed }}'
+
+    - name: Install the matching native agent package
+      ansible.builtin.apt:
+        name: 'wazuh-agent={{ wazuh__package_version }}'
+        state: present
+        fail_on_autoremove: true
+        policy_rc_d: 101
+        lock_timeout: 600
+
+    - name: Hold the agent for coordinated maintenance
+      ansible.builtin.dpkg_selections:
+        name: wazuh-agent
+        selection: hold
+
+    - name: Read the current endpoint key
+      ansible.builtin.slurp:
+        src: /var/ossec/etc/client.keys
+      register: wazuh__existing_key
+      no_log: true
+
+    - name: Provision the endpoint key through the local manager socket
+      block:
+        - name: Find or create the individual Wazuh key
+          wazuh_agent_key:
+            name: '{{ inventory_hostname }}'
+            existing_digest: "{{ (wazuh__local_record | hash('sha256')) if wazuh__local_record else '' }}"
+          delegate_to: '{{ wazuh_manager_inventory_host }}'
+          vars:
+            wazuh__local_record: >-
+              {{ (hostvars[inventory_hostname].wazuh__existing_key.content | b64decode).rstrip() }}
+          register: wazuh__manager_key
+          no_log: true
+      rescue:
+        - name: Report a registration conflict or an unavailable manager
+          ansible.builtin.fail:
+            msg: >-
+              Could not provision {{ inventory_hostname }} on {{ wazuh_manager_inventory_host }}.
+              {{ wazuh__manager_key.msg | default('Check SSH, authd and the existing endpoint identity.') }}
+
+    - name: Write this endpoint's key over the Ansible connection
+      ansible.builtin.copy:
+        dest: /var/ossec/etc/client.keys
+        content: "{{ wazuh__manager_key.key }}\n"
+        owner: root
+        group: wazuh
+        mode: '0640'
+      register: wazuh__key_copy
+      no_log: true
+      diff: false
+      when: wazuh__manager_key.key | length > 0
+
+    - name: Configure the manager address and disable network enrollment
+      ansible.builtin.script:
+        cmd: >-
+          configure.py agent --address {{ wazuh_manager_address | quote }}
+          {{ '--check' if ansible_check_mode else '' }}
+        executable: /usr/bin/python3
+      check_mode: false
+      register: wazuh__agent_config
+      changed_when: "'changed' in wazuh__agent_config.stdout_lines"
+
+    - name: Fingerprint the configuration and key that the agent will load
+      ansible.builtin.command:
+        argv: [sha256sum, /var/ossec/etc/ossec.conf, /var/ossec/etc/client.keys]
+      register: wazuh__inputs
+      check_mode: false
+      changed_when: false
+
+    - name: Read the fingerprint of the last successful activation
+      ansible.builtin.stat:
+        path: /var/ossec/var/ffowl-applied
+        checksum_algorithm: sha256
+      register: wazuh__applied
+
+    - name: Enable the configured agent and activate pending changes
+      ansible.builtin.systemd_service:
+        name: wazuh-agent
+        enabled: true
+        state: >-
+          {{ 'restarted' if wazuh__agent_config.changed or wazuh__key_copy.changed or
+             (wazuh__applied.stat.checksum | default('')) != (wazuh__inputs.stdout | hash('sha256'))
+             else 'started' }}
+
+    - name: Wait for an acknowledged connection to the Wazuh manager
+      ansible.builtin.wait_for:
+        path: /var/ossec/var/run/wazuh-agentd.state
+        search_regex: "^status='connected'$"
+        timeout: '{{ wazuh_connection_timeout | int }}'
+        msg: Agent is not connected. Check TCP 1514, the manager address and /var/ossec/logs/ossec.log on both hosts.
+      when: not ansible_check_mode and wazuh_connection_timeout | int > 0
+
+    - name: Record successful activation for interrupted runs and retries
+      ansible.builtin.copy:
+        dest: /var/ossec/var/ffowl-applied
+        content: '{{ wazuh__inputs.stdout }}'
+        owner: root
+        group: root
+        mode: '0600'

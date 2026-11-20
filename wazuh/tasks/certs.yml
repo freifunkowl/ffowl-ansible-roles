@@ -1,0 +1,20 @@
+---
+- name: Create the component TLS directory
+  ansible.builtin.file:
+    path: '{{ tls_dir }}'
+    state: directory
+    owner: root
+    group: '{{ tls_group }}'
+    mode: '0750'
+
+- name: Install the cluster CA and this component's TLS identity
+  ansible.builtin.copy:
+    content: "{{ wazuh__state.ca.cert if item == 'root-ca.pem' else wazuh__state['keys'][wazuh_component ~ '-' ~ inventory_hostname]['key' if item.endswith('-key.pem') else 'cert'] }}"
+    dest: '{{ tls_dir }}/{{ item }}'
+    owner: "{{ tls_file_owner | default('root') if item != 'root-ca.pem' else 'root' }}"
+    group: '{{ tls_group }}'
+    mode: '0640'
+  no_log: true
+  diff: false
+  loop: "{{ ['root-ca.pem', tls_name ~ '.pem', tls_name ~ '-key.pem'] }}"
+  notify: 'Wazuh {{ wazuh_component }} TLS changed'

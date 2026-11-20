@@ -1,0 +1,22 @@
+---
+wazuh_component: ''
+wazuh_cluster_name: wazuh
+wazuh_state_dir: "{{ lookup('env', 'HOME') }}/.local/share/ffowl-wazuh/{{ wazuh_cluster_name }}"
+wazuh_master_host: "{{ (groups.get('wazuh_servers', []) | first) | default('') }}"
+wazuh_manager_inventory_host: "{{ wazuh_master_host }}"
+wazuh_manager_address: "{{ hostvars[wazuh_manager_inventory_host].wazuh_node_address | default(hostvars[wazuh_manager_inventory_host].ansible_host | default(wazuh_manager_inventory_host)) }}"
+wazuh_connection_timeout: 120
+wazuh_indexer_heap: 1g
+wazuh_apt_url: https://packages.wazuh.com/4.x/apt/
+wazuh_api_request_timeout: 60
+# Setting the central manager's site enables per-site alert indices.
+wazuh_alert_local_rz: ''
+
+# Public HTTPS identities; only the RZ inventory enables the dashboard by default.
+wazuh_dashboard_letsencrypt: false
+wazuh_indexer_letsencrypt: false
+wazuh_tls_dns_name: ''
+wazuh_acme_lineage: '{{ wazuh_tls_dns_name }}'
+wazuh_acme_method: standalone
+wazuh_acme_webroot: /var/www/html
+wazuh_acme_email: ''

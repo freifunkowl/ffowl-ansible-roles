@@ -1,0 +1,16 @@
+---
+- name: Create the Wazuh configuration helper directory
+  ansible.builtin.file:
+    path: /usr/local/lib/ffowl-wazuh
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Install the Wazuh configuration helper
+  ansible.builtin.copy:
+    src: configure.py
+    dest: '{{ wazuh__config_tool }}'
+    owner: root
+    group: root
+    mode: '0755'

@@ -1,0 +1,60 @@
+---
+# Use a composable template containing the complete version-matched Wazuh
+# mappings. A settings-only composable template would hide the stock mappings.
+- name: Reconcile the alert index template for this site
+  vars:
+    site: '{{ wazuh__site.key }}'
+    url: '{{ wazuh__node.index_url }}/_index_template'
+    source_template: "{{ lookup('ansible.builtin.file', role_path ~ '/files/wazuh-template.json') | from_json }}"
+    site_settings:
+      index.routing.allocation.require._name: '{{ wazuh__site.value }}'
+      index.number_of_shards: '1'
+      index.number_of_replicas: '0'
+      index.auto_expand_replicas: 'false'
+    definition:
+      index_patterns: ['wazuh-alerts-4.x-{{ site }}-*']
+      priority: 250
+      template:
+        mappings: '{{ source_template.mappings }}'
+        settings: '{{ source_template.settings | combine(site_settings) }}'
+    fingerprint: '{{ definition | to_json(sort_keys=true) | hash("sha256") }}'
+  module_defaults:
+    ansible.builtin.uri:
+      url_username: admin
+      url_password: '{{ wazuh__state.passwords.admin }}'
+      force_basic_auth: true
+      ca_path: '{{ wazuh__indexer_ca }}'
+      use_proxy: false
+  block:
+    - name: Read current site template
+      ansible.builtin.uri:
+        url: '{{ url }}/ffowl-wazuh-rz-{{ site }}'
+        status_code: [200, 404]
+      register: current_site_template
+      no_log: true
+
+    - name: Publish template with Wazuh mappings and site allocation
+      ansible.builtin.uri:
+        url: '{{ url }}/ffowl-wazuh-rz-{{ site }}'
+        method: PUT
+        body_format: json
+        body: "{{ definition | combine({'_meta': {'ffowl_sha256': fingerprint}}) }}"
+      when: current_site_template.status == 404 or (current_site_template.json.index_templates[0].index_template._meta.ffowl_sha256 | default('')) != fingerprint
+      changed_when: true
+      no_log: true
+
+    - name: Simulate the effective template for a new daily index
+      ansible.builtin.uri:
+        url: '{{ url }}/_simulate_index/wazuh-alerts-4.x-{{ site }}-2000.01.01'
+        method: POST
+      register: simulated_site
+      no_log: true
+
+    - name: Verify that the effective template confines all shards to the intended node
+      ansible.builtin.assert:
+        that:
+          - simulated_site.json.template.settings.index.routing.allocation.require._name == wazuh__site.value
+          - simulated_site.json.template.settings.index.number_of_replicas | int == 0
+          - simulated_site.json.template.settings.index.auto_expand_replicas | string | lower == 'false'
+          - simulated_site.json.template.mappings.properties.agent.properties.name.type == 'keyword'
+        fail_msg: 'Unexpected effective alert template for {{ site }}. Check competing templates and shard settings.'

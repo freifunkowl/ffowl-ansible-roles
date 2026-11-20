@@ -1,0 +1,113 @@
+---
+- name: Validate the complete deployment and this node's assignment
+  ansible.builtin.assert:
+    that:
+      - inventory_hostname in wazuh__topo[wazuh_component]
+      - wazuh_state_dir is match('^/')
+      - wazuh_api_request_timeout | default(60) | int > 0
+      - wazuh_cluster_name is match('^[a-zA-Z0-9][a-zA-Z0-9_-]{0,31}$')
+      - wazuh_indexer_heap is match('^[1-9][0-9]*[mg]$')
+      - ansible_facts.architecture in ['x86_64','aarch64']
+      - "'wazuh-agent' not in ansible_facts.packages or wazuh_component != 'manager'"
+
+- name: Check component ownership on this host
+  ansible.builtin.stat:
+    path: '{{ wazuh__markdir }}/{{ wazuh_component }}.owner'
+  register: wazuh__owner
+
+- name: Check for residual data or configuration from earlier installations
+  ansible.builtin.stat:
+    path: "{{ {'indexer':'/var/lib/wazuh-indexer/nodes','manager':'/var/ossec','dashboard':'/etc/wazuh-dashboard/opensearch_dashboards.yml'}[wazuh_component] }}"
+  register: wazuh__previous
+
+- name: Preserve existing installations and data during bootstrap
+  ansible.builtin.assert:
+    that:
+      - wazuh__owner.stat.exists or not wazuh__previous.stat.exists
+      - wazuh__owner.stat.exists or not (wazuh__packages | intersect(ansible_facts.packages.keys()))
+    fail_msg: >-
+      Found an existing component installation without this deployment's ownership record.
+      Use a fresh host or plan a migration with backups (see README).
+
+- name: Generate and reuse controller-side deployment credentials
+  ansible.builtin.command:
+    argv: ['{{ ansible_playbook_python }}', '{{ role_path }}/files/prepare.py', '{{ wazuh_state_dir }}']
+    stdin: '{{ wazuh__topo | to_json }}'
+  delegate_to: localhost
+  become: false
+  run_once: true
+  register: wazuh__prepared
+  changed_when: wazuh__prepared.stdout == 'changed'
+
+- name: Read existing ownership identity
+  ansible.builtin.slurp:
+    src: '{{ wazuh__markdir }}/{{ wazuh_component }}.owner'
+  register: wazuh__identity
+  when: wazuh__owner.stat.exists
+
+- name: Check controller credentials against the original deployment
+  ansible.builtin.assert:
+    that: (wazuh__identity.content | b64decode | trim) == wazuh__state.id
+    fail_msg: Restore the original controller state directory for this deployment.
+  when: wazuh__owner.stat.exists
+
+- name: Create deployment metadata directory
+  ansible.builtin.file:
+    path: '{{ wazuh__markdir }}'
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Record ownership before installing packages to support retries
+  ansible.builtin.copy:
+    content: '{{ wazuh__state.id }}'
+    dest: '{{ wazuh__markdir }}/{{ wazuh_component }}.owner'
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Configure the signed Wazuh repository
+  ansible.builtin.include_tasks: repository.yml
+  vars:
+    wazuh__needs_install: '{{ (wazuh__packages | difference(ansible_facts.packages.keys()) | length) > 0 }}'
+
+- name: Install this component at the pinned release
+  ansible.builtin.apt:
+    name: "{{ wazuh__packages | reject('equalto','filebeat') | map('regex_replace', '$', '=' ~ wazuh__package_version) | list + (['filebeat=' ~ wazuh__filebeat_version] if 'filebeat' in wazuh__packages else []) }}"
+    state: present
+    policy_rc_d: 101
+    lock_timeout: 600
+    fail_on_autoremove: true
+
+- name: Hold this release for coordinated upgrades
+  ansible.builtin.dpkg_selections:
+    name: '{{ item }}'
+    selection: hold
+  loop: '{{ wazuh__packages }}'
+
+- name: Allow package initialization and rule loading on slower VMs
+  when: wazuh_component in ['indexer', 'manager']
+  block:
+    - name: Create the component's systemd override directory
+      ansible.builtin.file:
+        path: '/etc/systemd/system/wazuh-{{ wazuh_component }}.service.d'
+        state: directory
+        mode: '0755'
+
+    - name: Set service startup timeout
+      ansible.builtin.copy:
+        dest: '/etc/systemd/system/wazuh-{{ wazuh_component }}.service.d/60-ffowl-start.conf'
+        content: |
+          [Service]
+          TimeoutStartSec=900
+          {% if wazuh_component == 'manager' %}
+          TimeoutStopSec=300
+          {% endif %}
+        mode: '0644'
+      register: wazuh__unit_timeout
+
+    - name: Load the service timeout before starting the component
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+      when: wazuh__unit_timeout.changed

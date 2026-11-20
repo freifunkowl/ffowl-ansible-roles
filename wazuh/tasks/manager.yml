@@ -1,0 +1,186 @@
+---
+- name: Install Wazuh manager and Filebeat on each server
+  ansible.builtin.include_tasks: central.yml
+  vars:
+    wazuh__packages: [wazuh-manager, filebeat]
+
+- name: Install Wazuh configuration helper
+  ansible.builtin.include_tasks: config_tool.yml
+
+- name: Install TLS files for the manager indexer connector and Filebeat
+  ansible.builtin.include_tasks: certs.yml
+  vars:
+    tls_dir: /etc/filebeat/certs
+    tls_group: wazuh
+    tls_name: filebeat
+
+- name: Install the HTTPS identity for the manager API
+  ansible.builtin.include_tasks: certs.yml
+  vars:
+    tls_dir: /var/ossec/api/configuration/ssl
+    tls_group: wazuh
+    tls_file_owner: wazuh
+    tls_name: manager
+
+- name: Write the manager's node and peer settings
+  ansible.builtin.template:
+    src: manager.json.j2
+    dest: '{{ wazuh__markdir }}/manager.json'
+    mode: '0600'
+  diff: false
+  no_log: true
+
+- name: Configure cluster, indexer connector and local enrollment
+  ansible.builtin.command:
+    argv: ['{{ wazuh__config_tool }}', server, --settings, '{{ wazuh__markdir }}/manager.json']
+  register: wazuh__xml
+  changed_when: wazuh__xml.stdout == 'changed'
+  notify: Restart Wazuh manager
+
+- name: Read API bootstrap status
+  ansible.builtin.stat:
+    path: '{{ wazuh__markdir }}/api.ready'
+  register: wazuh__api_ready
+
+- name: Bind the API locally until master credentials have been initialized
+  ansible.builtin.template:
+    src: api.yaml.j2
+    dest: /var/ossec/api/configuration/api.yaml
+    owner: root
+    group: wazuh
+    mode: '0640'
+  vars:
+    wazuh__api_external: '{{ inventory_hostname == wazuh_master_host and wazuh__api_ready.stat.exists }}'
+  notify: Restart Wazuh manager
+
+- name: Read keystore initialization state
+  ansible.builtin.stat:
+    path: '{{ wazuh__markdir }}/keystores.ready'
+  register: wazuh__keystores
+
+- name: Create the manager and Filebeat keystore entries
+  when: not wazuh__keystores.stat.exists
+  block:
+    - name: Store Wazuh indexer connector credentials
+      ansible.builtin.command:
+        argv: [/var/ossec/bin/wazuh-keystore, -f, indexer, -k, '{{ item }}']
+        stdin: "{{ 'admin' if item == 'username' else wazuh__state.passwords.admin }}"
+      changed_when: true
+      loop: [username, password]
+      no_log: true
+      notify: Restart Wazuh manager
+
+    - name: Store the Filebeat output password
+      ansible.builtin.command:
+        argv: [filebeat, keystore, add, password, --stdin, --force]
+        stdin: '{{ wazuh__state.passwords.admin }}'
+      changed_when: true
+      no_log: true
+      notify: Restart Filebeat
+
+    - name: Mark both keystores as initialized
+      ansible.builtin.copy:
+        content: '{{ wazuh__state.id }}'
+        dest: '{{ wazuh__markdir }}/keystores.ready'
+        mode: '0600'
+
+- name: Install the versioned Filebeat module
+  ansible.builtin.unarchive:
+    src: wazuh-module.tar.gz
+    dest: /usr/share/filebeat/module/
+  notify: Restart Filebeat
+
+- name: Install the Wazuh index template
+  ansible.builtin.copy:
+    src: wazuh-template.json
+    dest: /etc/filebeat/wazuh-template.json
+    mode: '0644'
+  notify: Restart Filebeat
+
+- name: Configure the authenticated Filebeat output
+  ansible.builtin.template:
+    src: filebeat.yml.j2
+    dest: /etc/filebeat/filebeat.yml
+    owner: root
+    mode: '0600'
+  notify: Restart Filebeat
+
+- name: Install API initialization tool
+  ansible.builtin.copy:
+    src: api_passwords.py
+    dest: '{{ wazuh__markdir }}/api_passwords.py'
+    mode: '0700'
+  when: inventory_hostname == wazuh_master_host
+
+- name: Activate manager and Filebeat configuration
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable manager and shipper
+  ansible.builtin.systemd_service:
+    name: '{{ item }}'
+    enabled: true
+    state: started
+  loop: [wazuh-manager, filebeat]
+
+- name: Wait for the manager API
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: 55000
+    timeout: 600
+
+- name: Secure the master's API accounts and enable dashboard access
+  when: inventory_hostname == wazuh_master_host
+  block:
+    - name: Verify and initialize the manager API passwords
+      ansible.builtin.command:
+        argv: [/usr/bin/python3, '{{ wazuh__markdir }}/api_passwords.py']
+        stdin: "{{ {'wazuh': wazuh__state.passwords.wazuh, 'wazuh-wui': wazuh__state.passwords['wazuh-wui']} | to_json }}"
+      register: wazuh__accounts
+      changed_when: wazuh__accounts.stdout == 'changed'
+      until: wazuh__accounts.rc == 0
+      retries: 6
+      delay: 5
+      no_log: true
+
+    - name: Record verified API credentials
+      ansible.builtin.copy:
+        dest: '{{ wazuh__markdir }}/api.ready'
+        content: '{{ wazuh__state.id }}'
+        mode: '0600'
+
+    - name: Expose the secured master API on its service address
+      ansible.builtin.template:
+        src: api.yaml.j2
+        dest: /var/ossec/api/configuration/api.yaml
+        owner: root
+        group: wazuh
+        mode: '0640'
+      vars:
+        wazuh__api_external: true
+      notify: Restart Wazuh manager
+
+- name: Apply the final API binding
+  ansible.builtin.meta: flush_handlers
+
+- name: Check the complete Filebeat to indexer connection
+  ansible.builtin.command: filebeat test output
+  changed_when: false
+
+- name: Verify the TCP event listener
+  ansible.builtin.wait_for:
+    host: '{{ wazuh__node.address }}'
+    port: 1514
+    timeout: 120
+
+- name: Wait for all configured managers to join the master
+  ansible.builtin.command: /var/ossec/bin/cluster_control -l
+  register: wazuh__manager_nodes
+  changed_when: false
+  until:
+    - wazuh__manager_nodes.rc == 0
+    - >-
+      wazuh__topo.manager.keys() | difference(
+      wazuh__manager_nodes.stdout_lines | map('split') | select | map('first') | list) | length == 0
+  retries: 36
+  delay: 5
+  when: inventory_hostname == wazuh_master_host and wazuh__topo.manager | length > 1

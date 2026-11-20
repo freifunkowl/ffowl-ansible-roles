@@ -1,0 +1,55 @@
+filebeat.modules:
+  - module: wazuh
+    alerts.enabled: true
+    archives.enabled: false
+{% if wazuh_alert_local_rz is defined and wazuh_alert_local_rz %}
+processors:
+  - script:
+      lang: javascript
+      tag: ffowl_alert_index
+      when.equals:
+        fileset.name: alerts
+      params:
+        agents: {{ wazuh__sites.agents | to_json }}
+        local_site: {{ wazuh_alert_local_rz | to_json }}
+      source: |
+        var agents, localSite;
+        function register(params) {
+          agents = params.agents;
+          localSite = params.local_site;
+        }
+        function process(event) {
+          var site = "unassigned";
+          try {
+            var agent = JSON.parse(event.Get("message")).agent;
+            if (agent && agent.id === "000") {
+              site = localSite;
+            } else if (agent && typeof agent.name === "string" &&
+                       Object.prototype.hasOwnProperty.call(agents, agent.name)) {
+              site = agents[agent.name];
+            }
+          } catch (error) {
+            // The original Wazuh ingest pipeline handles malformed alert JSON.
+          }
+          event.Put("fields.index_prefix", "wazuh-alerts-4.x-" + site + "-");
+        }
+{% endif %}
+setup.template.json.enabled: true
+setup.template.json.path: /etc/filebeat/wazuh-template.json
+setup.template.json.name: wazuh
+setup.template.overwrite: true
+setup.ilm.enabled: false
+output.elasticsearch:
+  hosts: {{ wazuh__index_urls | to_json }}
+  username: admin
+  password: "${password}"
+  ssl.verification_mode: full
+  ssl.certificate_authorities: [{{ '/etc/ssl/certs/ca-certificates.crt' if wazuh_indexer_letsencrypt is defined and wazuh_indexer_letsencrypt | bool else '/etc/filebeat/certs/root-ca.pem' }}]
+  ssl.certificate: /etc/filebeat/certs/filebeat.pem
+  ssl.key: /etc/filebeat/certs/filebeat-key.pem
+logging.metrics.enabled: false
+seccomp:
+  default_action: allow
+  syscalls:
+    - action: allow
+      names: [rseq]

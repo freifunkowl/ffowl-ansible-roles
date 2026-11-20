@@ -1,0 +1,94 @@
+---
+- name: Remove this component's Certbot hook when using the private CA
+  ansible.builtin.file:
+    path: '/etc/letsencrypt/renewal-hooks/deploy/80-ffowl-wazuh-{{ wazuh_component }}'
+    state: absent
+  when: not wazuh__acme_enabled | bool
+
+- name: Set up a publicly trusted HTTPS identity
+  when: wazuh__acme_enabled | bool
+  vars:
+    lineage: '/etc/letsencrypt/live/{{ wazuh_acme_lineage }}'
+    cert_directory: '/etc/wazuh-{{ wazuh_component }}/certs/acme'
+    hook: '/etc/letsencrypt/renewal-hooks/deploy/80-ffowl-wazuh-{{ wazuh_component }}'
+    deploy_command:
+      - '{{ wazuh__markdir }}/deploy_acme.py'
+      - '{{ wazuh_component }}'
+      - '{{ lineage }}'
+      - '{{ wazuh_tls_dns_name }}'
+      - '{{ wazuh__node.address }}'
+  block:
+    - name: Validate certificate name and challenge settings
+      ansible.builtin.assert:
+        that:
+          - wazuh__node.dns_name | length > 0
+          - wazuh_acme_lineage is match('^[a-zA-Z0-9][a-zA-Z0-9._-]{0,249}$')
+          - wazuh_acme_method in ['standalone', 'webroot', 'existing']
+          - wazuh_acme_method != 'webroot' or wazuh_acme_webroot is match('^/')
+        fail_msg: Configure a full DNS name and a Certbot challenge method for this HTTPS service.
+
+    - name: Install Certbot and certificate validation tools
+      ansible.builtin.apt:
+        name: [certbot, openssl, ca-certificates]
+        state: present
+        lock_timeout: 600
+
+    - name: Obtain the first certificate for a new Certbot lineage
+      ansible.builtin.command:
+        argv: >-
+          {{ ['certbot', 'certonly', '--non-interactive', '--agree-tos', '--server',
+              'https://acme-v02.api.letsencrypt.org/directory', '--cert-name', wazuh_acme_lineage,
+              '-d', wazuh_tls_dns_name] +
+             (['--email', wazuh_acme_email] if wazuh_acme_email else ['--register-unsafely-without-email']) +
+             (['--webroot', '--webroot-path', wazuh_acme_webroot] if wazuh_acme_method == 'webroot'
+              else ['--standalone']) }}
+        creates: '/etc/letsencrypt/renewal/{{ wazuh_acme_lineage }}.conf'
+      when: wazuh_acme_method != 'existing'
+
+    - name: Create the private service directory for the deployed key
+      ansible.builtin.file:
+        path: '{{ cert_directory }}'
+        state: directory
+        owner: root
+        group: 'wazuh-{{ wazuh_component }}'
+        mode: '0750'
+
+    - name: Install certificate validation and deployment helper
+      ansible.builtin.copy:
+        src: deploy_acme.py
+        dest: '{{ wazuh__markdir }}/deploy_acme.py'
+        owner: root
+        group: root
+        mode: '0700'
+
+    - name: Create the Certbot deploy hook directory
+      ansible.builtin.file:
+        path: /etc/letsencrypt/renewal-hooks/deploy
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Install the lineage-specific renewal hook
+      ansible.builtin.copy:
+        dest: '{{ hook }}'
+        owner: root
+        group: root
+        mode: '0700'
+        content: |
+          #!/bin/sh
+          exec {{ deploy_command | map('quote') | join(' ') }}
+
+    - name: Synchronize the verified certificate before service activation
+      ansible.builtin.command:
+        argv: "{{ deploy_command + ['--sync'] }}"
+      register: wazuh__acme_copy
+      changed_when: wazuh__acme_copy.stdout == 'changed'
+      notify: 'Activate Wazuh {{ wazuh_component }} HTTPS identity'
+
+    - name: Schedule automatic certificate renewal
+      ansible.builtin.systemd_service:
+        name: certbot.timer
+        enabled: true
+        state: started
+

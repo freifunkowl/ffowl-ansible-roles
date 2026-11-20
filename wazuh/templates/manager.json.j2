@@ -1,0 +1,11 @@
+{{ {
+  'name': wazuh_cluster_name,
+  'node_name': inventory_hostname,
+  'node_type': 'master' if inventory_hostname == wazuh_master_host else 'worker',
+  'master': wazuh__topo.manager[wazuh_master_host].address,
+  'bind_addr': wazuh__node.address,
+  'disabled': 'yes' if wazuh__topo.manager | length == 1 else 'no',
+  'key': wazuh__state.cluster_key,
+  'indexers': wazuh__index_urls,
+  'indexer_ca': '/etc/ssl/certs/ca-certificates.crt' if wazuh_indexer_letsencrypt is defined and wazuh_indexer_letsencrypt | bool else '/etc/filebeat/certs/root-ca.pem'
+} | to_nice_json }}

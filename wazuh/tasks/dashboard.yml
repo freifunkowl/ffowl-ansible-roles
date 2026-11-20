@@ -1,0 +1,131 @@
+---
+- name: Install Wazuh dashboard
+  ansible.builtin.include_tasks: central.yml
+  vars:
+    wazuh__packages: [wazuh-dashboard]
+
+- name: Install HTTPS identity and trust anchor for the dashboard
+  ansible.builtin.include_tasks: certs.yml
+  vars:
+    tls_dir: /etc/wazuh-dashboard/certs
+    tls_group: wazuh-dashboard
+    tls_name: dashboard
+
+- name: Manage the public HTTPS identity and renewal hook
+  ansible.builtin.include_tasks: acme.yml
+
+- name: Configure dashboard listeners and all indexer endpoints
+  ansible.builtin.template:
+    src: dashboard.yml.j2
+    dest: /etc/wazuh-dashboard/opensearch_dashboards.yml
+    owner: root
+    group: wazuh-dashboard
+    mode: '0640'
+  notify: Restart Wazuh dashboard
+
+- name: Create plugin configuration path before first start
+  ansible.builtin.file:
+    path: /usr/share/wazuh-dashboard/data/wazuh/config
+    state: directory
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    mode: '0750'
+
+- name: Configure the dashboard's manager API account
+  ansible.builtin.template:
+    src: dashboard-api.yml.j2
+    dest: /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
+    owner: wazuh-dashboard
+    group: wazuh-dashboard
+    mode: '0600'
+  no_log: true
+  diff: false
+  notify: Restart Wazuh dashboard
+
+- name: Check the dashboard keystore marker
+  ansible.builtin.stat:
+    path: '{{ wazuh__markdir }}/dashboard.keystore'
+  register: wazuh__dashboard_store
+
+- name: Update the packaged dashboard service account
+  when: not wazuh__dashboard_store.stat.exists
+  block:
+    - name: Set the internal dashboard password through standard input
+      ansible.builtin.command:
+        argv: [runuser, -u, wazuh-dashboard, --, /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore, add, opensearch.password, --stdin, --force]
+        stdin: '{{ wazuh__state.passwords.kibanaserver }}'
+      changed_when: true
+      no_log: true
+      notify: Restart Wazuh dashboard
+    - name: Record the initialized dashboard keystore
+      ansible.builtin.copy:
+        content: '{{ wazuh__state.id }}'
+        dest: '{{ wazuh__markdir }}/dashboard.keystore'
+        mode: '0600'
+
+# Wazuh 4.14.10 disables verification in this client. Set its CA directly,
+# including when the packaged Node.js executable has Linux file capabilities.
+- name: Configure the pinned plugin's manager API TLS client
+  vars:
+    wazuh__api_tls_pattern: >-
+      (?m)^( +)const httpsAgent = new _https\.default\.Agent\(\{\n(?:\1  ca: require\('fs'\)\.readFileSync\('/etc/wazuh-dashboard/certs/root-ca\.pem'\),\n)?\1  rejectUnauthorized: (?:false|true)\n\1\}\);$
+    wazuh__api_tls_replacement: |-
+      \g<1>const httpsAgent = new _https.default.Agent({
+      \g<1>  ca: require('fs').readFileSync('/etc/wazuh-dashboard/certs/root-ca.pem'),
+      \g<1>  rejectUnauthorized: true
+      \g<1>});
+  block:
+    - name: Read the packaged manager API client
+      ansible.builtin.slurp:
+        src: /usr/share/wazuh-dashboard/plugins/wazuhCore/server/services/server-api-client.js
+      register: wazuh__api_client
+
+    - name: Check the expected TLS client in the pinned dashboard plugin
+      ansible.builtin.assert:
+        that: (wazuh__api_client.content | b64decode | regex_findall(wazuh__api_tls_pattern) | length) == 1
+        fail_msg: The packaged API client changed. Verify its TLS settings before exposing the dashboard.
+
+    - name: Require the deployment CA and verify the manager hostname
+      ansible.builtin.replace:
+        path: /usr/share/wazuh-dashboard/plugins/wazuhCore/server/services/server-api-client.js
+        regexp: '{{ wazuh__api_tls_pattern }}'
+        replace: '{{ wazuh__api_tls_replacement }}'
+      notify: Restart Wazuh dashboard
+
+- name: Apply dashboard settings
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable dashboard at boot
+  ansible.builtin.systemd_service:
+    name: wazuh-dashboard
+    enabled: true
+    state: started
+
+- name: Check the master's authenticated API from the dashboard host
+  ansible.builtin.uri:
+    url: 'https://{{ wazuh__topo.manager[wazuh_master_host].endpoint }}:55000/security/user/authenticate?raw=true'
+    method: POST
+    url_username: wazuh-wui
+    url_password: "{{ wazuh__state.passwords['wazuh-wui'] }}"
+    force_basic_auth: true
+    ca_path: /etc/wazuh-dashboard/certs/root-ca.pem
+    use_proxy: false
+  no_log: true
+  register: wazuh__wui
+  until: wazuh__wui.status == 200
+  retries: 20
+  delay: 4
+
+- name: Verify that the dashboard can serve authenticated requests
+  ansible.builtin.uri:
+    url: 'https://{{ wazuh_tls_dns_name if wazuh_dashboard_letsencrypt | bool else wazuh__node.endpoint }}/api/status'
+    url_username: admin
+    url_password: '{{ wazuh__state.passwords.admin }}'
+    force_basic_auth: true
+    ca_path: "{{ wazuh__public_ca if wazuh_dashboard_letsencrypt | bool else '/etc/wazuh-dashboard/certs/root-ca.pem' }}"
+    use_proxy: false
+  register: wazuh__dashboard_health
+  retries: 60
+  delay: 5
+  until: wazuh__dashboard_health.status == 200
+  no_log: true

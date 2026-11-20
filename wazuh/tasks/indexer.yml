@@ -1,0 +1,123 @@
+---
+- name: Install Wazuh indexer
+  ansible.builtin.include_tasks: central.yml
+  vars:
+    wazuh__packages: [wazuh-indexer]
+
+- name: Install indexer TLS files
+  ansible.builtin.include_tasks: certs.yml
+  vars:
+    tls_dir: /etc/wazuh-indexer/certs
+    tls_group: wazuh-indexer
+    tls_name: indexer
+
+- name: Manage the public HTTPS identity and renewal hook
+  ansible.builtin.include_tasks: acme.yml
+
+- name: Check whether this indexer has already joined the cluster
+  ansible.builtin.stat:
+    path: '{{ wazuh__markdir }}/indexer.joined'
+  register: wazuh__joined
+
+- name: Configure the indexer discovery and security settings
+  ansible.builtin.template:
+    src: opensearch.yml.j2
+    dest: /etc/wazuh-indexer/opensearch.yml
+    owner: root
+    group: wazuh-indexer
+    mode: '0640'
+  vars:
+    wazuh__bootstrap_discovery: '{{ not wazuh__joined.stat.exists }}'
+  notify: Restart Wazuh indexer
+
+- name: Configure the indexer's JVM heap
+  ansible.builtin.replace:
+    path: /etc/wazuh-indexer/jvm.options
+    regexp: '^(-Xm[sx])\d+[mMgG]$'
+    replace: '\g<1>{{ wazuh_indexer_heap }}'
+  notify: Restart Wazuh indexer
+
+- name: Set the persistent minimum number of memory mappings
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/90-ffowl-wazuh-indexer.conf
+    content: "vm.max_map_count = 262144\n"
+    mode: '0644'
+  when: ansible_facts.virtualization_type | default('') not in ['docker', 'lxc', 'container']
+
+- name: Read kernel mapping limit
+  ansible.builtin.command: sysctl -n vm.max_map_count
+  changed_when: false
+  register: wazuh__maps
+
+- name: Raise a low mapping limit before starting the indexer
+  ansible.builtin.command: sysctl -w vm.max_map_count=262144
+  when: wazuh__maps.stdout | int < 262144
+  changed_when: true
+
+- name: Install the initial security users on the bootstrap indexer
+  ansible.builtin.template:
+    src: internal_users.yml.j2
+    dest: /etc/wazuh-indexer/opensearch-security/internal_users.yml
+    owner: root
+    group: wazuh-indexer
+    mode: '0640'
+  no_log: true
+  diff: false
+  when: inventory_hostname == (wazuh__topo.indexer | first)
+
+- name: Apply indexer configuration on every node before forming quorum
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable and start the indexer
+  ansible.builtin.systemd_service:
+    name: wazuh-indexer
+    enabled: true
+    state: started
+
+- name: Wait for the local indexer listener
+  ansible.builtin.wait_for:
+    host: '{{ wazuh__node.address }}'
+    port: 9200
+    timeout: 240
+
+- name: Initialize the cluster security index on one node
+  ansible.builtin.include_tasks: security.yml
+  when: inventory_hostname == (wazuh__topo.indexer | first)
+
+- name: Verify membership and allocation through the local authenticated API
+  ansible.builtin.uri:
+    url: '{{ wazuh__node.index_url }}/_cluster/health'
+    user: admin
+    password: '{{ wazuh__state.passwords.admin }}'
+    force_basic_auth: true
+    ca_path: '{{ wazuh__indexer_ca }}'
+    use_proxy: false
+  register: wazuh__health
+  until: wazuh__health.status == 200 and wazuh__health.json.number_of_nodes == wazuh__topo.indexer | length and wazuh__health.json.status in ['yellow','green']
+  retries: 40
+  delay: 4
+  no_log: true
+
+- name: Record membership after authenticated verification
+  ansible.builtin.copy:
+    content: '{{ wazuh__state.id }}'
+    dest: '{{ wazuh__markdir }}/indexer.joined'
+    mode: '0600'
+
+- name: Retire bootstrap-only discovery for future restarts
+  ansible.builtin.template:
+    src: opensearch.yml.j2
+    dest: /etc/wazuh-indexer/opensearch.yml
+    owner: root
+    group: wazuh-indexer
+    mode: '0640'
+  vars:
+    wazuh__bootstrap_discovery: false
+  when: not wazuh__joined.stat.exists
+
+- name: Install alert templates before the central manager starts forwarding
+  ansible.builtin.include_tasks: site_template.yml
+  loop: '{{ wazuh__sites.nodes | dict2items if wazuh_alert_local_rz | length > 0 else [] }}'
+  loop_control:
+    loop_var: wazuh__site
+  when: inventory_hostname == (wazuh__topo.indexer | first)

@@ -1,0 +1,87 @@
+---
+- name: Check previous successful initialization
+  ansible.builtin.stat:
+    path: '{{ wazuh__markdir }}/security.initialized'
+  register: wazuh__initialized
+
+- name: Read the security plugin status
+  ansible.builtin.uri:
+    url: '{{ wazuh__node.index_url }}/_plugins/_security/health'
+    ca_path: '{{ wazuh__indexer_ca }}'
+    use_proxy: false
+    status_code: [200,503]
+    return_content: true
+  register: wazuh__security
+  retries: 30
+  delay: 3
+  until: >-
+    wazuh__security.status in [200,503] and
+    (not wazuh__initialized.stat.exists or (wazuh__security.json | default({})).get('status') == 'UP')
+
+- name: Initialize a fresh security index
+  when: (wazuh__security.json | default({})).get('status', '') != 'UP'
+  block:
+    - name: Protect a previously initialized security database
+      ansible.builtin.assert:
+        that:
+          - not wazuh__initialized.stat.exists
+          - "'not initialized' in (wazuh__security.content | lower)"
+        fail_msg: Existing security index is unavailable. Inspect the cluster before any reinitialization.
+
+    - name: Install bootstrap administrator certificate and key
+      ansible.builtin.copy:
+        content: "{{ wazuh__state.admin['key' if item == 'admin-key.pem' else 'cert'] }}"
+        dest: '/etc/wazuh-indexer/certs/{{ item }}'
+        owner: root
+        group: root
+        mode: '0600'
+      no_log: true
+      diff: false
+      loop: [admin.pem, admin-key.pem]
+
+    - name: Load the initial OpenSearch security database
+      ansible.builtin.command:
+        argv:
+          - /usr/share/wazuh-indexer/plugins/opensearch-security/tools/securityadmin.sh
+          - -cd
+          - /etc/wazuh-indexer/opensearch-security
+          - -cacert
+          - '{{ wazuh__indexer_ca }}'
+          - -cert
+          - /etc/wazuh-indexer/certs/admin.pem
+          - -key
+          - /etc/wazuh-indexer/certs/admin-key.pem
+          - -cn
+          - '{{ wazuh_cluster_name }}'
+          - -h
+          - '{{ wazuh__node.dns_name if wazuh_indexer_letsencrypt | bool else wazuh__node.address }}'
+          - -p
+          - '9200'
+      environment:
+        JAVA_HOME: /usr/share/wazuh-indexer/jdk
+        JAVA_TOOL_OPTIONS: -XX:TieredStopAtLevel=1
+        OPENSEARCH_PATH_CONF: /etc/wazuh-indexer
+      register: wazuh__security_load
+      until: wazuh__security_load.rc == 0
+      retries: 3
+      delay: 10
+      changed_when: true
+  always:
+    - name: Remove transient administrator files
+      ansible.builtin.file:
+        path: '/etc/wazuh-indexer/certs/{{ item }}'
+        state: absent
+      loop: [admin.pem, admin-key.pem]
+
+- name: Remove any administrator files left by an interrupted bootstrap
+  ansible.builtin.file:
+    path: '/etc/wazuh-indexer/certs/{{ item }}'
+    state: absent
+  loop: [admin.pem, admin-key.pem]
+  when: (wazuh__security.json | default({})).get('status') == 'UP'
+
+- name: Record successful security initialization
+  ansible.builtin.copy:
+    content: '{{ wazuh__state.id }}'
+    dest: '{{ wazuh__markdir }}/security.initialized'
+    mode: '0600'

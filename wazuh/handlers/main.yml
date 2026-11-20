@@ -1,0 +1,37 @@
+---
+- name: Restart Wazuh indexer
+  listen: Wazuh indexer TLS changed
+  ansible.builtin.systemd_service:
+    name: wazuh-indexer
+    state: restarted
+
+- name: Restart Wazuh manager
+  listen: Wazuh manager TLS changed
+  ansible.builtin.systemd_service:
+    name: wazuh-manager
+    state: restarted
+
+- name: Restart Filebeat
+  listen: Wazuh manager TLS changed
+  ansible.builtin.systemd_service:
+    name: filebeat
+    state: restarted
+
+- name: Restart Wazuh dashboard
+  listen: [Wazuh dashboard TLS changed, Activate Wazuh dashboard HTTPS identity]
+  ansible.builtin.systemd_service:
+    name: wazuh-dashboard
+    state: restarted
+
+- name: Wait for automatic indexer HTTPS certificate reload
+  listen: Activate Wazuh indexer HTTPS identity
+  ansible.builtin.command:
+    argv:
+      - '{{ wazuh__markdir }}/deploy_acme.py'
+      - indexer
+      - '/etc/letsencrypt/live/{{ wazuh_acme_lineage }}'
+      - '{{ wazuh_tls_dns_name }}'
+      - '{{ wazuh__node.address }}'
+  environment:
+    RENEWED_LINEAGE: '/etc/letsencrypt/live/{{ wazuh_acme_lineage }}'
+  changed_when: false

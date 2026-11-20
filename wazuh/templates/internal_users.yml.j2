@@ -1,0 +1,10 @@
+_meta:
+  type: internalusers
+  config_version: 2
+admin:
+  hash: {{ wazuh__state.hashes.admin | to_json }}
+  reserved: true
+  backend_roles: [admin]
+kibanaserver:
+  hash: {{ wazuh__state.hashes.kibanaserver | to_json }}
+  reserved: true

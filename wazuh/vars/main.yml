@@ -1,0 +1,15 @@
+---
+wazuh__version: '4.14.10'
+wazuh__package_version: '4.14.10-1'
+wazuh__filebeat_version: '7.10.2-2'
+wazuh__central_packages: [wazuh-indexer, wazuh-manager, filebeat, wazuh-dashboard]
+wazuh__topo: "{{ groups | ffowl_wazuh_layout(hostvars, wazuh_master_host, wazuh_indexer_letsencrypt | bool) }}"
+wazuh__state: "{{ lookup('ansible.builtin.file', wazuh_state_dir ~ '/state.json') | from_json }}"
+wazuh__node: "{{ wazuh__topo[wazuh_component][inventory_hostname] }}"
+wazuh__index_urls: "{{ wazuh__topo.indexer.values() | map(attribute='index_url') | list }}"
+wazuh__markdir: /var/lib/ffowl-wazuh
+wazuh__config_tool: /usr/local/lib/ffowl-wazuh/configure.py
+wazuh__sites: "{{ groups | ffowl_wazuh_alert_sites(hostvars, wazuh_alert_local_rz) }}"
+wazuh__public_ca: /etc/ssl/certs/ca-certificates.crt
+wazuh__indexer_ca: "{{ wazuh__public_ca if wazuh_indexer_letsencrypt | bool else '/etc/wazuh-indexer/certs/root-ca.pem' }}"
+wazuh__acme_enabled: "{{ (wazuh_indexer_letsencrypt if wazuh_component == 'indexer' else wazuh_dashboard_letsencrypt) | bool }}"

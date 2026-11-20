@@ -1,0 +1,36 @@
+---
+- name: Validate package platform and requested component
+  ansible.builtin.assert:
+    that:
+      - wazuh_component in ['indexer','manager','dashboard','agent']
+      - ansible_facts.distribution in ['Debian', 'Ubuntu']
+      - ansible_facts.service_mgr == 'systemd'
+      - ansible_facts.pkg_mgr == 'apt'
+
+- name: Validate site-specific alert placement before deployment
+  ansible.builtin.assert:
+    that:
+      - groups.wazuh_servers | length == 1
+      - wazuh_master_host in groups.wazuh_servers
+      - wazuh__sites.nodes | length == (groups.wazuh_indexers | length) + 1
+    fail_msg: This configuration routes alerts from a single central manager. Check the site groups and indexer assignments.
+  when: wazuh_alert_local_rz | length > 0
+
+- name: Enable system APT bindings
+  ansible.builtin.apt:
+    name: python3-apt
+    state: present
+
+- name: Read installed package versions
+  ansible.builtin.package_facts:
+    manager: apt
+
+- name: Validate central placement in check mode
+  ansible.builtin.assert:
+    that: inventory_hostname in wazuh__topo[wazuh_component]
+    success_msg: 'Valid {{ wazuh_component }} placement. A normal run applies and probes the service.'
+  when: ansible_check_mode and wazuh_component != 'agent'
+
+- name: Deploy the requested component
+  ansible.builtin.include_tasks: '{{ wazuh_component }}.yml'
+  when: not ansible_check_mode or wazuh_component == 'agent'

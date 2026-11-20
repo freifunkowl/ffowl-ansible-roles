@@ -1,0 +1,23 @@
+server.host: {{ wazuh__node.address | to_json }}
+server.port: 443
+opensearch.hosts: {{ wazuh__index_urls | to_json }}
+opensearch.ssl.verificationMode: full
+#opensearch.username:
+#opensearch.password:
+opensearch.requestHeadersAllowlist: ["securitytenant","Authorization"]
+opensearch_security.multitenancy.enabled: false
+opensearch_security.readonly_mode.roles: ["kibana_read_only"]
+server.ssl.enabled: true
+{% if wazuh_dashboard_letsencrypt is defined and wazuh_dashboard_letsencrypt | bool %}
+server.ssl.key: "/etc/wazuh-dashboard/certs/acme/current/privkey.pem"
+server.ssl.certificate: "/etc/wazuh-dashboard/certs/acme/current/fullchain.pem"
+{% else %}
+server.ssl.key: "/etc/wazuh-dashboard/certs/dashboard-key.pem"
+server.ssl.certificate: "/etc/wazuh-dashboard/certs/dashboard.pem"
+{% endif %}
+opensearch.ssl.certificateAuthorities: ["{{ '/etc/ssl/certs/ca-certificates.crt' if wazuh_indexer_letsencrypt is defined and wazuh_indexer_letsencrypt | bool else '/etc/wazuh-dashboard/certs/root-ca.pem' }}"]
+uiSettings.overrides.defaultRoute: /app/wz-home
+# Session expiration settings
+opensearch_security.cookie.ttl: 900000
+opensearch_security.session.ttl: 900000
+opensearch_security.session.keepalive: true

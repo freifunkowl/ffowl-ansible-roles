@@ -1,0 +1,7 @@
+hosts:
+  - default:
+      url: {{ ('https://' ~ wazuh__topo.manager[wazuh_master_host].endpoint) | to_json }}
+      port: 55000
+      username: wazuh-wui
+      password: {{ wazuh__state.passwords['wazuh-wui'] | to_json }}
+      run_as: true

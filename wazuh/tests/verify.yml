@@ -1,0 +1,76 @@
+---
+# Run after deployment, against the same inventory and private controller state.
+- name: Check indexer membership and authenticated HTTPS on every node
+  hosts: wazuh_indexers
+  gather_facts: false
+  become: true
+  vars: &verify_https
+    default_state_dir: "{{ lookup('env','HOME') }}/.local/share/ffowl-wazuh/{{ wazuh_cluster_name | default('wazuh') }}"
+    state_dir: '{{ wazuh_state_dir | default(default_state_dir) }}'
+    credentials: "{{ lookup('file', state_dir ~ '/state.json') | from_json }}"
+    address: '{{ wazuh_node_address | default(ansible_host | default(inventory_hostname)) }}'
+  tasks:
+    - name: Read local cluster health
+      ansible.builtin.uri:
+        url: "https://{{ wazuh_tls_dns_name if wazuh_indexer_letsencrypt | default(false) | bool else ('[' ~ address ~ ']' if ':' in address else address) }}:9200/_cluster/health"
+        url_username: admin
+        url_password: '{{ credentials.passwords.admin }}'
+        ca_path: "{{ '/etc/ssl/certs/ca-certificates.crt' if wazuh_indexer_letsencrypt | default(false) | bool else '/etc/wazuh-indexer/certs/root-ca.pem' }}"
+        force_basic_auth: true
+        use_proxy: false
+      register: health
+      no_log: true
+
+    - name: Compare running cluster with inventory
+      ansible.builtin.assert:
+        that:
+          - health.json.cluster_name == wazuh_cluster_name | default('wazuh')
+          - health.json.number_of_nodes == groups.wazuh_indexers | length
+          - health.json.status in ['green', 'yellow']
+
+- name: Check the manager and Filebeat on each server
+  hosts: wazuh_servers
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Verify Filebeat output including certificate trust
+      ansible.builtin.command: filebeat test output
+      changed_when: false
+
+    - name: Check manager service
+      ansible.builtin.command: systemctl is-active wazuh-manager
+      changed_when: false
+
+    - name: Verify registered manager nodes
+      ansible.builtin.command: /var/ossec/bin/cluster_control -l
+      register: nodes
+      changed_when: false
+      failed_when: nodes.rc != 0 or groups.wazuh_servers | difference(nodes.stdout_lines | map('split') | select | map('first') | list) | length > 0
+      when: groups.wazuh_servers | length > 1
+
+- name: Check authenticated dashboard access
+  hosts: wazuh_dashboards
+  gather_facts: false
+  become: true
+  vars: *verify_https
+  tasks:
+    - name: Get dashboard status
+      ansible.builtin.uri:
+        url: "https://{{ wazuh_tls_dns_name if wazuh_dashboard_letsencrypt | default(false) | bool else ('[' ~ address ~ ']' if ':' in address else address) }}/api/status"
+        url_username: admin
+        url_password: '{{ credentials.passwords.admin }}'
+        force_basic_auth: true
+        ca_path: "{{ '/etc/ssl/certs/ca-certificates.crt' if wazuh_dashboard_letsencrypt | default(false) | bool else '/etc/wazuh-dashboard/certs/root-ca.pem' }}"
+        use_proxy: false
+      no_log: true
+
+- name: Check the authenticated event connection on each agent
+  hosts: wazuh_agents
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Check the agent state
+      ansible.builtin.wait_for:
+        path: /var/ossec/var/run/wazuh-agentd.state
+        search_regex: "^status='connected'$"
+        timeout: 60

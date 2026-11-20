@@ -1,0 +1,44 @@
+---
+- name: Install CA certificates and the documented APT prerequisites
+  ansible.builtin.apt:
+    name: [ca-certificates]
+    state: present
+    update_cache: true
+    cache_valid_time: 86400
+
+- name: Install the Wazuh repository key
+  ansible.builtin.copy:
+    src: wazuh.gpg
+    dest: /usr/share/keyrings/wazuh.gpg
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Restrict the Wazuh repository to the packages used on this host
+  ansible.builtin.copy:
+    dest: /etc/apt/preferences.d/ffowl-wazuh
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      Package: {{ ((wazuh__central_packages if inventory_hostname in (groups.get('wazuh_indexers', []) + groups.get('wazuh_servers', []) + groups.get('wazuh_dashboards', [])) else []) + (['wazuh-agent'] if inventory_hostname in groups.get('wazuh_agents', []) or wazuh_component == 'agent' else [])) | join(' ') }}
+      Pin: origin "packages.wazuh.com"
+      Pin-Priority: 700
+
+      Package: *
+      Pin: origin "packages.wazuh.com"
+      Pin-Priority: -1
+
+- name: Configure the signed Wazuh repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/wazuh.list
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      deb [signed-by=/usr/share/keyrings/wazuh.gpg] {{ wazuh_apt_url }} stable main
+
+- name: Refresh the signed package indexes before package installation
+  ansible.builtin.apt:
+    update_cache: true
+  when: wazuh__needs_install
