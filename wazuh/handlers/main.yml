@@ -1,25 +1,25 @@
 ---
 - name: Restart Wazuh indexer
   listen: Wazuh indexer TLS changed
-  ansible.builtin.systemd_service:
+  ansible.builtin.systemd:
     name: wazuh-indexer
     state: restarted
 
 - name: Restart Wazuh manager
   listen: Wazuh manager TLS changed
-  ansible.builtin.systemd_service:
+  ansible.builtin.systemd:
     name: wazuh-manager
     state: restarted
 
 - name: Restart Filebeat
   listen: Wazuh manager TLS changed
-  ansible.builtin.systemd_service:
+  ansible.builtin.systemd:
     name: filebeat
     state: restarted
 
 - name: Restart Wazuh dashboard
   listen: [Wazuh dashboard TLS changed, Activate Wazuh dashboard HTTPS identity]
-  ansible.builtin.systemd_service:
+  ansible.builtin.systemd:
     name: wazuh-dashboard
     state: restarted
 
