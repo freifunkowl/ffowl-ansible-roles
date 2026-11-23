@@ -1,0 +1,8 @@
+---
+- name: Get dashboard status
+  wazuh_https:
+    url: "https://{{ wazuh_tls_dns_name if wazuh_dashboard_letsencrypt | default(false) | bool else ('[' ~ address ~ ']' if ':' in address else address) }}/api/status"
+    url_username: admin
+    url_password: '{{ credentials.passwords.admin }}'
+    ca_path: "{{ '/etc/ssl/certs/ca-certificates.crt' if wazuh_dashboard_letsencrypt | default(false) | bool else '/etc/wazuh-dashboard/certs/root-ca.pem' }}"
+  no_log: true

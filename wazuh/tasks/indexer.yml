@@ -69,7 +69,7 @@
   ansible.builtin.meta: flush_handlers
 
 - name: Enable and start the indexer
-  ansible.builtin.systemd_service:
+  ansible.builtin.systemd:
     name: wazuh-indexer
     enabled: true
     state: started
@@ -85,13 +85,11 @@
   when: inventory_hostname == (wazuh__topo.indexer | first)
 
 - name: Verify membership and allocation through the local authenticated API
-  ansible.builtin.uri:
+  wazuh_https:
     url: '{{ wazuh__node.index_url }}/_cluster/health'
-    user: admin
-    password: '{{ wazuh__state.passwords.admin }}'
-    force_basic_auth: true
+    url_username: admin
+    url_password: '{{ wazuh__state.passwords.admin }}'
     ca_path: '{{ wazuh__indexer_ca }}'
-    use_proxy: false
   register: wazuh__health
   until: wazuh__health.status == 200 and wazuh__health.json.number_of_nodes == wazuh__topo.indexer | length and wazuh__health.json.status in ['yellow','green']
   retries: 40

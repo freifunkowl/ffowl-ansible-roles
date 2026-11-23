@@ -1,0 +1,78 @@
+---
+- name: Emit a uniquely identifiable synthetic SSH success into a watched log
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/python3
+      - -c
+      - |
+        import datetime, os, socket, uuid
+        name = 'wazuhsmoke' + uuid.uuid4().hex
+        stamp = datetime.datetime.now().strftime('%b %e %H:%M:%S')
+        log = '/var/ossec/logs/active-responses.log'
+        with open(log, 'a') as output:
+            output.write(f'{stamp} {socket.gethostname()} sshd[{os.getpid()}]: '
+                         f'Accepted publickey for {name} from 192.0.2.123 port 52222 ssh2\n')
+        print(name)
+  register: emitted
+  changed_when: true
+
+- name: Find the exact agent and test message in a Wazuh alerts index
+  wazuh_https:
+    url: "https://{{ '[' ~ indexer_address ~ ']' if ':' in indexer_address else indexer_address }}:9200/wazuh-alerts-4.x-*/_search"
+    method: POST
+    body:
+      size: 1
+      query:
+        bool:
+          filter:
+            - term:
+                agent.name: '{{ inventory_hostname }}'
+            - match:
+                full_log: '{{ emitted.stdout }}'
+    url_username: admin
+    url_password: "{{ (lookup('file', state_path ~ '/state.json') | from_json).passwords.admin }}"
+    ca_path: "{{ '/etc/ssl/certs/ca-certificates.crt' if wazuh_indexer_letsencrypt | default(false) | bool else '/etc/filebeat/certs/root-ca.pem' }}"
+  delegate_to: '{{ manager }}'
+  register: indexed
+  until: indexed.status == 200 and indexed.json.hits.hits | length > 0
+  retries: 30
+  delay: 4
+  no_log: true
+
+- name: Report the verified agent, rule and target index
+  ansible.builtin.debug:
+    msg: "{{ inventory_hostname }} | rule {{ indexed.json.hits.hits[0]['_source'].rule.id }} | {{ indexed.json.hits.hits[0]['_index'] }}"
+
+- name: Check that the event resides on the indexer in the agent's own site
+  when: wazuh_alert_local_rz | default('') | length > 0
+  vars:
+    site_groups: "{{ group_names | select('match', '^wazuh_rz_') | list }}"
+    site: "{{ (site_groups | first) | regex_replace('^wazuh_rz_', '') }}"
+    hit_index: "{{ indexed.json.hits.hits[0]['_index'] }}"
+    site_indexers: "{{ groups.wazuh_indexers | map('extract', hostvars) | selectattr('wazuh_rz', 'equalto', site) | map(attribute='inventory_hostname') | list }}"
+  block:
+    - name: Compare event index with the configured agent site
+      ansible.builtin.assert:
+        that:
+          - site_groups | length == 1
+          - site_indexers | length == 1
+          - hit_index.startswith('wazuh-alerts-4.x-' ~ site ~ '-')
+
+    - name: Read the alert index's actual shard locations
+      wazuh_https:
+        url: "https://{{ '[' ~ indexer_address ~ ']' if ':' in indexer_address else indexer_address }}:9200/_cat/shards/{{ hit_index }}?format=json&h=prirep,state,node"
+        url_username: admin
+        url_password: "{{ (lookup('file', state_path ~ '/state.json') | from_json).passwords.admin }}"
+        ca_path: "{{ '/etc/ssl/certs/ca-certificates.crt' if wazuh_indexer_letsencrypt | default(false) | bool else '/etc/filebeat/certs/root-ca.pem' }}"
+      delegate_to: '{{ manager }}'
+      register: alert_shards
+      no_log: true
+
+    - name: Verify the single active primary and its indexer
+      ansible.builtin.assert:
+        that:
+          - alert_shards.json | length == 1
+          - alert_shards.json[0].prirep == 'p'
+          - alert_shards.json[0].state == 'STARTED'
+          - alert_shards.json[0].node == site_indexers[0]
+        success_msg: '{{ inventory_hostname }} → {{ hit_index }} → {{ site_indexers[0] }}'

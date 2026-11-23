@@ -18,6 +18,7 @@ import yaml
 from ansible.errors import AnsibleFilterError
 from ansible.plugins.filter.core import FilterModule
 from cryptography import x509
+from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.x509.oid import NameOID
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from test_role import ROLE, config, load
@@ -136,7 +137,9 @@ class DeploymentTests(unittest.TestCase):
                     key = state["keys"][kind + "-" + host]
                     cert = x509.load_pem_x509_certificate(key["cert"].encode())
                     self.assertEqual(cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value, kind + "-" + host)
-                    cert.verify_directly_issued_by(ca)
+                    self.assertEqual(cert.issuer, ca.subject)
+                    ca.public_key().verify(cert.signature, cert.tbs_certificate_bytes,
+                                           padding.PKCS1v15(), cert.signature_hash_algorithm)
                     names = cert.extensions.get_extension_for_class(x509.SubjectAlternativeName).value
                     self.assertIn(ipaddress.ip_address(details["address"]), names.get_values_for_type(x509.IPAddress))
                     self.assertTrue(key["key"].startswith("-----BEGIN PRIVATE KEY-----"))

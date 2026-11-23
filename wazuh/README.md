@@ -13,13 +13,14 @@ Die optionale standortgebundene Ablage von Alarmen bei einem zentralen Manager i
 ## Installation
 
 1. Entpackt `wazuh/` im Stamm von `ffowl-ansible-roles` neben den übrigen Rollen. Beim Wechsel von der vorherigen ZIP-Version ersetzt das alte Rollenverzeichnis als Ganzes. Bereits installierte Zentralen erfordern eine separate Migration.
-2. Auf dem Controller werden Python 3, `ansible-core` ab 2.18, `cryptography` und `bcrypt` benötigt. Beispiel für eine eigene Umgebung:
+2. Bei Installation von Ansible aus APT verwendet die Rolle für ihre lokale Schlüsselerzeugung das System-Python des Controllers. Installiert dort die Python-Abhängigkeiten und prüft den Import.
 
    ```sh
-   python3 -m venv ../venv-wazuh
-   . ../venv-wazuh/bin/activate
-   python -m pip install 'ansible-core>=2.18,<2.20' 'cryptography>=42' bcrypt
+   apt-get install python3-bcrypt python3-cryptography
+   /usr/bin/python3 -c 'import bcrypt, cryptography; print("Import OK")'
    ```
+
+   Prüft mit `ansible --version` und der [Ansible-Supportmatrix](https://docs.ansible.com/projects/ansible/latest/reference_appendices/release_and_maintenance.html#ansible-core-support-matrix) auch die Python-Versionen auf den Zielhosts. Für Python 3.14.4 auf dem Ziel wurde die Facts-Ermittlung mit ansible-core 2.20.11 geprüft.
 
 3. Kopiert eine der drei Beispieldateien. Ersetzt die Dokumentationsadressen und setzt den SSH-Benutzer bzw. `become` wie in Eurem übrigen Inventar. Alle drei zentralen Gruppen müssen mindestens einen Host enthalten. Ein Manager überwacht sich selbst als Agent 000. Auf ihm kollidieren die DEB-Pakete von Manager und Agent.
 

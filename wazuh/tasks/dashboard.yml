@@ -96,20 +96,18 @@
   ansible.builtin.meta: flush_handlers
 
 - name: Enable dashboard at boot
-  ansible.builtin.systemd_service:
+  ansible.builtin.systemd:
     name: wazuh-dashboard
     enabled: true
     state: started
 
 - name: Check the master's authenticated API from the dashboard host
-  ansible.builtin.uri:
+  wazuh_https:
     url: 'https://{{ wazuh__topo.manager[wazuh_master_host].endpoint }}:55000/security/user/authenticate?raw=true'
     method: POST
     url_username: wazuh-wui
     url_password: "{{ wazuh__state.passwords['wazuh-wui'] }}"
-    force_basic_auth: true
     ca_path: /etc/wazuh-dashboard/certs/root-ca.pem
-    use_proxy: false
   no_log: true
   register: wazuh__wui
   until: wazuh__wui.status == 200
@@ -117,13 +115,11 @@
   delay: 4
 
 - name: Verify that the dashboard can serve authenticated requests
-  ansible.builtin.uri:
+  wazuh_https:
     url: 'https://{{ wazuh_tls_dns_name if wazuh_dashboard_letsencrypt | bool else wazuh__node.endpoint }}/api/status'
     url_username: admin
     url_password: '{{ wazuh__state.passwords.admin }}'
-    force_basic_auth: true
     ca_path: "{{ wazuh__public_ca if wazuh_dashboard_letsencrypt | bool else '/etc/wazuh-dashboard/certs/root-ca.pem' }}"
-    use_proxy: false
   register: wazuh__dashboard_health
   retries: 60
   delay: 5

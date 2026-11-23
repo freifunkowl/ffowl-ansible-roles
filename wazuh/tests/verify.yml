@@ -10,23 +10,10 @@
     credentials: "{{ lookup('file', state_dir ~ '/state.json') | from_json }}"
     address: '{{ wazuh_node_address | default(ansible_host | default(inventory_hostname)) }}'
   tasks:
-    - name: Read local cluster health
-      ansible.builtin.uri:
-        url: "https://{{ wazuh_tls_dns_name if wazuh_indexer_letsencrypt | default(false) | bool else ('[' ~ address ~ ']' if ':' in address else address) }}:9200/_cluster/health"
-        url_username: admin
-        url_password: '{{ credentials.passwords.admin }}'
-        ca_path: "{{ '/etc/ssl/certs/ca-certificates.crt' if wazuh_indexer_letsencrypt | default(false) | bool else '/etc/wazuh-indexer/certs/root-ca.pem' }}"
-        force_basic_auth: true
-        use_proxy: false
-      register: health
-      no_log: true
-
-    - name: Compare running cluster with inventory
-      ansible.builtin.assert:
-        that:
-          - health.json.cluster_name == wazuh_cluster_name | default('wazuh')
-          - health.json.number_of_nodes == groups.wazuh_indexers | length
-          - health.json.status in ['green', 'yellow']
+    - name: Run Wazuh verification tasks
+      ansible.builtin.import_role:
+        name: wazuh
+        tasks_from: verify_indexer
 
 - name: Check the manager and Filebeat on each server
   hosts: wazuh_servers
@@ -54,15 +41,10 @@
   become: true
   vars: *verify_https
   tasks:
-    - name: Get dashboard status
-      ansible.builtin.uri:
-        url: "https://{{ wazuh_tls_dns_name if wazuh_dashboard_letsencrypt | default(false) | bool else ('[' ~ address ~ ']' if ':' in address else address) }}/api/status"
-        url_username: admin
-        url_password: '{{ credentials.passwords.admin }}'
-        force_basic_auth: true
-        ca_path: "{{ '/etc/ssl/certs/ca-certificates.crt' if wazuh_dashboard_letsencrypt | default(false) | bool else '/etc/wazuh-dashboard/certs/root-ca.pem' }}"
-        use_proxy: false
-      no_log: true
+    - name: Run Wazuh verification tasks
+      ansible.builtin.import_role:
+        name: wazuh
+        tasks_from: verify_dashboard
 
 - name: Check the authenticated event connection on each agent
   hosts: wazuh_agents

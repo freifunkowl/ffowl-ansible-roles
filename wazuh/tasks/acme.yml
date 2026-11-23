@@ -87,7 +87,7 @@
       notify: 'Activate Wazuh {{ wazuh_component }} HTTPS identity'
 
     - name: Schedule automatic certificate renewal
-      ansible.builtin.systemd_service:
+      ansible.builtin.systemd:
         name: certbot.timer
         enabled: true
         state: started

@@ -19,32 +19,29 @@
         settings: '{{ source_template.settings | combine(site_settings) }}'
     fingerprint: '{{ definition | to_json(sort_keys=true) | hash("sha256") }}'
   module_defaults:
-    ansible.builtin.uri:
+    wazuh_https:
       url_username: admin
       url_password: '{{ wazuh__state.passwords.admin }}'
-      force_basic_auth: true
       ca_path: '{{ wazuh__indexer_ca }}'
-      use_proxy: false
   block:
     - name: Read current site template
-      ansible.builtin.uri:
+      wazuh_https:
         url: '{{ url }}/ffowl-wazuh-rz-{{ site }}'
         status_code: [200, 404]
       register: current_site_template
       no_log: true
 
     - name: Publish template with Wazuh mappings and site allocation
-      ansible.builtin.uri:
+      wazuh_https:
         url: '{{ url }}/ffowl-wazuh-rz-{{ site }}'
         method: PUT
-        body_format: json
         body: "{{ definition | combine({'_meta': {'ffowl_sha256': fingerprint}}) }}"
       when: current_site_template.status == 404 or (current_site_template.json.index_templates[0].index_template._meta.ffowl_sha256 | default('')) != fingerprint
       changed_when: true
       no_log: true
 
     - name: Simulate the effective template for a new daily index
-      ansible.builtin.uri:
+      wazuh_https:
         url: '{{ url }}/_simulate_index/wazuh-alerts-4.x-{{ site }}-2000.01.01'
         method: POST
       register: simulated_site

@@ -5,10 +5,9 @@
   register: wazuh__initialized
 
 - name: Read the security plugin status
-  ansible.builtin.uri:
+  wazuh_https:
     url: '{{ wazuh__node.index_url }}/_plugins/_security/health'
     ca_path: '{{ wazuh__indexer_ca }}'
-    use_proxy: false
     status_code: [200,503]
     return_content: true
   register: wazuh__security

@@ -1,0 +1,16 @@
+---
+- name: Read local cluster health
+  wazuh_https:
+    url: "https://{{ wazuh_tls_dns_name if wazuh_indexer_letsencrypt | default(false) | bool else ('[' ~ address ~ ']' if ':' in address else address) }}:9200/_cluster/health"
+    url_username: admin
+    url_password: '{{ credentials.passwords.admin }}'
+    ca_path: "{{ '/etc/ssl/certs/ca-certificates.crt' if wazuh_indexer_letsencrypt | default(false) | bool else '/etc/wazuh-indexer/certs/root-ca.pem' }}"
+  register: health
+  no_log: true
+
+- name: Compare running cluster with inventory
+  ansible.builtin.assert:
+    that:
+      - health.json.cluster_name == wazuh_cluster_name | default('wazuh')
+      - health.json.number_of_nodes == groups.wazuh_indexers | length
+      - health.json.status in ['green', 'yellow']

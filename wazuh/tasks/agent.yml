@@ -21,9 +21,8 @@
     fail_msg: The existing Wazuh agent differs from the configured release. Coordinate its upgrade with the manager first.
 
 - name: Check the installed manager version over SSH
-  ansible.builtin.command:
-    argv: [dpkg-query, -W, '-f=${Status} ${Version}', wazuh-manager]
-    expand_argument_vars: false
+  # Single quotes preserve the literal field names for dpkg-query on all controllers.
+  ansible.builtin.shell: dpkg-query -W -f='${Status} ${Version}' wazuh-manager
   delegate_to: '{{ wazuh_manager_inventory_host }}'
   register: wazuh__manager_package
   check_mode: false
@@ -128,7 +127,7 @@
       register: wazuh__applied
 
     - name: Enable the configured agent and activate pending changes
-      ansible.builtin.systemd_service:
+      ansible.builtin.systemd:
         name: wazuh-agent
         enabled: true
         state: >-

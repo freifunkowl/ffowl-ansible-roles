@@ -116,7 +116,7 @@
   ansible.builtin.meta: flush_handlers
 
 - name: Enable manager and shipper
-  ansible.builtin.systemd_service:
+  ansible.builtin.systemd:
     name: '{{ item }}'
     enabled: true
     state: started
