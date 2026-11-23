@@ -20,9 +20,7 @@ def alert_sites(groups, hostvars, local_site):
             agents[agent] = site
     if local_site not in nodes:
         raise AnsibleFilterError("wazuh_alert_local_rz must name an indexer site")
-    missing = set(groups.get("wazuh_agents", [])) - agents.keys()
-    if missing:
-        raise AnsibleFilterError("Assign these agents to a wazuh_rz_ group: " + ", ".join(sorted(missing)))
+    # Filebeat uses the unassigned index for any agent absent from this map.
     nodes["unassigned"] = nodes[local_site]
     return {"nodes": nodes, "agents": agents}
 

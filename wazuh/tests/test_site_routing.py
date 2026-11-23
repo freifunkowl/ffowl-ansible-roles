@@ -18,10 +18,17 @@ class SiteRoutingTests(unittest.TestCase):
         self.assertEqual(result["agents"], {"ep1": "ham", "spare": "ham"})
         self.assertEqual(result["nodes"], {"ham": "i1", "ber": "i2", "unassigned": "i1"})
 
-    def test_ambiguous_or_missing_site(self):
-        for changes in ({"wazuh_rz_ber": ["ep1"]}, {"wazuh_agents": ["absent"]}):
-            with self.subTest(changes=changes), self.assertRaises(AnsibleFilterError):
-                sites(dict(self.groups, **changes), self.hosts, "ham")
+    def test_managed_agent_without_site_uses_local_indexer(self):
+        groups = dict(self.groups, wazuh_agents=["ep1", "aux01", "dns-ham"])
+        for local_site, indexer in (("ham", "i1"), ("ber", "i2")):
+            with self.subTest(local_site=local_site):
+                result = sites(groups, self.hosts, local_site)
+                self.assertEqual(result["agents"], {"ep1": "ham", "spare": "ham"})
+                self.assertEqual(result["nodes"]["unassigned"], indexer)
+
+    def test_ambiguous_or_invalid_site(self):
+        with self.assertRaises(AnsibleFilterError):
+            sites(dict(self.groups, wazuh_rz_ber=["ep1"]), self.hosts, "ham")
         for value in ("ham", "unassigned", ""):
             with self.subTest(value=value), self.assertRaises(AnsibleFilterError):
                 sites(self.groups, dict(self.hosts, i2={"wazuh_rz": value}), "ham")

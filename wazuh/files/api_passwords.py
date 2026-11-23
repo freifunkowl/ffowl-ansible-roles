@@ -1,60 +1,125 @@
 #!/usr/bin/python3
-"""Initialize the two factory API accounts using the local TLS listener."""
+"""Verify the manager API accounts and initialize missing deployment passwords."""
 import base64
+import http.client
 import json
 import ssl
 import sys
-from urllib.error import HTTPError
-from urllib.request import HTTPSHandler, ProxyHandler, Request, build_opener
+import syslog
+import time
 
-URL = "https://127.0.0.1:55000"
-client = build_opener(ProxyHandler({}), HTTPSHandler(context=ssl.create_default_context(
-    cafile="/var/ossec/api/configuration/ssl/root-ca.pem")))
+CAFILE = "/var/ossec/api/configuration/ssl/root-ca.pem"
 
 
-def token(user, password):
-    basic = base64.b64encode((user + ":" + password).encode()).decode()
-    req = Request(URL + "/security/user/authenticate?raw=true", method="POST",
-                  headers={"Authorization": "Basic " + basic})
+def report(message):
+    # Only fixed step names, known account names and numeric HTTP codes go here.
+    print(message, flush=True)
+    syslog.syslog(syslog.LOG_INFO, message)
+
+
+class ApiFailure(Exception):
+    def __init__(self, reason, transient=False):
+        super().__init__(reason)
+        self.transient = transient
+
+
+def request(context, method, path, authorization, payload=None):
+    connection = http.client.HTTPSConnection("127.0.0.1", 55000, context=context, timeout=65)
+    headers = {"Authorization": authorization}
+    body = None
+    if payload is not None:
+        headers["Content-Type"] = "application/json"
+        body = json.dumps(payload).encode()
     try:
-        with client.open(req, timeout=60) as response:
-            return response.read().decode().strip()
-    except HTTPError as exc:
-        if exc.code == 401:
+        connection.request(method, path, body=body, headers=headers)
+        response = connection.getresponse()
+        if response.status == 401 and method == "POST":
             return None
-        raise
+        if response.status != 200:
+            raise ApiFailure("HTTP %d" % response.status, 500 <= response.status < 600)
+        return response.read()
+    finally:
+        connection.close()
 
 
-def api(path, bearer, data=None):
-    req = Request(URL + path, data=json.dumps(data).encode() if data else None,
-                  method="PUT" if data else "GET",
-                  headers={"Authorization": "Bearer " + bearer, "Content-Type": "application/json"})
-    with client.open(req, timeout=90) as response:
-        result = json.load(response)
-    if result.get("error") != 0 or result["data"].get("failed_items"):
-        raise RuntimeError("Manager API declined account update")
+def token(context, name, password):
+    basic = base64.b64encode((name + ":" + password).encode()).decode("ascii")
+    body = request(context, "POST", "/security/user/authenticate?raw=true", "Basic " + basic)
+    if body is None:
+        return None
+    value = body.decode("ascii").strip()
+    if not value:
+        raise ApiFailure("invalid response")
+    return value
+
+
+def api(context, path, bearer, payload=None):
+    body = request(context, "PUT" if payload is not None else "GET",
+                   path, "Bearer " + bearer, payload)
+    result = json.loads(body)
+    if result["error"] != 0 or result["data"].get("failed_items"):
+        raise ApiFailure("API rejected request")
     return result["data"]
 
 
-def main():
-    passwords = json.load(sys.stdin)
-    admin = token("wazuh", passwords["wazuh"])
-    if admin and token("wazuh-wui", passwords["wazuh-wui"]):
-        print("ok")
+def initialize(context, passwords, updated):
+    report("check wazuh")
+    admin = token(context, "wazuh", passwords["wazuh"])
+    change_admin = not admin
+    if change_admin:
+        report("check factory wazuh")
+        admin = token(context, "wazuh", "wazuh")
+        if not admin:
+            raise ApiFailure("admin credentials rejected")
+    report("check wazuh-wui")
+    change_wui = not token(context, "wazuh-wui", passwords["wazuh-wui"])
+    if not (change_admin or change_wui):
         return
-    new_admin = not admin
-    admin = admin or token("wazuh", "wazuh")
-    if not admin:
-        raise SystemExit("API admin credentials do not match this deployment")
-    ids = {u["username"]: u["id"] for u in api("/security/users", admin)["affected_items"]}
-    for name in ("wazuh-wui", "wazuh"):
-        if name == "wazuh" and not new_admin:
-            continue
-        api("/security/users/" + str(ids[name]), admin, {"password": passwords[name]})
-    if not all(token(user, pwd) for user, pwd in passwords.items()):
-        raise SystemExit("Updated API credentials failed verification")
-    print("changed")
+
+    report("list accounts")
+    users = api(context, "/security/users", admin)
+    ids = {user["username"]: user["id"] for user in users["affected_items"]}
+    for name, needed in (("wazuh-wui", change_wui), ("wazuh", change_admin)):
+        if needed:
+            report("update " + name)
+            api(context, "/security/users/" + str(int(ids[name])), admin, {"password": passwords[name]})
+            updated.add(name)
+
+    for name in ("wazuh", "wazuh-wui"):
+        report("verify " + name)
+        if not token(context, name, passwords[name]):
+            raise ApiFailure("verification failed")
+
+
+def run():
+    syslog.openlog("ffowl-wazuh-api")
+    report("load configuration")
+    try:
+        passwords = json.load(sys.stdin)
+        context = ssl.create_default_context(cafile=CAFILE)
+        updated = set()
+        for attempt in range(2):
+            try:
+                initialize(context, passwords, updated)
+                print("changed" if updated else "ok", flush=True)
+                return 0
+            except ssl.SSLError:
+                raise ApiFailure("TLS error")
+            except (TimeoutError, OSError, http.client.HTTPException):
+                failure = ApiFailure("connection error or timeout", True)
+            except ApiFailure as exc:
+                failure = exc
+            if attempt or not failure.transient:
+                raise failure
+            report(str(failure))
+            report("retry")
+            time.sleep(5)
+    except ApiFailure as exc:
+        report(str(exc))
+    except (ValueError, KeyError, TypeError, AttributeError, OSError):
+        report("invalid configuration or response")
+    return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(run())

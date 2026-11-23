@@ -43,19 +43,16 @@
   ansible.builtin.debug:
     msg: "{{ inventory_hostname }} | rule {{ indexed.json.hits.hits[0]['_source'].rule.id }} | {{ indexed.json.hits.hits[0]['_index'] }}"
 
-- name: Check that the event resides on the indexer in the agent's own site
+- name: Check the event index and its configured indexer
   when: wazuh_alert_local_rz | default('') | length > 0
   vars:
-    site_groups: "{{ group_names | select('match', '^wazuh_rz_') | list }}"
-    site: "{{ (site_groups | first) | regex_replace('^wazuh_rz_', '') }}"
+    site: "{{ wazuh__sites.agents.get(inventory_hostname, 'unassigned') }}"
     hit_index: "{{ indexed.json.hits.hits[0]['_index'] }}"
-    site_indexers: "{{ groups.wazuh_indexers | map('extract', hostvars) | selectattr('wazuh_rz', 'equalto', site) | map(attribute='inventory_hostname') | list }}"
+    expected_indexer: "{{ wazuh__sites.nodes[site] }}"
   block:
     - name: Compare event index with the configured agent site
       ansible.builtin.assert:
         that:
-          - site_groups | length == 1
-          - site_indexers | length == 1
           - hit_index.startswith('wazuh-alerts-4.x-' ~ site ~ '-')
 
     - name: Read the alert index's actual shard locations
@@ -74,5 +71,5 @@
           - alert_shards.json | length == 1
           - alert_shards.json[0].prirep == 'p'
           - alert_shards.json[0].state == 'STARTED'
-          - alert_shards.json[0].node == site_indexers[0]
-        success_msg: '{{ inventory_hostname }} → {{ hit_index }} → {{ site_indexers[0] }}'
+          - alert_shards.json[0].node == expected_indexer
+        success_msg: '{{ inventory_hostname }} → {{ hit_index }} → {{ expected_indexer }}'

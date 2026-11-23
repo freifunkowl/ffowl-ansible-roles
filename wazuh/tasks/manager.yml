@@ -133,14 +133,29 @@
   block:
     - name: Verify and initialize the manager API passwords
       ansible.builtin.command:
-        argv: [/usr/bin/python3, '{{ wazuh__markdir }}/api_passwords.py']
+        argv:
+          - /usr/bin/timeout
+          - --kill-after=5s
+          - 180s
+          - /usr/bin/python3
+          - '{{ wazuh__markdir }}/api_passwords.py'
         stdin: "{{ {'wazuh': wazuh__state.passwords.wazuh, 'wazuh-wui': wazuh__state.passwords['wazuh-wui']} | to_json }}"
       register: wazuh__accounts
-      changed_when: wazuh__accounts.stdout == 'changed'
-      until: wazuh__accounts.rc == 0
-      retries: 6
-      delay: 5
+      changed_when: wazuh__accounts.rc | default(-1) == 0 and 'changed' in (wazuh__accounts.stdout_lines | default([]))
+      failed_when: false
       no_log: true
+
+    - name: Report a manager API bootstrap failure
+      ansible.builtin.fail:
+        msg: >-
+          Manager API on {{ inventory_hostname }} (127.0.0.1:55000),
+          rc={{ wazuh__accounts.rc | default(-1) }}
+          {{ '(180s deadline)' if wazuh__accounts.rc | default(-1) in [124, 137] else '' }}.
+          Steps: {{ wazuh__accounts.stdout_lines | default([]) | select('match', wazuh__safe_step) | list | join(' / ') }}.
+          See /var/ossec/logs/api.log and journalctl -t ffowl-wazuh-api.
+      vars:
+        wazuh__safe_step: '^(load configuration|check factory wazuh|(check|update|verify) wazuh(-wui)?|list accounts|retry|HTTP [0-9]{3}|TLS error|connection error or timeout|invalid response|invalid configuration or response|API rejected request|admin credentials rejected|verification failed)$'
+      when: wazuh__accounts.rc | default(-1) != 0
 
     - name: Record verified API credentials
       ansible.builtin.copy:
